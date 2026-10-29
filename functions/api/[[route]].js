@@ -1,10 +1,10 @@
 /**
  * Cloudflare Pages Function: [[route]].js
- * Reverse Proxy for Koo Hospital Parking System (http://211.105.143.22)
- * Handles CORS, Cookie forwarding, and API routing without Mixed Content errors.
+ * Reverse Proxy for Koo Hospital Parking System (211.105.143.22)
+ * Uses FQDN (sslip.io) to prevent Cloudflare Error 1003 (Direct IP access denied).
  */
 
-const TARGET_HOST = "http://211.105.143.22";
+const TARGET_HOST = "http://211.105.143.22.sslip.io";
 
 export async function onRequest(context) {
   const { request, params } = context;
@@ -23,9 +23,7 @@ export async function onRequest(context) {
     });
   }
 
-  // Determine subpath
-  // e.g. /api/login -> /login/identify
-  // /api/searchcar -> /discount/searchcar
+  // Determine subpath (/api/login -> /login/identify, etc.)
   const pathParts = params.route || [];
   const action = pathParts.join("/");
 
@@ -44,7 +42,6 @@ export async function onRequest(context) {
 
   try {
     if (action === "login") {
-      // POST /api/login: { id, pw }
       targetUrl = `${TARGET_HOST}/login/identify`;
       const data = await request.json();
       const id = data.id || "";
@@ -56,7 +53,6 @@ export async function onRequest(context) {
       method = "POST";
     } 
     else if (action === "searchcar") {
-      // POST /api/searchcar: { carnum }
       targetUrl = `${TARGET_HOST}/discount/searchcar`;
       const data = await request.json();
       headers.set("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
@@ -64,23 +60,19 @@ export async function onRequest(context) {
       method = "POST";
     }
     else if (action === "inimage") {
-      // GET /api/inimage?xindex=...
       const xindex = url.searchParams.get("xindex") || "";
       targetUrl = `${TARGET_HOST}/discount/InImage?xindex=${encodeURIComponent(xindex)}`;
       method = "GET";
     }
     else if (action === "discountinfo") {
-      // GET /api/discountinfo
       targetUrl = `${TARGET_HOST}/discount/discountinfo`;
       method = "GET";
     }
     else if (action === "occupantdiscount") {
-      // POST /api/occupantdiscount
       targetUrl = `${TARGET_HOST}/discount/occupantdiscount`;
       method = "POST";
     }
     else if (action === "discountrecords") {
-      // POST /api/discountrecords: { xindex }
       targetUrl = `${TARGET_HOST}/discount/discountrecords`;
       const data = await request.json();
       headers.set("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
@@ -88,7 +80,6 @@ export async function onRequest(context) {
       method = "POST";
     }
     else if (action === "insert") {
-      // POST /api/insert: { carnum, carfullnum, xindex, discountcode, note }
       targetUrl = `${TARGET_HOST}/discount/insert`;
       const data = await request.json();
       headers.set("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
@@ -102,7 +93,6 @@ export async function onRequest(context) {
       method = "POST";
     }
     else if (action === "delete") {
-      // POST /api/delete: { idx, xcompany, xindex }
       targetUrl = `${TARGET_HOST}/discount/delete`;
       const data = await request.json();
       headers.set("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
@@ -120,7 +110,6 @@ export async function onRequest(context) {
       });
     }
 
-    // Call target parking server
     const fetchOptions = { method, headers };
     if (body) {
       fetchOptions.body = body;
@@ -128,12 +117,10 @@ export async function onRequest(context) {
 
     const upstreamRes = await fetch(targetUrl, fetchOptions);
 
-    // Build response back to client
     const resHeaders = new Headers();
     resHeaders.set("Access-Control-Allow-Origin", "*");
     resHeaders.set("Access-Control-Allow-Credentials", "true");
 
-    // Forward Set-Cookie if parking server sets one
     const setCookie = upstreamRes.headers.get("Set-Cookie");
     if (setCookie) {
       resHeaders.set("Set-Cookie", setCookie);
@@ -142,7 +129,6 @@ export async function onRequest(context) {
     const contentType = upstreamRes.headers.get("Content-Type") || "";
     resHeaders.set("Content-Type", contentType);
 
-    // If image stream, pipe directly
     if (contentType.includes("image/")) {
       return new Response(upstreamRes.body, {
         status: upstreamRes.status,
@@ -150,7 +136,6 @@ export async function onRequest(context) {
       });
     }
 
-    // Otherwise return text/json
     const resText = await upstreamRes.text();
     return new Response(resText, {
       status: upstreamRes.status,

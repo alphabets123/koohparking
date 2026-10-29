@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>구병원 주차감면 (원내 전용)</title>
+  <title>구병원 주차감면</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="theme-color" content="#ffffff">
@@ -21,7 +21,7 @@
 <body class="bg-slate-100 text-slate-800 min-h-screen flex justify-center items-start sm:py-6 select-none">
 
   <!-- Mobile Simulator Container (Max 430px, Light Theme Default) -->
-  <div class="w-full max-w-[430px] min-h-screen sm:min-h-[700px] bg-white sm:border sm:border-slate-200/80 sm:rounded-2xl shadow-xl flex flex-col relative overflow-hidden">
+  <div class="w-full max-w-[430px] min-h-screen sm:min-h-[680px] bg-white sm:border sm:border-slate-200/80 sm:rounded-2xl shadow-xl flex flex-col relative overflow-hidden">
     
     <!-- Top Header Bar (Clean Hospital Light Aesthetic) -->
     <header class="bg-white px-4 py-3 flex items-center justify-between border-b border-slate-100 sticky top-0 z-30 shadow-sm">
@@ -29,16 +29,11 @@
         <button onclick="toggleSideDrawer()" class="p-1.5 -ml-1 text-slate-600 hover:text-blue-600 rounded-lg hover:bg-slate-100 transition">
           <i class="fa-solid fa-bars text-lg"></i>
         </button>
-        <div>
-          <h1 class="font-extrabold text-sm leading-tight tracking-tight text-slate-900 flex items-center gap-1.5">
-            <span class="text-blue-600">구병원</span>
-            <span>주차감면</span>
-            <span class="text-[10px] px-1.5 py-0.2 bg-blue-50 text-blue-600 border border-blue-200 rounded font-semibold">Mobile</span>
+        <div class="flex items-center gap-1.5">
+          <span class="text-xl">🚗</span>
+          <h1 class="font-extrabold text-base leading-tight tracking-tight text-slate-900">
+            <span class="text-blue-600">구병원</span> 주차감면
           </h1>
-          <p class="text-[11px] text-emerald-600 font-medium flex items-center gap-1">
-            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-            원내 초경량 직통 뷰
-          </p>
         </div>
       </div>
       <div class="flex items-center gap-1.5">
@@ -97,7 +92,7 @@
           </button>
         </div>
 
-        <!-- Collapsible Touch Keypad (Kiosk Inspired) -->
+        <!-- Collapsible Touch Keypad -->
         <div id="touchKeypad" class="hidden mt-2.5 pt-2.5 border-t border-slate-100">
           <div class="grid grid-cols-3 gap-1.5">
             <button onclick="pressKey('1')" class="py-2.5 bg-slate-50 hover:bg-blue-600 hover:text-white active:bg-blue-700 text-slate-800 rounded-lg font-extrabold text-lg border border-slate-200 active:scale-95 transition">1</button>
@@ -208,7 +203,7 @@
 
     </div>
 
-    <!-- VIEW 2: Department Login Screen (Light Theme) -->
+    <!-- VIEW 2: Department Login Screen -->
     <div id="viewLogin" class="hidden p-6 space-y-4 flex-1 flex flex-col justify-center bg-slate-50/50">
       <div class="text-center space-y-1">
         <div class="w-14 h-14 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center text-2xl mx-auto border border-blue-200 shadow-sm">
@@ -250,13 +245,9 @@
           로그인
         </button>
       </form>
-
-      <div class="text-[11px] text-center text-slate-400">
-        주차 관제 서버(211.105.143.22)와 직접 연동됩니다.
-      </div>
     </div>
 
-    <!-- Side Menu Drawer (Slide-out navigation) -->
+    <!-- Side Menu Drawer -->
     <div id="sideMenuBackdrop" class="hidden fixed inset-0 bg-black/40 z-40 transition-opacity" onclick="toggleSideDrawer()"></div>
     <div id="sideMenuDrawer" class="fixed top-0 left-0 bottom-0 w-64 bg-white text-slate-800 z-50 transform -translate-x-full transition-transform duration-200 border-r border-slate-200 flex flex-col p-4 shadow-2xl">
       <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-3">
@@ -282,10 +273,6 @@
           <i class="fa-solid fa-right-from-bracket"></i> 로그아웃
         </button>
       </nav>
-
-      <div class="text-[11px] text-slate-400 border-t border-slate-100 pt-3">
-        Cloudflare Pages ➔ 211.105.143.22
-      </div>
     </div>
 
     <!-- Modal: Car Photo LPR Image -->
@@ -324,7 +311,7 @@
         </div>
         <div class="space-y-2">
           <p class="font-bold text-slate-900">1. 시스템 개요</p>
-          <p class="text-slate-600 text-[11px]">원내 주차 관제 서버(211.105.143.22)의 할인/감면 로직을 Cloudflare 엣지 프록시로 중계하여 스마트폰과 EMR 환경에서 초고속으로 감면을 적용하는 전용 모바일 웹입니다.</p>
+          <p class="text-slate-600 text-[11px]">원내 주차 관제 서버(211.105.143.22)의 할인/감면 로직을 중계하여 스마트폰과 EMR 환경에서 초고속으로 감면을 적용하는 전용 모바일 웹입니다.</p>
           
           <p class="font-bold text-slate-900 pt-1">2. 주요 사용법</p>
           <ul class="list-disc list-inside text-slate-600 text-[11px] space-y-0.5">
@@ -345,7 +332,6 @@
 
   </div>
 
-  <!-- Application Logic -->
   <script>
     let currentCar = null;
     let isKeypadOpen = false;
