@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>구병원 주차감면 (원내 전용)</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="theme-color" content="#ffffff">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css" />
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    body { font-family: "Pretendard", -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif; }
+    * { -webkit-tap-highlight-color: transparent; }
+    ::-webkit-scrollbar { width: 4px; height: 4px; }
+    ::-webkit-scrollbar-thumb { background: rgba(203, 213, 225, 0.8); border-radius: 4px; }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen flex justify-center items-start sm:py-6 select-none">
+
+  <!-- Mobile Simulator Container (Max 430px, Light Theme Default) -->
+  <div class="w-full max-w-[430px] min-h-screen sm:min-h-[700px] bg-white sm:border sm:border-slate-200/80 sm:rounded-2xl shadow-xl flex flex-col relative overflow-hidden">
+    
+    <!-- Top Header Bar (Clean Hospital Light Aesthetic) -->
+    <header class="bg-white px-4 py-3 flex items-center justify-between border-b border-slate-100 sticky top-0 z-30 shadow-sm">
+      <div class="flex items-center space-x-2.5">
+        <button onclick="toggleSideDrawer()" class="p-1.5 -ml-1 text-slate-600 hover:text-blue-600 rounded-lg hover:bg-slate-100 transition">
+          <i class="fa-solid fa-bars text-lg"></i>
+        </button>
+        <div>
+          <h1 class="font-extrabold text-sm leading-tight tracking-tight text-slate-900 flex items-center gap-1.5">
+            <span class="text-blue-600">구병원</span>
+            <span>주차감면</span>
+            <span class="text-[10px] px-1.5 py-0.2 bg-blue-50 text-blue-600 border border-blue-200 rounded font-semibold">Mobile</span>
+          </h1>
+          <p class="text-[11px] text-emerald-600 font-medium flex items-center gap-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+            원내 초경량 직통 뷰
+          </p>
+        </div>
+      </div>
+      <div class="flex items-center gap-1.5">
+        <button onclick="refreshData()" class="p-2 text-slate-500 hover:text-blue-600 rounded-lg hover:bg-slate-100 transition" title="새로고침">
+          <i class="fa-solid fa-rotate-right text-xs"></i>
+        </button>
+        <button onclick="showHelpModal()" class="w-7 h-7 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold border border-slate-200 flex items-center justify-center">
+          ?
+        </button>
+      </div>
+    </header>
+
+    <!-- Sub Status Bar (Department Quota Info) -->
+    <div id="statusBar" class="bg-slate-50/90 px-4 py-2 flex items-center justify-between text-xs border-b border-slate-100">
+      <div class="flex items-center gap-1.5">
+        <span id="displayDeptName" class="px-2 py-0.5 rounded bg-blue-50 text-blue-700 font-bold text-[11px] border border-blue-200">로그인 필요</span>
+        <span id="loginStatusIndicator" class="text-slate-400 text-[11px]">미인증</span>
+      </div>
+      <div class="text-slate-500 text-[11px]">
+        잔여: <span id="remainCount" class="text-blue-600 font-extrabold tracking-tight">-</span>
+      </div>
+    </div>
+
+    <!-- VIEW 1: Main Parking Screen -->
+    <div id="viewMain" class="p-3.5 space-y-3 flex-1 flex flex-col bg-slate-50/40">
+      
+      <!-- Car Input Box & Keypad Toggle -->
+      <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
+        <div class="flex items-center justify-between mb-1.5">
+          <label class="text-xs font-bold text-slate-600 flex items-center gap-1.5">
+            <i class="fa-solid fa-car text-blue-600"></i> 차량번호 4자리
+          </label>
+          <button type="button" onclick="toggleKeypad()" class="text-xs text-blue-600 hover:text-blue-700 font-bold flex items-center gap-1">
+            <span id="keypadIcon"><i class="fa-solid fa-keyboard"></i></span>
+            <span id="keypadText">키패드 열기</span>
+          </button>
+        </div>
+
+        <div class="flex gap-2">
+          <input 
+            type="text" 
+            id="carNumberInput" 
+            maxlength="4" 
+            inputmode="numeric"
+            placeholder="예: 3456" 
+            class="flex-1 bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-2xl font-black tracking-widest text-center text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white placeholder-slate-400 transition"
+            oninput="onCarInput(this.value)"
+            autofocus
+          >
+          <button 
+            type="button" 
+            onclick="clearSearch()" 
+            class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 active:bg-slate-300 border border-slate-300/80 text-slate-700 rounded-lg text-xs font-bold active:scale-95 transition"
+          >
+            초기화
+          </button>
+        </div>
+
+        <!-- Collapsible Touch Keypad (Kiosk Inspired) -->
+        <div id="touchKeypad" class="hidden mt-2.5 pt-2.5 border-t border-slate-100">
+          <div class="grid grid-cols-3 gap-1.5">
+            <button onclick="pressKey('1')" class="py-2.5 bg-slate-50 hover:bg-blue-600 hover:text-white active:bg-blue-700 text-slate-800 rounded-lg font-extrabold text-lg border border-slate-200 active:scale-95 transition">1</button>
+            <button onclick="pressKey('2')" class="py-2.5 bg-slate-50 hover:bg-blue-600 hover:text-white active:bg-blue-700 text-slate-800 rounded-lg font-extrabold text-lg border border-slate-200 active:scale-95 transition">2</button>
+            <button onclick="pressKey('3')" class="py-2.5 bg-slate-50 hover:bg-blue-600 hover:text-white active:bg-blue-700 text-slate-800 rounded-lg font-extrabold text-lg border border-slate-200 active:scale-95 transition">3</button>
+            <button onclick="pressKey('4')" class="py-2.5 bg-slate-50 hover:bg-blue-600 hover:text-white active:bg-blue-700 text-slate-800 rounded-lg font-extrabold text-lg border border-slate-200 active:scale-95 transition">4</button>
+            <button onclick="pressKey('5')" class="py-2.5 bg-slate-50 hover:bg-blue-600 hover:text-white active:bg-blue-700 text-slate-800 rounded-lg font-extrabold text-lg border border-slate-200 active:scale-95 transition">5</button>
+            <button onclick="pressKey('6')" class="py-2.5 bg-slate-50 hover:bg-blue-600 hover:text-white active:bg-blue-700 text-slate-800 rounded-lg font-extrabold text-lg border border-slate-200 active:scale-95 transition">6</button>
+            <button onclick="pressKey('7')" class="py-2.5 bg-slate-50 hover:bg-blue-600 hover:text-white active:bg-blue-700 text-slate-800 rounded-lg font-extrabold text-lg border border-slate-200 active:scale-95 transition">7</button>
+            <button onclick="pressKey('8')" class="py-2.5 bg-slate-50 hover:bg-blue-600 hover:text-white active:bg-blue-700 text-slate-800 rounded-lg font-extrabold text-lg border border-slate-200 active:scale-95 transition">8</button>
+            <button onclick="pressKey('9')" class="py-2.5 bg-slate-50 hover:bg-blue-600 hover:text-white active:bg-blue-700 text-slate-800 rounded-lg font-extrabold text-lg border border-slate-200 active:scale-95 transition">9</button>
+            <button onclick="pressKey('CLEAR')" class="py-2.5 bg-rose-50 hover:bg-rose-600 text-rose-600 hover:text-white rounded-lg font-bold text-sm border border-rose-200 active:scale-95 transition">C</button>
+            <button onclick="pressKey('0')" class="py-2.5 bg-slate-50 hover:bg-blue-600 hover:text-white active:bg-blue-700 text-slate-800 rounded-lg font-extrabold text-lg border border-slate-200 active:scale-95 transition">0</button>
+            <button onclick="pressKey('BACK')" class="py-2.5 bg-amber-50 hover:bg-amber-600 text-amber-700 hover:text-white rounded-lg font-bold text-base border border-amber-200 active:scale-95 transition"><i class="fa-solid fa-delete-left"></i></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Multiple Cars Selection Card -->
+      <div id="multiCarList" class="hidden bg-blue-50/80 p-2.5 rounded-xl border border-blue-200 space-y-1.5 shadow-sm">
+        <div class="text-[11px] text-blue-700 font-bold px-1">일치하는 입차 차량을 선택하세요:</div>
+        <div id="multiCarItems" class="space-y-1"></div>
+      </div>
+
+      <!-- Found Vehicle Card -->
+      <div id="vehicleCard" class="bg-white border border-slate-200 rounded-xl p-3 space-y-2.5 shadow-sm">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span id="carStatusBadge" class="text-[11px] px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold">입차중</span>
+            <span id="carFullNum" class="text-lg font-black tracking-tight text-slate-900">-</span>
+          </div>
+          <button id="btnViewPhoto" onclick="showCarPhoto()" class="text-xs text-blue-700 hover:text-blue-800 bg-blue-50 border border-blue-200 px-2.5 py-1 rounded-lg flex items-center gap-1 font-semibold transition">
+            <i class="fa-solid fa-camera"></i> 입차사진
+          </button>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2 text-xs bg-slate-50 p-2.5 rounded-lg border border-slate-200/80">
+          <div>
+            <span class="text-slate-500 block text-[10px]">입차 시각</span>
+            <span id="carInTime" class="font-bold text-slate-800 text-xs">-</span>
+          </div>
+          <div>
+            <span class="text-slate-500 block text-[10px]">주차 경과</span>
+            <span id="carElapsedTime" class="font-black text-amber-600 text-xs">-</span>
+          </div>
+        </div>
+
+        <!-- Applied Discounts & Selected Delete -->
+        <div class="pt-2 border-t border-slate-100">
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="text-[11px] font-bold text-slate-600 flex items-center gap-1">
+              <i class="fa-solid fa-list-check text-blue-600"></i> 기적용된 감면 내역
+            </span>
+            <button onclick="deleteSelectedDiscount()" class="text-[11px] px-2 py-0.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded font-bold transition flex items-center gap-1">
+              <i class="fa-solid fa-trash-can"></i> 선택삭제
+            </button>
+          </div>
+
+          <div id="discountListContainer" class="space-y-1 max-h-24 overflow-y-auto pr-0.5">
+            <div class="text-[11px] text-slate-400 py-2 text-center">차량을 검색하면 감면 내역이 표시됩니다.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Discount One-Click Action Buttons -->
+      <div class="space-y-1.5">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold text-slate-600 flex items-center gap-1">
+            <i class="fa-solid fa-bolt text-amber-500"></i> 원클릭 감면 선택
+          </span>
+          <span class="text-[10px] text-blue-600 font-semibold">터치 즉시 주차서버 전송</span>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2" id="quickDiscountButtons">
+          <button onclick="submitDiscount('1', '외래 2시간', '2시간')" class="p-2.5 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white rounded-xl font-bold text-xs shadow-sm active:scale-95 transition flex flex-col items-center">
+            <span class="text-sm font-extrabold">외래 2시간</span>
+            <span class="text-[10px] font-normal text-blue-100">외래 진료/수납</span>
+          </button>
+          <button onclick="submitDiscount('2', '외래 4시간', '4시간')" class="p-2.5 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white rounded-xl font-bold text-xs shadow-sm active:scale-95 transition flex flex-col items-center">
+            <span class="text-sm font-extrabold">외래 4시간</span>
+            <span class="text-[10px] font-normal text-indigo-100">특수검사/수술</span>
+          </button>
+          <button onclick="submitDiscount('3', '입원 당일무료', '당일무료')" class="p-2.5 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white rounded-xl font-bold text-xs shadow-sm active:scale-95 transition flex flex-col items-center">
+            <span class="text-sm font-extrabold">입원 당일무료</span>
+            <span class="text-[10px] font-normal text-emerald-100">입/퇴원 환자</span>
+          </button>
+          <button onclick="submitDiscount('4', '인공신장실 4h', '4시간')" class="p-2.5 bg-teal-600 hover:bg-teal-700 active:bg-teal-800 text-white rounded-xl font-bold text-xs shadow-sm active:scale-95 transition flex flex-col items-center">
+            <span class="text-sm font-extrabold">인공신장실 4h</span>
+            <span class="text-[10px] font-normal text-teal-100">혈액투석 환자</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Quick Note (Optional) -->
+      <div>
+        <div class="flex items-center justify-between mb-1">
+          <label class="text-[11px] font-bold text-slate-500">비고 메모 (선택사항)</label>
+          <span class="text-[10px] text-slate-400">최대 25자</span>
+        </div>
+        <input 
+          type="text" 
+          id="discountNote" 
+          placeholder="예: 외래 홍길동 1234567" 
+          maxlength="25"
+          class="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-slate-400 shadow-sm"
+        >
+      </div>
+
+    </div>
+
+    <!-- VIEW 2: Department Login Screen (Light Theme) -->
+    <div id="viewLogin" class="hidden p-6 space-y-4 flex-1 flex flex-col justify-center bg-slate-50/50">
+      <div class="text-center space-y-1">
+        <div class="w-14 h-14 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center text-2xl mx-auto border border-blue-200 shadow-sm">
+          <i class="fa-solid fa-hospital-user"></i>
+        </div>
+        <h2 class="text-base font-extrabold text-slate-900 pt-1">부서 로그인</h2>
+        <p class="text-xs text-slate-500">원내 주차감면 부서 계정으로 로그인</p>
+      </div>
+
+      <form onsubmit="handleLogin(event)" class="space-y-3 text-xs bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+        <div>
+          <label class="font-bold text-slate-600 block mb-1">부서 아이디</label>
+          <input 
+            type="text" 
+            id="loginId" 
+            required
+            placeholder="부서 아이디 입력"
+            class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-900 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none"
+          >
+        </div>
+        <div>
+          <label class="font-bold text-slate-600 block mb-1">비밀번호</label>
+          <input 
+            type="password" 
+            id="loginPw" 
+            required
+            placeholder="비밀번호 입력"
+            class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-900 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none"
+          >
+        </div>
+        <div class="flex items-center justify-between pt-1">
+          <label class="flex items-center gap-1.5 cursor-pointer text-slate-600">
+            <input type="checkbox" id="rememberDeptId" checked class="rounded border-slate-300 text-blue-600 focus:ring-0">
+            <span>이 기기에서 부서 아이디 기억하기</span>
+          </label>
+        </div>
+
+        <button type="submit" id="btnLoginSubmit" class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-extrabold rounded-xl text-sm shadow-md active:scale-98 transition mt-2">
+          로그인
+        </button>
+      </form>
+
+      <div class="text-[11px] text-center text-slate-400">
+        주차 관제 서버(211.105.143.22)와 직접 연동됩니다.
+      </div>
+    </div>
+
+    <!-- Side Menu Drawer (Slide-out navigation) -->
+    <div id="sideMenuBackdrop" class="hidden fixed inset-0 bg-black/40 z-40 transition-opacity" onclick="toggleSideDrawer()"></div>
+    <div id="sideMenuDrawer" class="fixed top-0 left-0 bottom-0 w-64 bg-white text-slate-800 z-50 transform -translate-x-full transition-transform duration-200 border-r border-slate-200 flex flex-col p-4 shadow-2xl">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-3">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">🚗</span>
+          <span class="font-extrabold text-sm text-slate-900">구병원 주차 메뉴</span>
+        </div>
+        <button onclick="toggleSideDrawer()" class="text-slate-400 hover:text-slate-700 p-1">✕</button>
+      </div>
+
+      <nav class="space-y-1.5 flex-1 text-xs">
+        <button onclick="switchView('main')" class="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg bg-blue-50 text-blue-700 font-bold border border-blue-200 text-left">
+          <i class="fa-solid fa-car-side"></i> 주차할인 / 감면 입력
+        </button>
+        <button onclick="switchView('login')" class="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg hover:bg-slate-100 text-slate-600 font-semibold text-left transition">
+          <i class="fa-solid fa-user-gear"></i> 부서 계정 전환 (로그인)
+        </button>
+        <div class="pt-3 border-t border-slate-100 my-2"></div>
+        <button onclick="showHelpModal()" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-slate-100 text-slate-600 text-left transition">
+          <i class="fa-solid fa-circle-question"></i> 시스템 정보 / 도움말
+        </button>
+        <button onclick="handleLogout()" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-rose-50 text-rose-600 text-left transition">
+          <i class="fa-solid fa-right-from-bracket"></i> 로그아웃
+        </button>
+      </nav>
+
+      <div class="text-[11px] text-slate-400 border-t border-slate-100 pt-3">
+        Cloudflare Pages ➔ 211.105.143.22
+      </div>
+    </div>
+
+    <!-- Modal: Car Photo LPR Image -->
+    <div id="photoModal" class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-3" onclick="togglePhotoModal()">
+      <div class="bg-white border border-slate-200 rounded-xl max-w-[360px] w-full p-4 space-y-3 shadow-2xl" onclick="event.stopPropagation()">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+          <h3 class="font-bold text-sm text-slate-900 flex items-center gap-1.5">
+            <i class="fa-solid fa-camera text-blue-600"></i> 입차 LPR 카메라 촬영 사진
+          </h3>
+          <button onclick="togglePhotoModal()" class="text-slate-400 hover:text-slate-600">✕</button>
+        </div>
+        <div class="w-full min-h-[180px] bg-slate-950 rounded-lg border border-slate-200 flex flex-col items-center justify-center relative overflow-hidden">
+          <img id="carPhotoImg" src="" alt="차량 사진" class="w-full h-auto object-contain hidden" onload="this.classList.remove('hidden'); document.getElementById('photoSpinner').classList.add('hidden')">
+          <div id="photoSpinner" class="text-xs text-slate-400 flex flex-col items-center gap-2 py-8">
+            <i class="fa-solid fa-circle-notch fa-spin text-xl text-blue-500"></i>
+            <span>사진 로딩 중...</span>
+          </div>
+        </div>
+        <p class="text-[11px] text-center text-slate-500">
+          주차 관제 LPR 카메라에서 촬영된 실시간 원본 사진입니다.
+        </p>
+        <button onclick="togglePhotoModal()" class="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-bold">
+          닫기
+        </button>
+      </div>
+    </div>
+
+    <!-- Modal: System Help -->
+    <div id="helpModal" class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-3" onclick="toggleHelpModal()">
+      <div class="bg-white border border-slate-200 rounded-xl max-w-[380px] w-full p-4 space-y-3 shadow-2xl text-xs text-slate-700" onclick="event.stopPropagation()">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+          <h3 class="font-extrabold text-sm text-slate-900 flex items-center gap-1.5">
+            <i class="fa-solid fa-circle-info text-blue-600"></i> 구병원 주차감면 시스템 안내
+          </h3>
+          <button onclick="toggleHelpModal()" class="text-slate-400 hover:text-slate-600">✕</button>
+        </div>
+        <div class="space-y-2">
+          <p class="font-bold text-slate-900">1. 시스템 개요</p>
+          <p class="text-slate-600 text-[11px]">원내 주차 관제 서버(211.105.143.22)의 할인/감면 로직을 Cloudflare 엣지 프록시로 중계하여 스마트폰과 EMR 환경에서 초고속으로 감면을 적용하는 전용 모바일 웹입니다.</p>
+          
+          <p class="font-bold text-slate-900 pt-1">2. 주요 사용법</p>
+          <ul class="list-disc list-inside text-slate-600 text-[11px] space-y-0.5">
+            <li>차량번호 4자리 입력 시 입차 정보 자동 검색</li>
+            <li>[원클릭 감면] 버튼 터치 시 1초 만에 감면 적용</li>
+            <li>부서 아이디는 기기별로 1회 저장 지원</li>
+            <li>태블릿/터치 모니터는 [키패드 열기] 지원</li>
+          </ul>
+
+          <p class="font-bold text-slate-900 pt-1">3. 모바일 앱처럼 바탕화면에 추가</p>
+          <p class="text-slate-600 text-[11px]">스마트폰 브라우저 메뉴 ➔ <strong>[홈 화면에 추가]</strong>를 누르시면 앱 아이콘처럼 설치되어 주소 입력 없이 1초 만에 실행됩니다.</p>
+        </div>
+        <button onclick="toggleHelpModal()" class="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-bold mt-2">
+          확인
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Application Logic -->
+  <script>
+    let currentCar = null;
+    let isKeypadOpen = false;
+    let deptInfo = { id: '', name: '원무과', remain: '-' };
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const savedId = localStorage.getItem('saved_dept_id');
+      if (savedId) {
+        document.getElementById('loginId').value = savedId;
+      }
+
+      const storedDept = localStorage.getItem('active_dept_name');
+      if (storedDept) {
+        deptInfo.name = storedDept;
+        setLoginState(true, storedDept);
+        loadQuota();
+      } else {
+        switchView('login');
+      }
+    });
+
+    function switchView(view) {
+      toggleSideDrawer(false);
+      const viewMain = document.getElementById('viewMain');
+      const viewLogin = document.getElementById('viewLogin');
+      if (view === 'main') {
+        viewMain.classList.remove('hidden');
+        viewLogin.classList.add('hidden');
+        document.getElementById('carNumberInput').focus();
+      } else {
+        viewMain.classList.add('hidden');
+        viewLogin.classList.remove('hidden');
+      }
+    }
+
+    function setLoginState(isLoggedIn, deptName) {
+      const displayDept = document.getElementById('displayDeptName');
+      const loginStatus = document.getElementById('loginStatusIndicator');
+      if (isLoggedIn) {
+        displayDept.innerText = deptName || '부서 로그인';
+        loginStatus.innerText = '인증됨';
+        loginStatus.className = 'text-emerald-600 font-bold text-[11px]';
+      } else {
+        displayDept.innerText = '로그인 필요';
+        loginStatus.innerText = '미인증';
+        loginStatus.className = 'text-slate-400 text-[11px]';
+        document.getElementById('remainCount').innerText = '-';
+      }
+    }
+
+    async function handleLogin(e) {
+      e.preventDefault();
+      const id = document.getElementById('loginId').value.trim();
+      const pw = document.getElementById('loginPw').value;
+      const remember = document.getElementById('rememberDeptId').checked;
+
+      if (!id || !pw) return;
+
+      if (remember) {
+        localStorage.setItem('saved_dept_id', id);
+      } else {
+        localStorage.removeItem('saved_dept_id');
+      }
+
+      const btn = document.getElementById('btnLoginSubmit');
+      btn.disabled = true;
+      btn.innerText = '로그인 중...';
+
+      try {
+        const res = await fetch('/api/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id, pw })
+        });
+        const data = await res.json();
+
+        if (data && data.result && data.result[0] && data.result[0]['이름']) {
+          const userName = data.result[0]['이름'];
+          localStorage.setItem('active_dept_name', userName);
+          deptInfo.name = userName;
+          setLoginState(true, userName);
+          Swal.fire({
+            icon: 'success',
+            title: `${userName} 로그인 성공`,
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 1500
+          });
+          switchView('main');
+          loadQuota();
+        } else {
+          Swal.fire('로그인 실패', data.msg || '아이디 또는 비밀번호를 다시 확인하세요.', 'error');
+        }
+      } catch (err) {
+        Swal.fire('통신 오류', '주차 관제 서버와 통신할 수 없습니다: ' + err.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerText = '로그인';
+      }
+    }
+
+    function handleLogout() {
+      toggleSideDrawer(false);
+      localStorage.removeItem('active_dept_name');
+      setLoginState(false);
+      switchView('login');
+    }
+
+    async function loadQuota() {
+      try {
+        const res = await fetch('/api/occupantdiscount', { method: 'POST' });
+        const data = await res.json();
+        if (data && data.result && data.result[0]) {
+          const quota = data.result[0];
+          const remain = quota['제한건수'] !== undefined ? quota['제한건수'] : '-';
+          document.getElementById('remainCount').innerText = remain + '건';
+        }
+      } catch (e) {
+        // Silent fail
+      }
+    }
+
+    let searchDebounce = null;
+    function onCarInput(val) {
+      val = val.replace(/[^0-9]/g, '');
+      document.getElementById('carNumberInput').value = val;
+      if (val.length === 4) {
+        clearTimeout(searchDebounce);
+        searchDebounce = setTimeout(() => searchCar(val), 150);
+      }
+    }
+
+    async function searchCar(carnum) {
+      try {
+        const res = await fetch('/api/searchcar', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ carnum })
+        });
+        const data = await res.json();
+
+        if (data && data.result && data.result.length > 0) {
+          if (data.result.length === 1) {
+            selectCar(data.result[0]);
+          } else {
+            showMultiCars(data.result);
+          }
+        } else {
+          clearCarCard();
+          Swal.fire({
+            icon: 'warning',
+            title: '차량 없음',
+            text: `[${carnum}] 해당 번호로 현재 입차 중인 차량을 찾을 수 없습니다.`,
+            timer: 1800,
+            showConfirmButton: false
+          });
+        }
+      } catch (err) {
+        Swal.fire('검색 실패', '차량 검색 중 오류가 발생했습니다: ' + err.message, 'error');
+      }
+    }
+
+    function showMultiCars(cars) {
+      const container = document.getElementById('multiCarList');
+      const items = document.getElementById('multiCarItems');
+      items.innerHTML = '';
+      container.classList.remove('hidden');
+
+      cars.forEach(car => {
+        const div = document.createElement('div');
+        div.className = 'p-2 bg-white hover:bg-blue-50 border border-slate-200 rounded-lg flex justify-between items-center cursor-pointer transition shadow-xs';
+        div.innerHTML = `
+          <div>
+            <span class="font-extrabold text-slate-900 text-sm">${car['차량번호']}</span>
+            <span class="text-[10px] text-slate-500 block">${car['입차일시']}</span>
+          </div>
+          <button class="px-2 py-1 bg-blue-600 text-white rounded text-xs font-bold">선택</button>
+        `;
+        div.onclick = () => {
+          container.classList.add('hidden');
+          selectCar(car);
+        };
+        items.appendChild(div);
+      });
+    }
+
+    function selectCar(car) {
+      currentCar = car;
+      document.getElementById('multiCarList').classList.add('hidden');
+      document.getElementById('carFullNum').innerText = car['차량번호'];
+      document.getElementById('carInTime').innerText = car['입차일시'];
+      
+      try {
+        const inTime = new Date(car['입차일시'].replace(' ', 'T'));
+        const now = car['현재시간'] ? new Date(car['현재시간'].replace(' ', 'T')) : new Date();
+        const diffMs = now - inTime;
+        const diffMin = Math.max(0, Math.floor(diffMs / 60000));
+        const hour = Math.floor(diffMin / 60);
+        const min = diffMin % 60;
+        document.getElementById('carElapsedTime').innerText = `${hour > 0 ? hour + '시간 ' : ''}${min}분 경과`;
+      } catch (e) {
+        document.getElementById('carElapsedTime').innerText = '-';
+      }
+
+      loadCarDiscounts(car.xindex);
+    }
+
+    function clearCarCard() {
+      currentCar = null;
+      document.getElementById('carFullNum').innerText = '-';
+      document.getElementById('carInTime').innerText = '-';
+      document.getElementById('carElapsedTime').innerText = '-';
+      document.getElementById('discountListContainer').innerHTML = '<div class="text-[11px] text-slate-400 py-2 text-center">차량을 검색하면 감면 내역이 표시됩니다.</div>';
+    }
+
+    function clearSearch() {
+      document.getElementById('carNumberInput').value = '';
+      document.getElementById('multiCarList').classList.add('hidden');
+      clearCarCard();
+      document.getElementById('carNumberInput').focus();
+    }
+
+    async function loadCarDiscounts(xindex) {
+      const container = document.getElementById('discountListContainer');
+      container.innerHTML = '<div class="text-[11px] text-slate-400 py-2 text-center"><i class="fa-solid fa-spinner fa-spin"></i> 내역 불러오는 중...</div>';
+      
+      try {
+        const res = await fetch('/api/discountrecords', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ xindex })
+        });
+        const data = await res.json();
+
+        if (data && data.result && data.result.length > 0) {
+          container.innerHTML = '';
+          data.result.forEach(d => {
+            const label = document.createElement('label');
+            label.className = 'flex items-center justify-between p-1.5 rounded bg-slate-50 border border-slate-200 text-[11px] cursor-pointer hover:border-blue-400 transition';
+            label.innerHTML = `
+              <div class="flex items-center gap-1.5 overflow-hidden">
+                <input type="checkbox" name="appliedDiscountIdx" value="${d.idx}" data-company="${d.아이디 || ''}" class="rounded border-slate-300 text-rose-600 focus:ring-0">
+                <span class="font-bold text-slate-700 truncate">${d.상가명 || d.아이디 || '부서'}</span>
+                <span class="text-slate-400">·</span>
+                <span class="text-blue-700 font-extrabold">${d.할인값 || '할인'}</span>
+              </div>
+              <span class="text-[10px] text-slate-400 shrink-0">${(d.입력시간 || '').slice(-8, -3)}</span>
+            `;
+            container.appendChild(label);
+          });
+        } else {
+          container.innerHTML = '<div class="text-[11px] text-slate-400 py-2 text-center">기적용된 감면 내역이 없습니다.</div>';
+        }
+      } catch (e) {
+        container.innerHTML = '<div class="text-[11px] text-rose-500 py-2 text-center">감면 내역 조회 실패</div>';
+      }
+    }
+
+    async function submitDiscount(discountCode, discountName, duration) {
+      if (!currentCar || !currentCar.xindex) {
+        Swal.fire('차량 선택 필요', '먼저 차량번호 4자리를 입력하여 차량을 조회하세요.', 'warning');
+        return;
+      }
+
+      const note = document.getElementById('discountNote').value.trim();
+
+      Swal.fire({
+        title: `${currentCar['차량번호']}`,
+        html: `<strong>${discountName} (${duration})</strong> 감면을 적용하시겠습니까?`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#2563eb',
+        cancelButtonColor: '#64748b',
+        confirmButtonText: '감면 적용',
+        cancelButtonText: '취소'
+      }).then(async (result) => {
+        if (!result.isConfirmed) return;
+
+        try {
+          const res = await fetch('/api/insert', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              carnum: document.getElementById('carNumberInput').value,
+              carfullnum: currentCar['차량번호'],
+              xindex: currentCar.xindex,
+              discountcode: discountCode,
+              note: note
+            })
+          });
+          const data = await res.json();
+
+          if (data && data.errcode === null) {
+            Swal.fire({
+              icon: 'success',
+              title: '감면 적용 완료',
+              text: `[${currentCar['차량번호']}] ${discountName} 할인이 완료되었습니다.`,
+              timer: 1500,
+              showConfirmButton: false
+            });
+            loadQuota();
+            setTimeout(() => clearSearch(), 1600);
+          } else {
+            Swal.fire('적용 실패', data.msg || '감면을 적용하지 못했습니다.', 'error');
+          }
+        } catch (err) {
+          Swal.fire('통신 오류', err.message, 'error');
+        }
+      });
+    }
+
+    async function deleteSelectedDiscount() {
+      const checked = document.querySelectorAll('input[name="appliedDiscountIdx"]:checked');
+      if (checked.length === 0) {
+        Swal.fire('선택 필요', '삭제할 감면 내역을 체크박스에서 선택해 주세요.', 'info');
+        return;
+      }
+
+      const idx = checked[0].value;
+      const xcompany = checked[0].dataset.company || '';
+
+      Swal.fire({
+        title: '감면 삭제 확인',
+        text: '선택한 감면 내역을 취소/삭제하시겠습니까?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#e11d48',
+        cancelButtonColor: '#64748b',
+        confirmButtonText: '삭제',
+        cancelButtonText: '취소'
+      }).then(async (result) => {
+        if (!result.isConfirmed) return;
+
+        try {
+          const res = await fetch('/api/delete', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              idx: idx,
+              xcompany: xcompany,
+              xindex: currentCar ? currentCar.xindex : ''
+            })
+          });
+          const data = await res.json();
+
+          if (data && data.errcode === null) {
+            Swal.fire({ icon: 'success', title: '삭제 완료', timer: 1200, showConfirmButton: false });
+            if (currentCar) loadCarDiscounts(currentCar.xindex);
+            loadQuota();
+          } else {
+            Swal.fire('삭제 실패', data.msg || '타인이 등록한 할인이거나 이미 정산된 건입니다.', 'error');
+          }
+        } catch (e) {
+          Swal.fire('통신 오류', e.message, 'error');
+        }
+      });
+    }
+
+    function showCarPhoto() {
+      if (!currentCar || !currentCar.xindex) {
+        Swal.fire('차량 선택 필요', '차량을 먼저 검색하세요.', 'info');
+        return;
+      }
+      const img = document.getElementById('carPhotoImg');
+      const spinner = document.getElementById('photoSpinner');
+      img.classList.add('hidden');
+      spinner.classList.remove('hidden');
+      img.src = `/api/inimage?xindex=${encodeURIComponent(currentCar.xindex)}`;
+      togglePhotoModal(true);
+    }
+
+    function togglePhotoModal(show) {
+      const m = document.getElementById('photoModal');
+      if (show !== undefined) m.classList.toggle('hidden', !show);
+      else m.classList.toggle('hidden');
+    }
+
+    function toggleKeypad() {
+      isKeypadOpen = !isKeypadOpen;
+      document.getElementById('touchKeypad').classList.toggle('hidden', !isKeypadOpen);
+      document.getElementById('keypadText').innerText = isKeypadOpen ? '키패드 닫기' : '키패드 열기';
+    }
+
+    function pressKey(k) {
+      const input = document.getElementById('carNumberInput');
+      if (k === 'CLEAR') {
+        input.value = '';
+      } else if (k === 'BACK') {
+        input.value = input.value.slice(0, -1);
+      } else {
+        if (input.value.length < 4) input.value += k;
+      }
+      onCarInput(input.value);
+    }
+
+    function toggleSideDrawer(show) {
+      const d = document.getElementById('sideMenuDrawer');
+      const b = document.getElementById('sideMenuBackdrop');
+      const isOpen = !d.classList.contains('-translate-x-full');
+      const target = show !== undefined ? show : !isOpen;
+      d.classList.toggle('-translate-x-full', !target);
+      b.classList.toggle('hidden', !target);
+    }
+
+    function showHelpModal() { document.getElementById('helpModal').classList.remove('hidden'); }
+    function toggleHelpModal() { document.getElementById('helpModal').classList.toggle('hidden'); }
+    function refreshData() {
+      loadQuota();
+      if (currentCar) loadCarDiscounts(currentCar.xindex);
+      Swal.fire({ icon: 'success', title: '새로고침 완료', toast: true, position: 'top-end', timer: 1000, showConfirmButton: false });
+    }
+  </script>
+</body>
+</html>
