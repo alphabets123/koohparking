@@ -253,11 +253,11 @@
     <section id="stepAlreadyRegisteredSection" class="kiosk-card hidden w-full max-w-3xl lg:max-w-5xl flex-1 bg-white rounded-3xl border-2 border-emerald-200 shadow-xl p-3 sm:p-5 flex flex-col justify-between my-auto overflow-hidden">
       <!-- 상단 감면 완료 타이틀 (글자 잘림 방지 break-keep) -->
       <div class="text-center space-y-1 flex-shrink-0 pt-0.5">
-        <div class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-black text-xs">
-          <i class="fa-solid fa-circle-check"></i> 주차 감면 등록 완료 차량
+        <div id="alreadyBadgeWrap" class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-black text-xs">
+          <i class="fa-solid fa-circle-check"></i> <span id="alreadyBadgeText">주차 감면 등록 완료 차량</span>
         </div>
-        <h2 class="text-xl sm:text-3xl font-black text-slate-900 break-keep leading-snug">이미 주차 감면이 등록된 차량입니다</h2>
-        <p class="text-xs sm:text-sm text-slate-500 font-bold">환자분의 차량에 무료 감면 혜택이 정상 적용되어 있습니다.</p>
+        <h2 id="alreadyTitle" class="text-xl sm:text-3xl font-black text-slate-900 break-keep leading-snug">이미 주차 감면이 등록된 차량입니다</h2>
+        <p id="alreadySubtitle" class="text-xs sm:text-sm text-slate-500 font-bold">환자분의 차량에 무료 감면 혜택이 정상 적용되어 있습니다.</p>
       </div>
 
       <!-- 기감면 상세 정보 카드 (⭐️ LPR 차량 촬영 사진 + 환자/차량 상세 2단 결합) -->
@@ -728,18 +728,100 @@
       document.getElementById("step2SelectedCarInTime").textContent = `입차: ${car.intime || '당일'}`;
     }
 
-    // 이미 감면이 등록된 차량 안내 화면 렌더링
-    function showAlreadyRegisteredScreen(car) {
+    // 입차일시 및 감면시간 기반 초과시간/정산 예상 요금 산정 헬퍼
+    function calculateClientOverdueFee(inTimeStr, freeHours = 6) {
+      if (!inTimeStr) return { elapsedMinutes: 0, overMinutes: 0, estimatedFee: 0, isOverdue: false, statusText: "입차 기록 없음" };
+      try {
+        const cleanTime = inTimeStr.replace(/-/g, "/");
+        const inDate = new Date(cleanTime);
+        if (isNaN(inDate.getTime())) return { elapsedMinutes: 0, overMinutes: 0, estimatedFee: 0, isOverdue: false, statusText: "입차 시간 오류" };
+
+        const now = new Date();
+        const elapsedMinutes = Math.max(0, Math.floor((now - inDate) / (1000 * 60)));
+        const freeMinutes = freeHours * 60;
+        const overMinutes = elapsedMinutes - freeMinutes;
+
+        const elapsedH = Math.floor(elapsedMinutes / 60);
+        const elapsedM = elapsedMinutes % 60;
+        const elapsedText = elapsedH > 0 ? `${elapsedH}시간 ${elapsedM}분` : `${elapsedM}분`;
+
+        if (overMinutes <= 0) {
+          const remainMinutes = Math.abs(overMinutes);
+          const remainH = Math.floor(remainMinutes / 60);
+          const remainM = remainMinutes % 60;
+          const remainText = remainH > 0 ? `${remainH}시간 ${remainM}분 남음` : `${remainM}분 남음`;
+          return {
+            inTime: inTimeStr,
+            elapsedMinutes,
+            elapsedText,
+            freeMinutes,
+            freeHours,
+            overMinutes: 0,
+            remainMinutes,
+            remainText,
+            estimatedFee: 0,
+            isOverdue: false,
+            statusText: "무료 출차 가능",
+          };
+        }
+
+        // 초과 시 요금: 최초 30분 800원 + 10분당 300원
+        let estimatedFee = 800;
+        if (overMinutes > 30) {
+          const extraMinutes = overMinutes - 30;
+          estimatedFee += Math.ceil(extraMinutes / 10) * 300;
+        }
+        const overH = Math.floor(overMinutes / 60);
+        const overM = overMinutes % 60;
+        const overText = overH > 0 ? `${overH}시간 ${overM}분` : `${overM}분`;
+
+        return {
+          inTime: inTimeStr,
+          elapsedMinutes,
+          elapsedText,
+          freeMinutes,
+          freeHours,
+          overMinutes,
+          overText,
+          estimatedFee,
+          isOverdue: true,
+          statusText: "시간 초과",
+        };
+      } catch (e) {
+        return { isOverdue: false, estimatedFee: 0 };
+      }
+    }
+
+    // 주차 감면 완료 / 이미 등록된 차량 안내 화면 렌더링
+    function showAlreadyRegisteredScreen(car, isJustRegistered = false) {
+      document.getElementById("step1Section").classList.add("hidden");
       document.getElementById("step1CarsSection").classList.add("hidden");
+      document.getElementById("step2Section").classList.add("hidden");
+      document.getElementById("step3Section").classList.add("hidden");
       document.getElementById("stepAlreadyRegisteredSection").classList.remove("hidden");
       
       // ⭐️ 인디케이터 3단계(감면 완료)로 활성화
       updateStepIndicator(3);
 
+      // 상단 타이틀 및 뱃지 (방금 등록 완료 vs 기존 감면 차량)
+      const badgeTextEl = document.getElementById("alreadyBadgeText");
+      const titleEl = document.getElementById("alreadyTitle");
+      const subtitleEl = document.getElementById("alreadySubtitle");
+
+      if (isJustRegistered) {
+        if (badgeTextEl) badgeTextEl.textContent = "주차 감면 등록 완료";
+        if (titleEl) titleEl.textContent = "주차 감면 등록이 완료되었습니다!";
+        if (subtitleEl) subtitleEl.textContent = "환자분의 차량에 무료 감면 혜택이 정상 적용되었습니다.";
+      } else {
+        if (badgeTextEl) badgeTextEl.textContent = "주차 감면 등록 완료 차량";
+        if (titleEl) titleEl.textContent = "이미 주차 감면이 등록된 차량입니다";
+        if (subtitleEl) subtitleEl.textContent = "환자분의 차량에 무료 감면 혜택이 정상 적용되어 있습니다.";
+      }
+
       document.getElementById("alreadyCarNum").textContent = car.carno;
       document.getElementById("alreadyInTime").textContent = `입차: ${car.intime || "당일"}`;
 
-      // ⭐️ 감면 등록 환자명(중간글자 마스킹) 및 차트번호 바인딩
+      // 감면 등록 환자명(중간글자 마스킹) 및 차트번호 바인딩
       const patientNameEl = document.getElementById("alreadyPatientName");
       const patientJubnoEl = document.getElementById("alreadyPatientJubno");
       if (patientNameEl) {
@@ -749,7 +831,13 @@
         patientJubnoEl.textContent = car.maskedJubno || (car.ocsJubno ? String(car.ocsJubno).padStart(7, "0") : "차트 연동 완료");
       }
 
-      // ⭐️ LPR 입차 촬영 사진 바인딩
+      // 적용된 감면 혜택 바인딩
+      const benefitTitleEl = document.getElementById("alreadyBenefitTitle");
+      if (benefitTitleEl) {
+        benefitTitleEl.textContent = car.benefitTitle || (car.appliedDiscounts && car.appliedDiscounts[0]?.name) || "외래진료 6시간 무료";
+      }
+
+      // LPR 입차 촬영 사진 바인딩
       const carImgEl = document.getElementById("alreadyCarImage");
       const placeholderEl = document.getElementById("alreadyCarImagePlaceholder");
       if (car.imgUrl) {
@@ -765,7 +853,7 @@
         if (placeholderEl) placeholderEl.classList.remove("hidden");
       }
 
-      const info = car.overdueInfo || {};
+      const info = car.overdueInfo || calculateClientOverdueFee(car.intime, 6);
       const statusEl = document.getElementById("alreadyOverdueStatus");
       const bannerEl = document.getElementById("alreadyFeeBanner");
 
@@ -1093,38 +1181,14 @@
           return;
         }
 
-        // 성공 완료 스윗얼럿 & 5초 후 자동 처음으로 복귀
-        let count = 5;
-        Swal.fire({
-          icon: "success",
-          title: "주차 감면 등록 완료!",
-          html: `
-            <div class="space-y-2 text-left bg-slate-50 p-4 rounded-2xl border border-slate-200 text-sm mt-2">
-              <div>• <b>환자명</b>: ${currentPatient.maskedName || currentPatient.name} 님</div>
-              <div>• <b>등록 차량</b>: <span class="font-bold text-[#ff6f0f] text-base">${selectedCar.carno}</span></div>
-              <div>• <b>감면 혜택</b>: <span class="font-bold text-emerald-700">${currentPatient.benefit.benefitTitle}</span></div>
-              <div>• <b>안내</b>: 출차 시 차단기가 자동으로 열립니다.</div>
-            </div>
-            <div class="mt-4 text-xs text-slate-500 font-bold">
-              <span id="countdownSpan" class="font-bold text-[#ff6f0f] text-sm">5</span>초 후 처음 화면으로 돌아갑니다.
-            </div>
-          `,
-          confirmButtonText: "처음으로",
-          confirmButtonColor: "#ff6f0f",
-          timer: 5000,
-          timerProgressBar: true,
-          didOpen: () => {
-            returnCountdownTimer = setInterval(() => {
-              count--;
-              const span = document.getElementById("countdownSpan");
-              if (span) span.textContent = count;
-            }, 1000);
-          },
-          willClose: () => {
-            clearInterval(returnCountdownTimer);
-            resetAllSteps();
-          }
-        });
+        // ⭐️ 주차 감면 등록 완료 ➔ 5초 스윗얼럿 대신 기감면 상세 안내 화면(stepAlreadyRegisteredSection)으로 즉시 전환
+        selectedCar.alreadyRegistered = true;
+        selectedCar.maskedPatientName = currentPatient.maskedName || currentPatient.name;
+        selectedCar.maskedJubno = currentPatient.jubno ? (currentPatient.jubno.substring(0, 3) + "****") : "";
+        selectedCar.benefitTitle = currentPatient.benefit?.benefitTitle || "외래진료 6시간 무료";
+        selectedCar.overdueInfo = calculateClientOverdueFee(selectedCar.intime, currentPatient.benefit?.hours || 6);
+
+        showAlreadyRegisteredScreen(selectedCar, true);
 
       } catch (err) {
         btn.disabled = false;
