@@ -23,15 +23,18 @@
       -webkit-tap-highlight-color: transparent;
     }
 
-    /* ⭐️ 태블릿 뷰포트 맞춤 폰트 스케일링 */
+    /* ⭐️ 태블릿 뷰포트 맞춤 폰트 스케일링 (1.5배 시원한 대형화 적용) */
     html {
-      font-size: 16px;
+      font-size: 21px;
     }
-    @media (min-width: 640px) {
-      html { font-size: 18px; }
+    @media (min-width: 600px) {
+      html { font-size: 24px; }
     }
-    @media (min-width: 900px) {
-      html { font-size: 19.5px; }
+    @media (min-width: 800px) {
+      html { font-size: 26px; }
+    }
+    @media (min-width: 1024px) {
+      html { font-size: 28px; }
     }
 
     html, body {
@@ -39,7 +42,7 @@
       height: 100vh;
       margin: 0;
       padding: 0;
-      overflow: hidden;
+      overflow: hidden !important;
       font-family: "Pretendard", -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
       letter-spacing: -0.015em;
       background: linear-gradient(180deg, #fff7ed 0%, #f8fafc 40%, #f1f5f9 100%) !important;
@@ -73,33 +76,33 @@
       font-feature-settings: 'tnum' 1, 'lnum' 1;
     }
 
-    /* 대형 터치 키패드 버튼 스타일 (화면 비율에 맞춘 탄탄한 조약돌 버튼) */
+    /* 대형 터치 키패드 버튼 스타일 (높이 대폭 확대 & 도톰한 3.5rem 폰트) */
     .keypad-btn {
-      height: clamp(62px, 8.5vh, 78px);
-      font-size: clamp(2.2rem, 3.2vh, 2.7rem);
+      height: clamp(84px, 11.5vh, 105px);
+      font-size: clamp(2.5rem, 4.2vh, 3.4rem);
       font-weight: 900;
       transition: all 0.08s ease;
       touch-action: manipulation;
       background-color: #ffffff;
-      border: 2px solid #fed7aa;
-      border-radius: 1.25rem;
+      border: 2.5px solid #fed7aa;
+      border-radius: 1.4rem;
       box-shadow: 0 4px 6px -1px rgba(251, 146, 60, 0.12);
       display: flex;
       align-items: center;
       justify-content: center;
     }
-    @media (min-width: 640px) {
+    @media (min-width: 600px) {
       .keypad-btn {
-        height: clamp(66px, 9vh, 84px);
-        font-size: clamp(2.4rem, 3.5vh, 2.9rem);
-        border-radius: 1.35rem;
+        height: clamp(92px, 12.5vh, 118px);
+        font-size: clamp(2.8rem, 4.6vh, 3.7rem);
+        border-radius: 1.55rem;
       }
     }
-    @media (min-width: 900px) {
+    @media (min-width: 800px) {
       .keypad-btn {
-        height: clamp(70px, 9.5vh, 90px);
-        font-size: clamp(2.6rem, 3.8vh, 3.2rem);
-        border-radius: 1.5rem;
+        height: clamp(100px, 13.5vh, 130px);
+        font-size: clamp(3.1rem, 5vh, 4rem);
+        border-radius: 1.7rem;
       }
     }
     .keypad-btn:hover {
@@ -272,14 +275,19 @@
     <!-- 🚗 STEP 1: 차량번호 뒷 4자리 키패드 입력 화면 -->
     <!-- ===================================================================== -->
     <section id="step1Section" class="kiosk-card w-full max-w-3xl lg:max-w-4xl flex-1 bg-white rounded-3xl border-2 border-orange-200 shadow-xl p-4 sm:p-6 flex flex-col items-center justify-between my-auto overflow-hidden">
-      <div class="text-center space-y-1 flex-shrink-0 pt-1">
-        <h2 class="text-2xl sm:text-3xl font-black text-slate-900 whitespace-nowrap">차량번호 뒷 4자리를 눌러주세요</h2>
-        <p class="text-xs sm:text-base text-slate-500 font-bold">4자리를 누르면 현재 입차된 차량이 자동으로 검색됩니다.</p>
+      <!-- 상단 제목 & 안내 문구 1곳 통합 배치 -->
+      <div class="text-center space-y-1.5 flex-shrink-0 pt-1 sm:pt-2">
+        <h2 class="text-2xl sm:text-4xl font-black text-slate-900 whitespace-nowrap">차량번호 뒷 4자리를 눌러주세요</h2>
+        <p class="text-sm sm:text-lg text-slate-600 font-bold">4자리를 누르면 현재 입차된 차량이 자동으로 검색됩니다.</p>
+        <div class="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-orange-100 text-[#ea580c] font-black text-xs sm:text-sm">
+          <i class="fa-solid fa-circle-info"></i>
+          <span>병원 주차장에 정상 입차된 차량만 검색됩니다.</span>
+        </div>
       </div>
 
       <!-- 4자리 번호 표시창 (검은 언더스코어 제거, 오직 선명한 주황색 밑줄만 단일 표시) -->
-      <div class="w-full max-w-lg sm:max-w-xl my-2 sm:my-3">
-        <div class="h-20 sm:h-24 bg-orange-50/70 rounded-3xl border-2 border-orange-300 flex items-center justify-center gap-5 sm:gap-8 px-6 shadow-inner">
+      <div class="w-full max-w-lg sm:max-w-xl my-auto">
+        <div class="h-20 sm:h-26 bg-orange-50/70 rounded-3xl border-2 border-orange-300 flex items-center justify-center gap-5 sm:gap-8 px-6 shadow-inner">
           <div id="digit0" class="num-display text-4xl sm:text-6xl font-black text-[#ff6f0f] border-b-4 border-orange-400 pb-1 w-16 sm:w-20 text-center h-16 sm:h-20 flex items-center justify-center">&nbsp;</div>
           <div id="digit1" class="num-display text-4xl sm:text-6xl font-black text-[#ff6f0f] border-b-4 border-orange-400 pb-1 w-16 sm:w-20 text-center h-16 sm:h-20 flex items-center justify-center">&nbsp;</div>
           <div id="digit2" class="num-display text-4xl sm:text-6xl font-black text-[#ff6f0f] border-b-4 border-orange-400 pb-1 w-16 sm:w-20 text-center h-16 sm:h-20 flex items-center justify-center">&nbsp;</div>
@@ -287,8 +295,8 @@
         </div>
       </div>
 
-      <!-- 터치 숫자 키패드 (화면 높이에 맞춘 탄탄한 조약돌 버튼) -->
-      <div class="w-full max-w-lg sm:max-w-xl grid grid-cols-3 gap-2.5 sm:gap-3.5 my-1 sm:my-2">
+      <!-- 터치 숫자 키패드 (화면 높이에 맞춘 탄탄한 대형 조약돌 버튼) -->
+      <div class="w-full max-w-lg sm:max-w-xl grid grid-cols-3 gap-3 sm:gap-4 my-auto">
         <button onclick="pressNum('1')" class="keypad-btn text-slate-800">1</button>
         <button onclick="pressNum('2')" class="keypad-btn text-slate-800">2</button>
         <button onclick="pressNum('3')" class="keypad-btn text-slate-800">3</button>
@@ -301,18 +309,13 @@
         <button onclick="pressNum('8')" class="keypad-btn text-slate-800">8</button>
         <button onclick="pressNum('9')" class="keypad-btn text-slate-800">9</button>
 
-        <button onclick="clearNum()" class="keypad-btn !text-base sm:!text-xl !font-black text-rose-600 bg-rose-50/70 hover:bg-rose-100 border-rose-200 whitespace-nowrap">
+        <button onclick="clearNum()" class="keypad-btn !text-base sm:!text-2xl !font-black text-rose-600 bg-rose-50/70 hover:bg-rose-100 border-rose-200 whitespace-nowrap">
           전체삭제
         </button>
         <button onclick="pressNum('0')" class="keypad-btn text-slate-800">0</button>
         <button onclick="backspaceNum()" class="keypad-btn text-slate-600 hover:text-slate-900">
           <i class="fa-solid fa-delete-left text-2xl sm:text-3xl"></i>
         </button>
-      </div>
-
-      <!-- 하단 안내 문구 (키패드 바로 아래 밀착 & 큼직한 가시성) -->
-      <div class="text-xs sm:text-base text-slate-600 text-center font-bold flex-shrink-0 mt-1 sm:mt-2 pb-1">
-        * 병원 주차장에 정상 입차된 차량만 검색됩니다.
       </div>
     </section>
 
@@ -344,60 +347,88 @@
     <!-- ===================================================================== -->
     <!-- 🟢 STEP 1.8: 기감면 내역 및 초과 시간/요금 안내 화면 (이미 감면된 차량) -->
     <!-- ===================================================================== -->
-    <section id="stepAlreadyRegisteredSection" class="kiosk-card hidden w-full max-w-3xl lg:max-w-4xl flex-1 bg-white rounded-3xl border-2 border-emerald-200 shadow-xl p-5 sm:p-7 flex flex-col justify-between my-auto overflow-hidden">
-      <div class="text-center space-y-1.5 flex-shrink-0">
-        <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-emerald-100 text-emerald-800 font-black text-xs sm:text-sm">
+    <section id="stepAlreadyRegisteredSection" class="kiosk-card hidden w-full max-w-3xl lg:max-w-4xl flex-1 bg-white rounded-3xl border-2 border-emerald-200 shadow-xl p-4 sm:p-6 flex flex-col justify-between my-auto overflow-hidden">
+      <!-- 상단 감면 완료 타이틀 -->
+      <div class="text-center space-y-1.5 flex-shrink-0 pt-1">
+        <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-emerald-100 text-emerald-800 font-black text-xs sm:text-base">
           <i class="fa-solid fa-circle-check"></i> 주차 감면 등록 완료 차량
         </div>
-        <h2 class="text-2xl sm:text-3xl font-black text-slate-900 whitespace-nowrap">이미 주차 감면이 등록된 차량입니다</h2>
-        <p class="text-xs sm:text-sm text-slate-500 font-bold">환자분의 차량에 무료 감면 혜택이 정상 적용되어 있습니다.</p>
+        <h2 class="text-2xl sm:text-4xl font-black text-slate-900 whitespace-nowrap">이미 주차 감면이 등록된 차량입니다</h2>
+        <p class="text-xs sm:text-base text-slate-500 font-bold">환자분의 차량에 무료 감면 혜택이 정상 적용되어 있습니다.</p>
       </div>
 
-      <!-- 기감면 상세 정보 카드 (⭐️ 등록 환자명 마스킹 및 차트번호 추가) -->
-      <div class="w-full bg-emerald-50/60 border-2 border-emerald-200 rounded-3xl p-4 sm:p-6 space-y-3 sm:space-y-4 my-auto">
-        <!-- 환자 정보 & 차량 정보 상단 2단 헤더 -->
-        <div class="flex items-center justify-between pb-3 sm:pb-3.5 border-b border-emerald-200">
-          <div class="flex items-center gap-3.5">
-            <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-emerald-600 text-white flex items-center justify-center text-2xl sm:text-3xl shadow-sm flex-shrink-0">
-              <i class="fa-solid fa-user-check"></i>
+      <!-- 기감면 상세 정보 카드 (⭐️ LPR 차량 촬영 사진 + 환자/차량 상세 2단 결합) -->
+      <div class="w-full bg-emerald-50/60 border-2 border-emerald-200 rounded-3xl p-3 sm:p-5 space-y-3 my-auto">
+        
+        <!-- 상하/좌우 반응형 그리드: LPR 입차 사진 + 환자/차량 번호 헤더 -->
+        <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 sm:gap-4 items-center">
+          
+          <!-- LPR 입차 차량 사진 박스 -->
+          <div class="sm:col-span-5 rounded-2xl overflow-hidden border-2 border-emerald-300 bg-slate-900 relative shadow-sm aspect-[16/10] sm:aspect-[4/3] flex items-center justify-center">
+            <img id="alreadyCarImage" src="" alt="LPR 입차 촬영 사진" class="w-full h-full object-cover">
+            <div id="alreadyCarImagePlaceholder" class="hidden flex flex-col items-center justify-center text-slate-400 p-4 text-center">
+              <i class="fa-solid fa-car text-3xl sm:text-4xl mb-1 text-slate-500"></i>
+              <span class="text-xs font-bold">입차 사진 등록 차량</span>
             </div>
-            <div>
-              <div class="text-xs text-slate-500 font-bold">감면 등록 환자 (본인 확인)</div>
-              <div class="flex items-center gap-2 mt-0.5">
-                <span class="text-xl sm:text-2xl font-black text-slate-900 whitespace-nowrap" id="alreadyPatientName">-</span>
-                <span class="text-xs sm:text-sm font-bold font-num bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-md" id="alreadyPatientJubno">-</span>
+            <div class="absolute bottom-1.5 left-1.5 bg-black/70 backdrop-blur-xs text-white text-[10px] sm:text-xs px-2 py-0.5 rounded-full font-bold flex items-center gap-1">
+              <i class="fa-solid fa-camera"></i>
+              <span>LPR 입차 사진</span>
+            </div>
+          </div>
+
+          <!-- 환자 및 차량 정보 -->
+          <div class="sm:col-span-7 flex flex-col justify-between space-y-2.5">
+            <!-- 감면 등록 환자 -->
+            <div class="p-2.5 sm:p-3 rounded-2xl bg-white border border-emerald-200 flex items-center justify-between shadow-2xs">
+              <div class="flex items-center gap-2.5">
+                <div class="w-9 h-9 sm:w-11 sm:h-11 rounded-xl bg-emerald-600 text-white flex items-center justify-center text-lg sm:text-xl flex-shrink-0">
+                  <i class="fa-solid fa-user-check"></i>
+                </div>
+                <div>
+                  <div class="text-[11px] sm:text-xs text-slate-500 font-bold">감면 등록 환자 (본인 확인)</div>
+                  <div class="text-lg sm:text-2xl font-black text-slate-900 whitespace-nowrap mt-0.5" id="alreadyPatientName">-</div>
+                </div>
+              </div>
+              <span class="text-xs sm:text-sm font-black font-num bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-lg whitespace-nowrap" id="alreadyPatientJubno">-</span>
+            </div>
+
+            <!-- 등록 차량번호 & 입차시각 -->
+            <div class="p-2.5 sm:p-3 rounded-2xl bg-white border border-emerald-200 flex items-center justify-between shadow-2xs">
+              <div>
+                <div class="text-[11px] sm:text-xs text-slate-500 font-bold">등록 차량번호</div>
+                <div class="text-2xl sm:text-3xl font-black text-[#ff6f0f] font-num tracking-wide whitespace-nowrap" id="alreadyCarNum">-</div>
+              </div>
+              <div class="text-right">
+                <div class="text-[11px] sm:text-xs text-slate-500 font-bold">입차 시각</div>
+                <div class="text-xs sm:text-sm text-slate-700 font-black font-num whitespace-nowrap mt-0.5" id="alreadyInTime">-</div>
               </div>
             </div>
           </div>
-          <div class="text-right">
-            <div class="text-xs text-slate-500 font-bold">등록 차량번호</div>
-            <div class="text-2xl sm:text-3xl font-black text-[#ff6f0f] font-num tracking-wide whitespace-nowrap" id="alreadyCarNum">-</div>
-            <div class="text-xs sm:text-sm text-slate-600 font-bold font-num mt-0.5 whitespace-nowrap" id="alreadyInTime">-</div>
+        </div>
+
+        <!-- 감면 혜택 & 현재 주차 상태 -->
+        <div class="grid grid-cols-2 gap-2.5 sm:gap-3.5 pt-1">
+          <div class="p-3 sm:p-3.5 rounded-2xl bg-white border border-emerald-100 shadow-2xs">
+            <div class="text-[11px] sm:text-xs text-slate-500 font-bold mb-0.5">적용된 감면 혜택</div>
+            <div class="text-base sm:text-xl font-black text-emerald-700 break-keep leading-tight" id="alreadyBenefitTitle">외래진료 6시간 무료</div>
+          </div>
+          <div class="p-3 sm:p-3.5 rounded-2xl bg-white border border-emerald-100 shadow-2xs">
+            <div class="text-[11px] sm:text-xs text-slate-500 font-bold mb-0.5">현재 주차 상태</div>
+            <div class="text-base sm:text-xl font-black break-keep leading-tight" id="alreadyOverdueStatus">-</div>
           </div>
         </div>
 
-        <div class="grid grid-cols-2 gap-3 sm:gap-4">
-          <div class="p-3.5 rounded-2xl bg-white border border-emerald-100 shadow-2xs">
-            <div class="text-xs text-slate-500 font-bold mb-1">적용된 감면 혜택</div>
-            <div class="text-base sm:text-lg font-black text-emerald-700 break-keep leading-tight" id="alreadyBenefitTitle">외래진료 6시간 무료</div>
-          </div>
-          <div class="p-3.5 rounded-2xl bg-white border border-emerald-100 shadow-2xs">
-            <div class="text-xs text-slate-500 font-bold mb-1">현재 주차 상태</div>
-            <div class="text-base sm:text-lg font-black break-keep leading-tight" id="alreadyOverdueStatus">-</div>
-          </div>
-        </div>
-
-        <!-- 초과 시간 및 결제 예상 금액 배너 (삐져나옴 없는 자연스러운 줄바꿈) -->
-        <div id="alreadyFeeBanner" class="p-3.5 sm:p-4 rounded-2xl shadow-xs">
+        <!-- 초과 시간 및 결제 예상 금액 배너 -->
+        <div id="alreadyFeeBanner" class="p-3 sm:p-4 rounded-2xl shadow-xs">
           <!-- JS 동적 렌더링 -->
         </div>
       </div>
 
-      <!-- 하단 확인 버튼 (⭐️ 15초 자동 처음으로 복귀 카운트다운) -->
+      <!-- 하단 확인 버튼 (⭐️ 25초 자동 처음으로 복귀 카운트다운) -->
       <div class="flex items-center justify-center gap-4 flex-shrink-0 pt-1">
-        <button onclick="resetAllSteps()" class="w-full py-3.5 sm:py-4 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-black text-lg sm:text-xl shadow-lg active:scale-98 transition flex items-center justify-center gap-2 whitespace-nowrap">
+        <button onclick="resetAllSteps()" class="w-full py-4 sm:py-5 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-black text-lg sm:text-2xl shadow-lg active:scale-98 transition flex items-center justify-center gap-2 whitespace-nowrap">
           <i class="fa-solid fa-check"></i>
-          <span>확인 완료 (<span id="alreadyCountdown" class="text-yellow-200">15</span>초 후 처음으로)</span>
+          <span>확인 완료 (<span id="alreadyCountdown" class="text-yellow-200">25</span>초 후 처음으로)</span>
         </button>
       </div>
     </section>
@@ -454,23 +485,26 @@
           진료비 영수증 또는 외래 접수증 하단의 <b>바코드</b>를 리더기에 스캔하시면 본인 확인이 즉시 완료됩니다.
         </p>
 
-        <div class="mt-4 sm:mt-6 flex items-center gap-2">
+        <div class="mt-4 sm:mt-6 flex flex-col items-center gap-2">
           <span class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-emerald-100 text-emerald-800 text-xs sm:text-base font-black animate-pulse whitespace-nowrap">
             <span class="w-3 h-3 rounded-full bg-emerald-600"></span> 바코드 리더기 상시 대기 중
           </span>
+          <p class="text-xs sm:text-sm text-slate-500 font-bold mt-2">
+            * 바코드가 없으신 경우 상단의 [주민등록번호 (13자리)] 탭을 터치해 주세요.
+          </p>
         </div>
       </div>
 
       <!-- 탭 2 컨텐츠: 주민등록번호 13자리 마스킹 터치 입력 영역 (⭐️ 오입력 방지 패턴 탑재) -->
-      <div id="tabContentJmno" class="hidden flex-1 flex flex-col items-center justify-center p-4 sm:p-6 bg-slate-50 border-2 border-orange-200 rounded-3xl my-auto space-y-2 sm:space-y-3">
-        <div class="text-center space-y-0.5">
-          <h4 class="text-xl sm:text-2xl font-black text-slate-900 whitespace-nowrap">주민등록번호 13자리를 눌러주세요</h4>
-          <p class="text-xs sm:text-sm text-slate-500 font-bold">개인정보 보호를 위해 뒷자리는 화면에 마스킹(●●●●●●●) 처리됩니다.</p>
+      <div id="tabContentJmno" class="hidden flex-1 flex flex-col items-center justify-between p-3 sm:p-5 bg-slate-50 border-2 border-orange-200 rounded-3xl my-auto">
+        <div class="text-center space-y-1 flex-shrink-0 pt-0.5">
+          <h4 class="text-xl sm:text-3xl font-black text-slate-900 whitespace-nowrap">주민등록번호 13자리를 눌러주세요</h4>
+          <p class="text-xs sm:text-base text-slate-500 font-bold">개인정보 보호를 위해 뒷자리는 화면에 마스킹(●●●●●●●) 처리됩니다.</p>
         </div>
 
         <!-- 13자리 주민번호 표시창 (와이드 & 큼직한 가시성) -->
-        <div class="w-full max-w-lg sm:max-w-xl">
-          <div class="h-18 sm:h-22 bg-white rounded-3xl border-2 border-orange-300 flex items-center justify-center gap-3 sm:gap-4 px-4 sm:px-6 shadow-inner">
+        <div class="w-full max-w-lg sm:max-w-xl my-auto">
+          <div class="h-20 sm:h-24 bg-white rounded-3xl border-2 border-orange-300 flex items-center justify-center gap-3 sm:gap-5 px-4 sm:px-6 shadow-inner">
             <div id="jmnoFront" class="num-display text-3xl sm:text-5xl font-black text-slate-900 tracking-widest whitespace-nowrap">______</div>
             <span class="text-3xl sm:text-5xl font-black text-slate-400">-</span>
             <div id="jmnoBack" class="num-display text-3xl sm:text-5xl font-black text-[#ff6f0f] tracking-widest whitespace-nowrap">_______</div>
@@ -478,12 +512,12 @@
         </div>
 
         <!-- ⚠️ 주민번호 오입력 실시간 경고 라벨 -->
-        <div id="jmnoValidationMsg" class="hidden text-xs sm:text-sm font-black text-rose-600 bg-rose-50 px-4 py-1.5 rounded-full border border-rose-200 animate-pulse">
+        <div id="jmnoValidationMsg" class="hidden text-xs sm:text-sm font-black text-rose-600 bg-rose-50 px-4 py-1 rounded-full border border-rose-200 animate-pulse my-1">
           <!-- JS에서 동적 표출 -->
         </div>
 
         <!-- 주민번호 넘버패드 (태블릿 꽉 찬 버튼 그리드) -->
-        <div class="w-full max-w-lg sm:max-w-xl grid grid-cols-3 gap-2.5 sm:gap-3.5 pt-0.5">
+        <div class="w-full max-w-lg sm:max-w-xl grid grid-cols-3 gap-3 sm:gap-4 my-auto">
           <button onclick="pressJmnoNum('1')" class="keypad-btn text-slate-800">1</button>
           <button onclick="pressJmnoNum('2')" class="keypad-btn text-slate-800">2</button>
           <button onclick="pressJmnoNum('3')" class="keypad-btn text-slate-800">3</button>
@@ -496,16 +530,12 @@
           <button onclick="pressJmnoNum('8')" class="keypad-btn text-slate-800">8</button>
           <button onclick="pressJmnoNum('9')" class="keypad-btn text-slate-800">9</button>
 
-          <button onclick="clearJmnoNum()" class="keypad-btn !text-base sm:!text-xl !font-black text-rose-600 bg-rose-50/70 hover:bg-rose-100 border-rose-200 whitespace-nowrap">전체삭제</button>
+          <button onclick="clearJmnoNum()" class="keypad-btn !text-base sm:!text-2xl !font-black text-rose-600 bg-rose-50/70 hover:bg-rose-100 border-rose-200 whitespace-nowrap">전체삭제</button>
           <button onclick="pressJmnoNum('0')" class="keypad-btn text-slate-800">0</button>
           <button onclick="backspaceJmnoNum()" class="keypad-btn text-slate-600 hover:text-slate-900">
             <i class="fa-solid fa-delete-left text-2xl sm:text-3xl"></i>
           </button>
         </div>
-      </div>
-
-      <div class="pt-2 text-center text-xs sm:text-sm text-slate-400 flex-shrink-0 font-medium">
-        * 바코드가 없는 환자분께서는 주민등록번호 13자리 탭을 터치하여 입력해주세요.
       </div>
     </section>
 
@@ -829,18 +859,34 @@
         patientJubnoEl.textContent = car.maskedJubno || (car.ocsJubno ? String(car.ocsJubno).padStart(7, "0") : "차트 연동 완료");
       }
 
+      // ⭐️ LPR 입차 촬영 사진 바인딩
+      const carImgEl = document.getElementById("alreadyCarImage");
+      const placeholderEl = document.getElementById("alreadyCarImagePlaceholder");
+      if (car.imgUrl) {
+        carImgEl.src = car.imgUrl;
+        carImgEl.classList.remove("hidden");
+        if (placeholderEl) placeholderEl.classList.add("hidden");
+        carImgEl.onerror = () => {
+          carImgEl.classList.add("hidden");
+          if (placeholderEl) placeholderEl.classList.remove("hidden");
+        };
+      } else {
+        carImgEl.classList.add("hidden");
+        if (placeholderEl) placeholderEl.classList.remove("hidden");
+      }
+
       const info = car.overdueInfo || {};
       const statusEl = document.getElementById("alreadyOverdueStatus");
       const bannerEl = document.getElementById("alreadyFeeBanner");
 
       if (info.isOverdue) {
-        statusEl.className = "text-base sm:text-lg font-black text-rose-600 break-keep leading-snug";
+        statusEl.className = "text-base sm:text-xl font-black text-rose-600 break-keep leading-snug";
         statusEl.textContent = `초과 (${info.overText || '시간 초과'})`;
 
-        bannerEl.className = "p-3.5 sm:p-4 rounded-2xl bg-rose-50 border-2 border-rose-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xs";
+        bannerEl.className = "p-3 sm:p-4 rounded-2xl bg-rose-50 border-2 border-rose-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xs";
         bannerEl.innerHTML = `
           <div class="flex items-start sm:items-center gap-3">
-            <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-rose-600 text-white flex items-center justify-center text-xl sm:text-2xl font-black flex-shrink-0 mt-0.5 sm:mt-0">
+            <div class="w-9 h-9 sm:w-11 sm:h-11 rounded-2xl bg-rose-600 text-white flex items-center justify-center text-lg sm:text-xl font-black flex-shrink-0 mt-0.5 sm:mt-0">
               <i class="fa-solid fa-triangle-exclamation"></i>
             </div>
             <div>
@@ -852,17 +898,17 @@
           </div>
           <div class="text-right flex-shrink-0 self-end sm:self-center ml-auto">
             <div class="text-xs text-rose-600 font-bold">정산 예상 요금</div>
-            <div class="text-xl sm:text-2xl font-black text-rose-700 font-num whitespace-nowrap">약 ${Number(info.estimatedFee || 0).toLocaleString()}원</div>
+            <div class="text-lg sm:text-2xl font-black text-rose-700 font-num whitespace-nowrap">약 ${Number(info.estimatedFee || 0).toLocaleString()}원</div>
           </div>
         `;
       } else {
-        statusEl.className = "text-base sm:text-lg font-black text-emerald-700 break-keep leading-snug";
+        statusEl.className = "text-base sm:text-xl font-black text-emerald-700 break-keep leading-snug";
         statusEl.textContent = `무료 출차 가능 (${info.remainText || '시간 여유'})`;
 
-        bannerEl.className = "p-3.5 sm:p-4 rounded-2xl bg-emerald-50 border-2 border-emerald-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xs";
+        bannerEl.className = "p-3 sm:p-4 rounded-2xl bg-emerald-50 border-2 border-emerald-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xs";
         bannerEl.innerHTML = `
           <div class="flex items-start sm:items-center gap-3">
-            <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-emerald-600 text-white flex items-center justify-center text-xl sm:text-2xl font-black flex-shrink-0 mt-0.5 sm:mt-0">
+            <div class="w-9 h-9 sm:w-11 sm:h-11 rounded-2xl bg-emerald-600 text-white flex items-center justify-center text-lg sm:text-xl font-black flex-shrink-0 mt-0.5 sm:mt-0">
               <i class="fa-solid fa-circle-check"></i>
             </div>
             <div>
@@ -874,14 +920,14 @@
           </div>
           <div class="text-right flex-shrink-0 self-end sm:self-center ml-auto">
             <div class="text-xs text-emerald-600 font-bold">정산 요금</div>
-            <div class="text-xl sm:text-2xl font-black text-emerald-700 font-num whitespace-nowrap">0원 (무료)</div>
+            <div class="text-lg sm:text-2xl font-black text-emerald-700 font-num whitespace-nowrap">0원 (무료)</div>
           </div>
         `;
       }
 
-      // ⭐️ 15초 자동 처음으로 복귀 카운트다운 타이머 작동
+      // ⭐️ 25초 자동 처음으로 복귀 카운트다운 타이머 작동
       if (returnCountdownTimer) clearInterval(returnCountdownTimer);
-      let count = 15;
+      let count = 25;
       const countdownEl = document.getElementById("alreadyCountdown");
       if (countdownEl) countdownEl.textContent = count;
       returnCountdownTimer = setInterval(() => {
