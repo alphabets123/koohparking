@@ -498,7 +498,7 @@
         </button>
         <button id="btnSubmitRegister" onclick="submitCarRegistration()" class="flex-1 py-4 sm:py-5 rounded-2xl bg-gradient-to-r from-[#ff6f0f] to-[#ff8f3d] hover:from-[#ea580c] hover:to-[#ff6f0f] text-white font-black text-lg sm:text-2xl shadow-lg active:scale-98 transition flex items-center justify-center gap-2 whitespace-nowrap">
           <i class="fa-solid fa-square-check"></i>
-          <span>무료 주차 등록 완료하기</span>
+          <span>무료 주차 등록</span>
         </button>
       </div>
     </section>
@@ -690,18 +690,28 @@
     }
 
     function backToStep1Keypad() {
+      clearNum();
+      clearJmnoNum();
+      barcodeBuffer = "";
+      selectedCar = null;
+      currentPatient = null;
+      if (returnCountdownTimer) clearInterval(returnCountdownTimer);
+
       document.getElementById("step1CarsSection").classList.add("hidden");
       document.getElementById("stepAlreadyRegisteredSection").classList.add("hidden");
       document.getElementById("step2Section").classList.add("hidden");
       document.getElementById("step3Section").classList.add("hidden");
       document.getElementById("step1Section").classList.remove("hidden");
       updateStepIndicator(1);
-      clearNum();
-      selectedCar = null;
+      switchAuthTab("barcode");
     }
 
     function selectCarAndProceed(car) {
       selectedCar = car;
+      // ⭐️ 새 차량 선택 시 이전 입력 주민번호/환자정보 완전 초기화
+      clearJmnoNum();
+      barcodeBuffer = "";
+      currentPatient = null;
 
       // 이미 감면이 등록된 차량인 경우 ➔ 기감면 및 초과요금 안내 화면으로 분기
       if (car.alreadyRegistered) {
@@ -905,7 +915,14 @@
       const b = currentJmno.substring(6, 13);
 
       const fDisplay = f.padEnd(6, "_");
-      const bDisplay = b ? "●".repeat(b.length).padEnd(7, "_") : "_______";
+
+      // ⭐️ 뒷자리 마스킹: 처음 입력할 때는 숫자가 보이고, 다음 숫자를 누를 때 이전 숫자가 ●로 마스킹됨
+      let bDisplay = "_______";
+      if (b.length > 0) {
+        const masked = "●".repeat(b.length - 1);
+        const lastChar = b.charAt(b.length - 1);
+        bDisplay = (masked + lastChar).padEnd(7, "_");
+      }
 
       document.getElementById("jmnoFront").textContent = fDisplay;
       document.getElementById("jmnoBack").textContent = bDisplay;
@@ -957,10 +974,10 @@
             return;
           }
 
-          // 검증 통과 시 서버 조회 진행
+          // 검증 통과 시 서버 조회 진행 (마지막 자리 확인을 위해 300ms 후 실행)
           setTimeout(() => {
             lookupPatient({ jmno: currentJmno });
-          }, 150);
+          }, 300);
         }
       }
     }
@@ -1069,7 +1086,7 @@
         });
         const data = await res.json();
         btn.disabled = false;
-        btn.innerHTML = `<i class="fa-solid fa-square-check"></i> 무료 주차 등록 완료하기`;
+        btn.innerHTML = `<i class="fa-solid fa-square-check"></i> 무료 주차 등록`;
 
         if (!data.ok) {
           Swal.fire("등록 실패", data.msg || "차량 등록 중 오류가 발생했습니다.", "error");
@@ -1111,7 +1128,7 @@
 
       } catch (err) {
         btn.disabled = false;
-        btn.innerHTML = `<i class="fa-solid fa-square-check"></i> 무료 주차 등록 완료하기`;
+        btn.innerHTML = `<i class="fa-solid fa-square-check"></i> 무료 주차 등록`;
         Swal.fire("통신 오류", "차량 등록 중 통신 오류가 발생했습니다.", "error");
       }
     }
