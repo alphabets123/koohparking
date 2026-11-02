@@ -1,0 +1,1355 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>구병원 주차 감면 확인</title>
+  <!-- 고유 패비콘 -->
+  <link rel="icon" href="/favicon.png?v=20261031_redcar" type="image/png">
+  <link rel="shortcut icon" href="/favicon.png?v=20261031_redcar" type="image/png">
+  
+  <!-- Tailwind CSS & FontAwesome 6 & SweetAlert2 -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <!-- AGENTS.md 표준 폰트: 한글 Pretendard + 영문/숫자 계기판 Outfit -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      font-family: "Pretendard", -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+      letter-spacing: -0.015em;
+      background: linear-gradient(180deg, #f0f5ff 0%, #f4f6fa 40%, #eef2f7 100%) !important;
+      touch-action: manipulation;
+      user-select: none;
+      -webkit-user-select: none;
+      min-height: 100vh;
+    }
+
+    /* 숫자/차량번호/금액/시각 등 Outfit 고정폭(tabular) 폰트 강제 적용 */
+    .font-num, #displayNum, #resCarFullNum, #resInTime, #resElapsedTime, .keypad-btn, #popupCarNum, #popupInTime, #popupElapsedTime {
+      font-family: 'Outfit', 'Pretendard', sans-serif !important;
+      font-feature-settings: 'tnum' 1, 'lnum' 1;
+    }
+
+    * {
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+    ::-webkit-scrollbar { width: 4px; height: 4px; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+
+    /* 기본 키패드 터치 피드백 애니메이션 (Ant Design 스타일) */
+    .keypad-btn {
+      transition: all 0.08s ease;
+      touch-action: manipulation;
+      user-select: none;
+      background-color: #ffffff !important;
+      border: 1px solid #e2e8f0 !important;
+      box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03) !important;
+    }
+    .keypad-btn:hover {
+      background-color: #f0f5ff !important;
+      border-color: #91caff !important;
+      color: #1677ff !important;
+    }
+    .keypad-btn:active {
+      transform: scale(0.96);
+      background-color: #1677ff !important;
+      color: #ffffff !important;
+    }
+
+    /* ==========================================================================
+       🖥️ 1. 가로 2단 기본 와이드 모드 (PC / 업무용)
+       ========================================================================== */
+    body.view-main-mode {
+      /* 기본 여백 및 패딩 */
+    }
+
+    /* ==========================================================================
+       📱 2. PC 세로 1단 모드 고정 (옵션 선택 시)
+       ========================================================================== */
+    body.check-vertical-active #appContainer {
+      max-width: 38rem !important; /* 608px 슬림 카드 형태 */
+      margin-left: auto !important;
+      margin-right: auto !important;
+    }
+    body.check-vertical-active #checkMainGrid {
+      grid-template-columns: 1fr !important;
+      display: flex !important;
+      flex-direction: column !important;
+      gap: 1rem !important;
+    }
+
+    /* ==========================================================================
+       📟 3. 키오스크 팝업 모드 (전체화면 대형 키패드 + 팝업 모달 전용)
+       ========================================================================== */
+    body.view-kiosk-mode {
+      padding: 0 !important;
+      background-color: #ffffff !important;
+      height: 100vh !important;
+      max-height: 100vh !important;
+      overflow: hidden !important;
+    }
+    body.view-kiosk-mode #appContainer {
+      border: none !important;
+      border-radius: 0 !important;
+      box-shadow: none !important;
+      width: 100% !important;
+      max-width: 100% !important;
+      height: 100vh !important;
+      max-height: 100vh !important;
+      display: flex !important;
+      flex-direction: column !important;
+      overflow: hidden !important;
+    }
+    body.view-kiosk-mode header {
+      flex-shrink: 0 !important;
+      padding: 0.75rem 1.5rem !important;
+    }
+    body.view-kiosk-mode header span.text-slate-900 {
+      font-size: 1.35rem !important;
+    }
+    body.view-kiosk-mode header span.header-badge {
+      font-size: 1rem !important;
+      padding: 0.35rem 0.85rem !important;
+    }
+    body.view-kiosk-mode #checkMainArea {
+      flex: 1 1 0% !important;
+      display: flex !important;
+      flex-direction: column !important;
+      min-height: 0 !important;
+      padding: 0.85rem 1.5rem !important;
+      overflow: hidden !important;
+    }
+    body.view-kiosk-mode #checkMainGrid {
+      flex: 1 1 0% !important;
+      display: flex !important;
+      flex-direction: column !important;
+      min-height: 0 !important;
+      height: 100% !important;
+      max-width: 48rem !important;
+      margin: 0 auto !important;
+      width: 100% !important;
+    }
+    body.view-kiosk-mode #checkInputCol {
+      flex: 1 1 0% !important;
+      display: flex !important;
+      flex-direction: column !important;
+      justify-content: space-between !important;
+      min-height: 0 !important;
+      height: 100% !important;
+      max-width: 100% !important;
+      gap: 0.75rem !important;
+      padding: 1.25rem 1.5rem !important;
+      border-radius: 1.5rem !important;
+      box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05) !important;
+    }
+    body.view-kiosk-mode #checkInputCol h2 {
+      font-size: 1.35rem !important;
+      font-weight: 900 !important;
+    }
+    body.view-kiosk-mode #checkInputCol p.text-slate-400 {
+      font-size: 1.05rem !important;
+      font-weight: 700 !important;
+      margin-top: 0.2rem !important;
+    }
+    body.view-kiosk-mode #displayBoxArea {
+      flex-shrink: 0 !important;
+      margin-bottom: 0.35rem !important;
+    }
+    body.view-kiosk-mode #displayBoxArea > div {
+      height: 5.5rem !important;
+      border-radius: 1.25rem !important;
+      border-width: 3px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      padding: 0 1.5rem !important;
+      overflow: hidden !important;
+    }
+    body.view-kiosk-mode #displayNum {
+      font-size: clamp(2.6rem, 5vh, 3.8rem) !important;
+      line-height: 1 !important;
+      letter-spacing: 0.35em !important;
+    }
+    body.view-kiosk-mode #touchKeypadGrid {
+      flex: 1 1 0% !important;
+      display: grid !important;
+      grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+      grid-template-rows: repeat(4, minmax(0, 1fr)) !important;
+      gap: 0.75rem !important;
+      height: 100% !important;
+      min-height: 0 !important;
+    }
+    body.view-kiosk-mode .keypad-btn {
+      height: 100% !important;
+      width: 100% !important;
+      min-height: 0 !important;
+      font-size: clamp(2.4rem, 5.2vh, 4rem) !important;
+      font-weight: 900 !important;
+      border-radius: 1.25rem !important;
+    }
+    body.view-kiosk-mode .keypad-btn:has(.fa-delete-left),
+    body.view-kiosk-mode .keypad-btn i.fa-delete-left {
+      font-size: clamp(1.8rem, 3.5vh, 2.6rem) !important;
+    }
+    body.view-kiosk-mode button[onpointerdown*="CLEAR"] {
+      font-size: clamp(1.2rem, 2.4vh, 1.8rem) !important;
+      font-weight: 900 !important;
+    }
+    body.view-kiosk-mode #btnTriggerSearch {
+      font-size: 1.35rem !important;
+      padding: 1rem !important;
+      border-radius: 1.25rem !important;
+      font-weight: 900 !important;
+    }
+    body.view-kiosk-mode #checkResultCol {
+      display: none !important; /* 키오스크 모드에서는 우측 인라인 결과 숨김 */
+    }
+
+    /* ==========================================================================
+       🎨 4. Seed 테마 (오렌지 & 소프트 라운드 룩)
+       ========================================================================== */
+    body.theme-seed {
+      background: #f2f3f7 !important;
+      color: #191f28 !important;
+    }
+    body.theme-seed #appContainer {
+      border-radius: 26px !important;
+      border: 1px solid #e5e8eb !important;
+      box-shadow: 0 16px 40px -8px rgba(0, 0, 0, 0.08) !important;
+      background-color: #ffffff !important;
+    }
+    body.view-kiosk-mode.theme-seed #appContainer {
+      border-radius: 0 !important;
+      border: none !important;
+    }
+    body.theme-seed header {
+      background-color: #ffffff !important;
+      border-bottom: 1px solid #edf0f3 !important;
+    }
+    body.theme-seed header span.header-brand {
+      color: #ff6f0f !important;
+    }
+    body.theme-seed header span.header-badge {
+      background-color: #fff0e6 !important;
+      color: #ff6f0f !important;
+      border-color: #ffd2b3 !important;
+    }
+    body.theme-seed header button:hover {
+      color: #ff6f0f !important;
+      background-color: #fff0e6 !important;
+      border-radius: 12px !important;
+    }
+    body.theme-seed #checkInputCol,
+    body.theme-seed #checkResultCol {
+      border-radius: 20px !important;
+      border: 1px solid #edf0f3 !important;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04) !important;
+    }
+    /* 4자리 입력창 */
+    body.theme-seed #displayBoxArea > div {
+      background-color: #fffaf5 !important;
+      border-color: #ff6f0f !important;
+      border-radius: 18px !important;
+    }
+    body.theme-seed #displayNum span.char-active {
+      color: #ff6f0f !important;
+    }
+    /* 키패드 버튼 (조약돌 라운딩) */
+    body.theme-seed .keypad-btn {
+      border-radius: 18px !important;
+      border: 1px solid #e5e8eb !important;
+      background-color: #ffffff !important;
+      color: #191f28 !important;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02) !important;
+    }
+    body.theme-seed .keypad-btn:hover {
+      background-color: #fff0e6 !important;
+      border-color: #ffd2b3 !important;
+      color: #ff6f0f !important;
+    }
+    body.theme-seed .keypad-btn:active {
+      background-color: #ff6f0f !important;
+      border-color: #ff6f0f !important;
+      color: #ffffff !important;
+    }
+    /* 조회 버튼 */
+    body.theme-seed #btnTriggerSearch {
+      background: linear-gradient(135deg, #ff7e36 0%, #ff6f0f 100%) !important;
+      border-radius: 18px !important;
+      box-shadow: 0 4px 12px rgba(255, 111, 15, 0.3) !important;
+    }
+    body.theme-seed #btnTriggerSearch:disabled {
+      background: #e2e8f0 !important;
+      box-shadow: none !important;
+    }
+    /* 팝업 모달 Seed 스타일 */
+    body.theme-seed #checkPopupModal > div {
+      border-radius: 28px !important;
+      border: 1px solid #ffd2b3 !important;
+      box-shadow: 0 24px 48px -12px rgba(255, 111, 15, 0.15) !important;
+    }
+    body.theme-seed #checkPopupModal button[onclick*="closePopupModal"] {
+      border-radius: 18px !important;
+      background: linear-gradient(135deg, #ff7e36 0%, #ff6f0f 100%) !important;
+    }
+    /* 사이드 메뉴 드로어 활성 스타일 */
+    body.theme-seed .menu-btn-active {
+      background-color: #fff0e6 !important;
+      border-color: #ffd2b3 !important;
+      color: #ff6f0f !important;
+    }
+
+    /* 사이드 메뉴 드로어 표준 너비 */
+    #sideMenuDrawer {
+      width: 19rem !important;
+    }
+    #sideMenuDrawer, #sideMenuDrawer * {
+      letter-spacing: normal !important;
+      line-height: 1.35 !important;
+    }
+
+    /* 도움말 팝오버 */
+    #helpPopover { display: none; }
+    #helpPopover.active { display: block; }
+  </style>
+</head>
+<body class="view-main-mode text-slate-800 min-h-screen flex justify-center items-start sm:py-3 transition-all duration-200">
+
+  <!-- Responsive Container: 가로 2단(기본) / PC 세로 1단(옵션) / 키오스크 대화면(100vh) -->
+  <div id="appContainer" class="w-full max-w-6xl xl:max-w-7xl min-h-screen sm:min-h-[680px] bg-white sm:border sm:border-slate-200/90 sm:rounded-2xl shadow-xl flex flex-col relative overflow-hidden transition-all duration-200">
+
+    <!-- 1. Top Single Header -->
+    <header class="bg-white/95 backdrop-blur-xs px-3 sm:px-4 py-2 flex items-center justify-between border-b border-slate-200/90 sticky top-0 z-30 shadow-xs select-none">
+      <!-- 좌측: 햄버거 메뉴 + '구병원 주차 감면 확인' + 뱃지 -->
+      <div class="flex items-center gap-2 sm:gap-2.5 min-w-0">
+        <button onclick="toggleSideDrawer(true)" class="p-1 -ml-0.5 text-slate-600 hover:text-[#1677ff] rounded-lg hover:bg-blue-50/60 transition shrink-0" title="메뉴 열기">
+          <i class="fa-solid fa-bars text-base sm:text-lg"></i>
+        </button>
+        <span class="text-sm sm:text-base font-black tracking-tight text-slate-900 shrink-0">
+          <span class="header-brand text-[#1677ff]">구병원</span> 주차 감면 확인
+        </span>
+        <span id="currentViewBadge" class="header-badge px-2 py-0.5 rounded-lg bg-[#f6ffed] text-[#389e0d] font-extrabold text-[11px] sm:text-xs border border-[#b7eb8f] truncate">
+          환자/내원객 전용
+        </span>
+      </div>
+
+      <!-- 우측 컨트롤: 초기화 & 도움말 '?' 버튼 -->
+      <div class="flex items-center gap-2 shrink-0 relative">
+        <button onclick="resetCheckScreen()" class="px-2.5 py-1 bg-slate-50 hover:bg-[#e6f4ff] text-slate-700 hover:text-[#0958d9] rounded-lg text-xs font-black transition flex items-center gap-1.5 border border-slate-200" title="화면 초기화">
+          <i class="fa-solid fa-arrows-rotate text-xs text-[#1677ff]"></i>
+          <span>초기화</span>
+        </button>
+
+        <button onclick="toggleHelpPopover()" class="w-7 h-7 flex items-center justify-center rounded-lg bg-[#e6f4ff] hover:bg-[#bae0ff] text-[#0958d9] font-black text-sm border border-[#91caff] transition" title="도움말 및 시스템 정보">
+          ?
+        </button>
+
+        <!-- 도움말 Popover (AGENTS.md 수칙: 버튼 바로 아래 표시) -->
+        <div id="helpPopover" class="absolute right-0 top-9 w-80 bg-white border border-slate-200 rounded-xl p-3.5 shadow-2xl z-50 text-left text-xs space-y-2">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-1.5">
+            <span class="font-black text-slate-900 text-xs flex items-center gap-1.5">
+              <i class="fa-solid fa-circle-info text-blue-600"></i> 주차 감면 확인 안내
+            </span>
+            <button onclick="toggleHelpPopover(false)" class="text-slate-400 hover:text-slate-700 text-sm">✕</button>
+          </div>
+          <div class="space-y-1 text-slate-600 text-[11px] font-bold">
+            <p>• <b>환자 및 내원객 전용</b> 실시간 확인 시스템입니다.</p>
+            <p>• 차량번호 <b>뒷 4자리</b>를 누르시면 감면 등록 여부와 출차 가능 상태를 즉시 확인하실 수 있습니다.</p>
+            <p>• 미등록 상태인 경우 원무과 수납 창구 또는 진료과에서 주차 감면을 먼저 받아주세요.</p>
+            <p>• 조회 후 <b>15초간 조작이 없으면</b> 첫 화면으로 자동 복귀합니다.</p>
+          </div>
+          <div class="pt-1 border-t border-slate-100 text-[10px] text-slate-400">
+            구병원 주차 관제 연동 시스템 (:3150/check)
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- 2. Main Content Area (가로 2단 기본 / 세로 1단 옵션 / 키오스크 팝업 모드) -->
+    <div id="checkMainArea" class="p-2 sm:p-3 flex-1 flex flex-col bg-slate-50/40">
+      
+      <div id="checkMainGrid" class="grid grid-cols-1 md:grid-cols-2 gap-2.5 sm:gap-3 items-start flex-1">
+        
+        <!-- [좌측 패널]: 차량번호 뒷 4자리 디스플레이 + 초대형 터치 키패드 -->
+        <div id="checkInputCol" class="space-y-2 bg-white p-2.5 sm:p-3 rounded-xl border border-slate-200/90 shadow-2xs">
+          
+          <div class="flex items-center justify-between border-b border-slate-100 pb-1.5">
+            <div class="space-y-0.5">
+              <h2 class="text-xs sm:text-sm font-black text-slate-800 flex items-center gap-1.5">
+                <i class="fa-solid fa-car text-[#1677ff]"></i> 차량번호 뒷 4자리 터치
+              </h2>
+              <p class="text-[10px] sm:text-[11px] text-slate-400 font-bold">번호 4자리를 누르면 즉시 조회가 시작됩니다.</p>
+            </div>
+            <button type="button" onclick="clearInputNumber()" class="text-xs text-slate-400 hover:text-rose-600 font-black flex items-center gap-1 transition">
+              <i class="fa-solid fa-arrow-rotate-left text-[10px]"></i> 지우기
+            </button>
+          </div>
+
+          <!-- 4자리 입력 박스 디스플레이 -->
+          <div id="displayBoxArea" class="relative">
+            <div class="flex items-center justify-center h-12 sm:h-14 bg-[#f0f5ff]/40 border-2 border-[#1677ff] rounded-xl shadow-inner px-4">
+              <span id="displayNum" class="text-2xl sm:text-3xl font-black tracking-[0.3em] text-[#0958d9] font-num">
+                <span class="text-slate-300">____</span>
+              </span>
+            </div>
+            <button 
+              type="button" 
+              id="btnClearX" 
+              onclick="clearInputNumber()" 
+              class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-slate-200 hover:bg-slate-300 text-slate-600 flex items-center justify-center font-bold text-xs transition"
+            >
+              ✕
+            </button>
+          </div>
+
+          <!-- 다중 차량 선택 안내 (동일 뒷 4자리가 2대 이상일 때) -->
+          <div id="multiCarCard" class="hidden bg-[#f0f7ff] p-2 rounded-xl border border-[#91caff] space-y-1 shadow-2xs">
+            <div class="text-xs font-black text-[#0958d9] flex items-center justify-between">
+              <span>일치하는 고객님의 차량을 선택하세요:</span>
+            </div>
+            <div id="multiCarItems" class="space-y-1 max-h-32 overflow-y-auto pr-0.5"></div>
+          </div>
+
+          <!-- 3x4 터치 키패드 -->
+          <div id="touchKeypadGrid" class="grid grid-cols-3 gap-1.5 sm:gap-2 select-none pt-0.5">
+            <button type="button" onpointerdown="onKeyPress('1', event)" class="keypad-btn py-2.5 sm:py-3.5 text-slate-800 rounded-lg sm:rounded-xl font-black text-lg sm:text-2xl shadow-2xs font-num">1</button>
+            <button type="button" onpointerdown="onKeyPress('2', event)" class="keypad-btn py-2.5 sm:py-3.5 text-slate-800 rounded-lg sm:rounded-xl font-black text-lg sm:text-2xl shadow-2xs font-num">2</button>
+            <button type="button" onpointerdown="onKeyPress('3', event)" class="keypad-btn py-2.5 sm:py-3.5 text-slate-800 rounded-lg sm:rounded-xl font-black text-lg sm:text-2xl shadow-2xs font-num">3</button>
+            <button type="button" onpointerdown="onKeyPress('4', event)" class="keypad-btn py-2.5 sm:py-3.5 text-slate-800 rounded-lg sm:rounded-xl font-black text-lg sm:text-2xl shadow-2xs font-num">4</button>
+            <button type="button" onpointerdown="onKeyPress('5', event)" class="keypad-btn py-2.5 sm:py-3.5 text-slate-800 rounded-lg sm:rounded-xl font-black text-lg sm:text-2xl shadow-2xs font-num">5</button>
+            <button type="button" onpointerdown="onKeyPress('6', event)" class="keypad-btn py-2.5 sm:py-3.5 text-slate-800 rounded-lg sm:rounded-xl font-black text-lg sm:text-2xl shadow-2xs font-num">6</button>
+            <button type="button" onpointerdown="onKeyPress('7', event)" class="keypad-btn py-2.5 sm:py-3.5 text-slate-800 rounded-lg sm:rounded-xl font-black text-lg sm:text-2xl shadow-2xs font-num">7</button>
+            <button type="button" onpointerdown="onKeyPress('8', event)" class="keypad-btn py-2.5 sm:py-3.5 text-slate-800 rounded-lg sm:rounded-xl font-black text-lg sm:text-2xl shadow-2xs font-num">8</button>
+            <button type="button" onpointerdown="onKeyPress('9', event)" class="keypad-btn py-2.5 sm:py-3.5 text-slate-800 rounded-lg sm:rounded-xl font-black text-lg sm:text-2xl shadow-2xs font-num">9</button>
+            <button type="button" onpointerdown="onKeyPress('CLEAR', event)" class="keypad-btn py-2.5 sm:py-3.5 bg-rose-50/70 hover:bg-rose-600 text-rose-600 hover:text-white rounded-lg sm:rounded-xl font-black text-sm sm:text-base border-rose-200/80 shadow-2xs">전체삭제</button>
+            <button type="button" onpointerdown="onKeyPress('0', event)" class="keypad-btn py-2.5 sm:py-3.5 text-slate-800 rounded-lg sm:rounded-xl font-black text-lg sm:text-2xl shadow-2xs font-num">0</button>
+            <button type="button" onpointerdown="onKeyPress('BACK', event)" class="keypad-btn py-2.5 sm:py-3.5 bg-amber-50/70 hover:bg-amber-600 text-amber-700 hover:text-white rounded-lg sm:rounded-xl font-black text-base sm:text-xl border-amber-200/80 shadow-2xs"><i class="fa-solid fa-delete-left"></i></button>
+          </div>
+
+          <!-- 하단 조회 버튼 -->
+          <button 
+            type="button" 
+            id="btnTriggerSearch" 
+            onclick="searchPatientCar()" 
+            class="w-full py-2.5 sm:py-3 bg-[#1677ff] hover:bg-[#0958d9] active:bg-[#003eb3] text-white rounded-xl font-black text-xs sm:text-sm shadow-xs transition flex items-center justify-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed select-none"
+            disabled
+          >
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <span>감면 등록 확인하기</span>
+          </button>
+        </div>
+
+        <!-- [우측 패널]: 실시간 감면 확인 결과 카드 (PC / 업무용 가로 2단 인라인 표시) -->
+        <div id="checkResultCol" class="space-y-2 bg-white p-2.5 sm:p-3 rounded-xl border border-slate-200/90 shadow-2xs">
+          
+          <!-- (1) 상단 자동 초기화 카운트다운 타이머 바 -->
+          <div id="timerBarArea" class="hidden flex items-center justify-between bg-[#f0f5ff]/60 border border-[#91caff] rounded-lg px-2.5 py-1 text-xs">
+            <div class="flex items-center gap-1.5 text-slate-700 font-bold">
+              <i class="fa-solid fa-clock-rotate-left text-[#1677ff]"></i>
+              <span><b><span id="resetTimerSec" class="text-[#1677ff] font-black font-num">15</span>초</b> 후 첫 화면으로 자동 복귀</span>
+            </div>
+            <button id="btnInstantReset" onclick="resetCheckScreen()" class="px-2 py-0.5 bg-white hover:bg-slate-100 border border-slate-200 rounded text-slate-700 font-black text-[10px] transition shadow-2xs">
+              지금 초기화
+            </button>
+          </div>
+
+          <!-- (2) 초기 대기 안내 (조회 전 표시) -->
+          <div id="resultPlaceholder" class="p-6 text-center space-y-2">
+            <div class="w-12 h-12 mx-auto rounded-xl bg-[#e6f4ff] text-[#1677ff] flex items-center justify-center text-xl shadow-2xs">
+              <i class="fa-solid fa-square-parking"></i>
+            </div>
+            <div class="space-y-0.5">
+              <h3 class="text-xs sm:text-sm font-black text-slate-800">차량번호 뒷 4자리를 눌러주세요</h3>
+              <p class="text-[11px] text-slate-400 font-bold leading-relaxed">
+                감면 등록 여부, 출차 가능 상태 및<br>주차 관제 촬영 사진이 이곳에 표시됩니다.
+              </p>
+            </div>
+          </div>
+
+          <!-- (3) 결과 뷰 (조회 성공 시 표시) -->
+          <div id="resultContent" class="hidden space-y-2">
+            
+            <!-- 상태 배너 (🟢 완료 / 🟡 미등록 / 🟣 정기차량 / ⚪ 미입차) -->
+            <div id="statusBanner" class="p-2.5 rounded-lg border flex flex-col items-center text-center space-y-1 shadow-2xs">
+              <div id="statusIcon" class="w-8 h-8 rounded-full flex items-center justify-center text-sm shadow-inner"></div>
+              <h3 id="statusTitle" class="text-xs sm:text-sm font-black tracking-tight"></h3>
+              <p id="statusDesc" class="text-[11px] font-bold leading-relaxed max-w-sm"></p>
+            </div>
+
+            <!-- 차량 기본 정보 박스 -->
+            <div id="resCarInfoCard" class="bg-[#f8fafc] border border-slate-200/80 rounded-xl p-2.5 space-y-1.5 text-xs">
+              <div class="flex items-center justify-between border-b border-slate-200/80 pb-1">
+                <div class="flex items-center gap-1.5">
+                  <span id="resCarNumLabel" class="text-[10px] px-1.5 py-0.5 rounded bg-[#e6f4ff] text-[#0958d9] border border-[#91caff] font-black">차량번호</span>
+                  <span id="resCarFullNum" class="text-base sm:text-lg font-black text-slate-900 tracking-tight font-num">-</span>
+                </div>
+                <span id="resBadge" class="text-[10px] px-2 py-0.5 rounded-full font-black"></span>
+              </div>
+
+              <div id="resInTimeArea" class="grid grid-cols-2 gap-1.5 text-xs">
+                <div class="bg-white p-1.5 rounded-lg border border-slate-200/70 shadow-2xs">
+                  <span class="text-slate-400 block text-[10px] font-bold mb-0.5">입차 시각</span>
+                  <span id="resInTime" class="font-extrabold text-slate-800 text-[11px] sm:text-xs font-num">-</span>
+                </div>
+                <div class="bg-white p-1.5 rounded-lg border border-slate-200/70 shadow-2xs">
+                  <span class="text-slate-400 block text-[10px] font-bold mb-0.5">주차 경과</span>
+                  <span id="resElapsedTime" class="font-black text-[#d48806] text-[11px] sm:text-xs font-num">-</span>
+                </div>
+              </div>
+
+              <!-- 등록된 감면 내역 목록 -->
+              <div id="resDiscountBox" class="bg-white p-2 rounded-lg border border-slate-200/70 space-y-1 shadow-2xs">
+                <span class="text-[10px] sm:text-[11px] font-black text-slate-700 flex items-center gap-1">
+                  <i class="fa-solid fa-ticket text-[#1677ff]"></i> 등록된 감면 내역:
+                </span>
+                <div id="resDiscountItems" class="space-y-1 font-bold text-xs"></div>
+              </div>
+            </div>
+
+            <!-- 입차 LPR 카메라 촬영 사진 -->
+            <div id="resPhotoArea" class="bg-slate-900 rounded-lg p-2 text-center overflow-hidden shadow-inner">
+              <div id="resPhotoSpinner" class="py-6 text-xs text-slate-400 flex flex-col items-center gap-1.5">
+                <i class="fa-solid fa-circle-notch fa-spin text-base text-blue-400"></i>
+                <span>사진 확인 중...</span>
+              </div>
+              <img 
+                id="resPhotoImg" 
+                src="" 
+                alt="입차 LPR 사진" 
+                class="w-full h-auto max-h-60 sm:max-h-72 md:max-h-80 object-contain rounded-md hidden mx-auto"
+                onload="this.classList.remove('hidden'); document.getElementById('resPhotoSpinner').classList.add('hidden')"
+              >
+              <p class="text-[10px] text-slate-400 mt-1">LPR 카메라 촬영 원본 사진</p>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- 3. 대형 팝업 모달 (키오스크 팝업 모드 전용) -->
+    <div id="checkPopupModal" class="hidden fixed inset-0 bg-black/75 z-50 flex items-center justify-center p-2 sm:p-5 md:p-8 backdrop-blur-xs transition-opacity" onclick="closePopupModal()">
+      <div class="bg-white border border-slate-200 rounded-3xl max-w-4xl lg:max-w-5xl xl:max-w-6xl w-full p-5 sm:p-7 md:p-8 space-y-4 sm:space-y-5 shadow-2xl relative max-h-[96vh] flex flex-col overflow-y-auto" onclick="event.stopPropagation()">
+        
+        <!-- 모달 헤더: 차량번호 & 상태 & 닫기 -->
+        <div class="flex items-center justify-between border-b border-slate-100 pb-3 sm:pb-4">
+          <div class="flex items-center gap-3 sm:gap-4 min-w-0">
+            <span id="popupResBadge" class="text-sm sm:text-base px-3.5 py-1.5 rounded-xl font-black shrink-0">확인완료</span>
+            <span id="popupCarNum" class="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-black text-slate-900 select-text cursor-text truncate tracking-tight">-</span>
+          </div>
+          <button onclick="closePopupModal()" class="w-12 h-12 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-700 flex items-center justify-center transition select-none text-xl font-black">
+            ✕
+          </button>
+        </div>
+
+        <!-- 팝업 상태 대형 배너 -->
+        <div id="popupStatusBanner" class="p-4 sm:p-6 rounded-2xl border-2 flex flex-col items-center text-center space-y-2 shadow-xs">
+          <div id="popupStatusIcon" class="w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center text-2xl sm:text-3xl shadow-inner mb-1"></div>
+          <h3 id="popupStatusTitle" class="text-xl sm:text-2xl lg:text-3xl font-black tracking-tight"></h3>
+          <p id="popupStatusDesc" class="text-sm sm:text-base font-bold leading-relaxed max-w-xl"></p>
+        </div>
+
+        <!-- LPR 카메라 원본 촬영 사진 -->
+        <div id="popupPhotoArea" class="bg-slate-950 rounded-2xl overflow-hidden text-center relative border border-slate-800 max-h-64 sm:max-h-80 md:max-h-96 flex items-center justify-center shadow-inner">
+          <div id="popupPhotoSpinner" class="py-10 text-sm text-slate-400 flex flex-col items-center gap-2">
+            <i class="fa-solid fa-circle-notch fa-spin text-2xl text-blue-400"></i>
+            <span class="font-bold text-xs sm:text-sm">입차 사진 로딩 중...</span>
+          </div>
+          <img id="popupPhotoImg" src="" alt="입차 LPR 사진" class="w-full h-auto max-h-64 sm:max-h-80 md:max-h-96 object-contain hidden mx-auto" onload="this.classList.remove('hidden'); document.getElementById('popupPhotoSpinner').classList.add('hidden')">
+        </div>
+
+        <!-- 입차 시각 & 경과 시간 -->
+        <div class="grid grid-cols-2 gap-3 sm:gap-5 bg-slate-50 p-4 sm:p-5 rounded-2xl sm:rounded-3xl border border-slate-200/80">
+          <div>
+            <span class="text-slate-500 block text-xs sm:text-sm font-bold mb-1">입차 시각</span>
+            <span id="popupInTime" class="font-black text-slate-900 text-base sm:text-2xl lg:text-3xl font-num">-</span>
+          </div>
+          <div>
+            <span class="text-slate-500 block text-xs sm:text-sm font-bold mb-1">주차 경과 시간</span>
+            <span id="popupElapsedTime" class="font-black text-amber-600 text-base sm:text-2xl lg:text-3xl font-num">-</span>
+          </div>
+        </div>
+
+        <!-- 등록된 감면 내역 -->
+        <div class="bg-slate-50/70 p-4 rounded-2xl border border-slate-200/60 space-y-1.5">
+          <div class="text-xs sm:text-base font-black text-slate-700 flex items-center gap-1.5">
+            <i class="fa-solid fa-list-check text-blue-600"></i> 등록된 감면 내역:
+          </div>
+          <div id="popupDiscountItems" class="text-xs sm:text-base font-bold"></div>
+        </div>
+
+        <!-- 하단 닫기 버튼 및 카운트다운 -->
+        <div class="pt-1 flex items-center gap-3">
+          <button 
+            type="button" 
+            onclick="closePopupModal()" 
+            class="flex-1 py-4 sm:py-5 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-black text-lg sm:text-2xl rounded-2xl transition shadow-lg select-none flex items-center justify-center gap-3"
+          >
+            <i class="fa-solid fa-check"></i>
+            <span>확인 완료 (창 닫기)</span>
+            <span class="text-sm sm:text-base font-bold opacity-80">(<span id="popupTimerSec">15</span>초 후 자동 닫힘)</span>
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 4. 로딩 오버레이 -->
+    <div id="loadingOverlay" class="hidden absolute inset-0 bg-white/90 backdrop-blur-xs z-40 flex flex-col items-center justify-center space-y-2.5">
+      <i class="fa-solid fa-circle-notch fa-spin text-3xl text-blue-600"></i>
+      <div class="text-sm sm:text-base font-black text-slate-800">주차 관제 시스템 실시간 확인 중...</div>
+      <div class="text-xs text-slate-400 font-bold">잠시만 기다려 주십시오.</div>
+    </div>
+
+    <!-- 5. 햄버거 메뉴 서랍 (Drawer) -->
+    <div id="sideMenuBackdrop" class="hidden fixed inset-0 bg-black/40 z-50 transition-opacity" onclick="toggleSideDrawer(false)"></div>
+    <div id="sideMenuDrawer" class="fixed top-0 left-0 bottom-0 bg-white text-slate-800 z-50 transform -translate-x-full transition-transform duration-200 border-r border-slate-200 flex flex-col p-4 shadow-2xl">
+      
+      <!-- 상단 헤더 -->
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-3">
+        <div class="flex items-center gap-2">
+          <span class="w-6 h-6 rounded bg-[#1677ff] text-white flex items-center justify-center font-bold text-xs">P</span>
+          <span class="font-black text-sm text-slate-900">구병원 주차 메뉴</span>
+        </div>
+        <button onclick="toggleSideDrawer(false)" class="text-slate-400 hover:text-slate-700 p-1 text-base">✕</button>
+      </div>
+
+      <!-- 내비게이션 메뉴 목록 -->
+      <nav class="space-y-3 flex-1 text-xs">
+        
+        <!-- [메뉴 분리 1]: PC/업무용 vs 키오스크 팝업 분리 -->
+        <div class="space-y-1.5">
+          <button 
+            type="button" 
+            id="menuBtnCheckMain" 
+            onclick="switchCheckView('main')" 
+            class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl border transition text-left font-bold"
+          >
+            <span class="flex items-center gap-2.5">
+              <i class="fa-solid fa-desktop text-blue-600 text-sm"></i>
+              <span class="font-black text-slate-800">주차감면 확인 (PC / 업무용)</span>
+            </span>
+            <span class="text-[10px] bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded font-black">가로2단</span>
+          </button>
+
+          <button 
+            type="button" 
+            id="menuBtnCheckKiosk" 
+            onclick="switchCheckView('kiosk')" 
+            class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl border transition text-left font-bold"
+          >
+            <span class="flex items-center gap-2.5">
+              <i class="fa-solid fa-tablet-screen-button text-indigo-600 text-sm"></i>
+              <span class="font-black text-slate-800">주차감면 확인 (키오스크)</span>
+            </span>
+            <span class="text-[10px] bg-indigo-100 text-indigo-700 px-1.5 py-0.5 rounded font-black">팝업모달</span>
+          </button>
+        </div>
+
+        <div class="pt-2 border-t border-slate-100"></div>
+
+        <!-- [화면 설정]: iOS 스타일 토글 스위치 표준화 -->
+        <div class="space-y-2">
+          <div class="px-1 text-[11px] font-black text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+            <i class="fa-solid fa-sliders text-blue-600"></i> 화면 설정
+          </div>
+
+          <!-- 1) PC 세로 1단 모드 고정 토글 (가로 2단이 기본) -->
+          <label class="w-full flex items-center justify-between p-2.5 rounded-xl hover:bg-slate-50 cursor-pointer text-slate-700 font-bold border border-slate-100 transition">
+            <span class="flex items-center gap-2 text-xs font-bold text-slate-800">
+              <i class="fa-solid fa-arrows-up-down text-emerald-600"></i> PC 세로 1단 모드 고정
+            </span>
+            <input type="checkbox" id="chkCheckVertical" onchange="toggleCheckVertical(this.checked)" class="sr-only peer">
+            <div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600 relative"></div>
+          </label>
+
+          <!-- 2) 전체화면 모드 토글 -->
+          <label class="w-full flex items-center justify-between p-2.5 rounded-xl hover:bg-slate-50 cursor-pointer text-slate-700 font-bold border border-slate-100 transition">
+            <span class="flex items-center gap-2 text-xs font-bold text-slate-800">
+              <i class="fa-solid fa-expand text-indigo-600"></i> 전체화면 모드
+            </span>
+            <input type="checkbox" id="chkFullscreenMode" onchange="toggleFullscreen(this.checked)" class="sr-only peer">
+            <div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-600 relative"></div>
+          </label>
+
+          <!-- 3) Seed 테마 토글 (슬림 1줄 박스 디자인) -->
+          <div class="p-2.5 rounded-xl border border-orange-200/80 bg-orange-50/50 flex items-center justify-between">
+            <span class="flex items-center gap-2 text-xs font-black text-orange-950">
+              <i class="fa-solid fa-palette text-[#ff6f0f]"></i> Seed 테마 (오렌지&소프트룩)
+            </span>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox" id="chkSeedTheme" onchange="toggleSeedTheme(this.checked)" class="sr-only peer">
+              <div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#ff6f0f]"></div>
+            </label>
+          </div>
+        </div>
+
+        <div class="pt-2 border-t border-slate-100 my-2"></div>
+
+        <!-- 원무과 로그인 화면 링크 -->
+        <a href="/" class="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-left transition">
+          <i class="fa-solid fa-lock text-slate-400"></i> 원무과 관리자 로그인 화면 이동
+        </a>
+      </nav>
+    </div>
+
+    <!-- 6. Footer -->
+    <footer class="bg-slate-50 border-t border-slate-200/80 px-3 py-2 text-center text-[11px] text-slate-400 font-bold shrink-0 select-none">
+      구병원 고객지원센터 · 주차 감면 등록 문의는 1층 원무과 수납 창구를 방문해 주세요.
+    </footer>
+
+  </div>
+
+  <!-- Javascript 로직 -->
+  <script>
+    let currentInput = "";
+    let autoResetTimer = null;
+    let resetSecondsLeft = 15;
+
+    // 상태 관리: 뷰 타입 ('main' vs 'kiosk'), 세로 1단 모드 고정 여부, Seed 테마 여부
+    let currentCheckView = localStorage.getItem('check_view_type') || 'main'; // 기본값: PC/업무용 가로2단
+    let isCheckVertical = localStorage.getItem('check_vertical_mode') === 'true'; // 기본값: false (가로2단)
+    let isSeedTheme = localStorage.getItem('ui_theme') === 'seed'; // ui_theme 연동
+
+    // --- 초기화 로직 ---
+    document.addEventListener('DOMContentLoaded', () => {
+      initSeedTheme();
+      initCheckView();
+      initVerticalMode();
+      initFullscreenListener();
+    });
+
+    // --- 햄버거 메뉴 서랍 토글 ---
+    function toggleSideDrawer(show) {
+      const d = document.getElementById('sideMenuDrawer');
+      const b = document.getElementById('sideMenuBackdrop');
+      const isOpen = !d.classList.contains('-translate-x-full');
+      const target = show !== undefined ? show : !isOpen;
+      d.classList.toggle('-translate-x-full', !target);
+      b.classList.toggle('hidden', !target);
+      if (target) {
+        syncFullscreenCheckbox();
+      }
+    }
+
+    // --- 뷰 전환: PC / 업무용 ('main') vs 키오스크 팝업 ('kiosk') ---
+    function initCheckView() {
+      switchCheckView(currentCheckView, false);
+    }
+
+    function switchCheckView(type, notify = true) {
+      currentCheckView = type;
+      localStorage.setItem('check_view_type', type);
+
+      const btnMain = document.getElementById('menuBtnCheckMain');
+      const btnKiosk = document.getElementById('menuBtnCheckKiosk');
+      const badge = document.getElementById('currentViewBadge');
+
+      const isKiosk = (type === 'kiosk');
+      document.body.classList.toggle('view-kiosk-mode', isKiosk);
+      document.body.classList.toggle('view-main-mode', !isKiosk);
+
+      if (btnMain && btnKiosk) {
+        if (!isKiosk) {
+          btnMain.className = "w-full flex items-center justify-between px-3 py-2.5 rounded-xl border border-blue-200 bg-blue-50/70 text-blue-900 font-black shadow-2xs menu-btn-active";
+          btnKiosk.className = "w-full flex items-center justify-between px-3 py-2.5 rounded-xl border border-slate-200/80 hover:bg-slate-50 text-slate-700 font-bold";
+          if (badge) badge.innerText = "PC / 업무용";
+        } else {
+          btnMain.className = "w-full flex items-center justify-between px-3 py-2.5 rounded-xl border border-slate-200/80 hover:bg-slate-50 text-slate-700 font-bold";
+          btnKiosk.className = "w-full flex items-center justify-between px-3 py-2.5 rounded-xl border border-indigo-200 bg-indigo-50/70 text-indigo-900 font-black shadow-2xs menu-btn-active";
+          if (badge) badge.innerText = "키오스크 팝업";
+        }
+      }
+
+      // 우측 인라인 결과 패널 가시성 제어
+      const resultCol = document.getElementById('checkResultCol');
+      if (resultCol) {
+        resultCol.style.display = isKiosk ? 'none' : 'block';
+      }
+
+      if (notify) {
+        toggleSideDrawer(false);
+        resetCheckScreen();
+        Swal.fire({
+          icon: 'info',
+          title: isKiosk ? '주차감면 확인 (키오스크 팝업)' : '주차감면 확인 (PC / 업무용)',
+          text: isKiosk ? '화면 가득 찬 키패드와 대형 팝업 모달이 적용됩니다.' : '가로 2단 실시간 결과 화면으로 전환되었습니다.',
+          toast: true,
+          position: 'top-end',
+          timer: 1500,
+          showConfirmButton: false
+        });
+      }
+    }
+
+    // --- PC 세로 1단 모드 고정 토글 ---
+    function initVerticalMode() {
+      const chk = document.getElementById('chkCheckVertical');
+      if (chk) chk.checked = isCheckVertical;
+      applyVerticalModeUI();
+    }
+
+    function toggleCheckVertical(checked) {
+      isCheckVertical = checked;
+      localStorage.setItem('check_vertical_mode', checked ? 'true' : 'false');
+      applyVerticalModeUI();
+
+      Swal.fire({
+        icon: 'info',
+        title: checked ? 'PC 세로 1단 모드 고정 적용' : '가로 2단 기본 모드로 복원',
+        text: checked ? '화면이 스마트폰 스타일의 세로 1열로 고정됩니다.' : '좌우 나란히 배치되는 가로 2단 모드가 적용되었습니다.',
+        toast: true,
+        position: 'top-end',
+        timer: 1500,
+        showConfirmButton: false
+      });
+    }
+
+    function applyVerticalModeUI() {
+      document.body.classList.toggle('check-vertical-active', isCheckVertical);
+    }
+
+    // --- Seed 테마 토글 ---
+    function initSeedTheme() {
+      const chk = document.getElementById('chkSeedTheme');
+      if (chk) chk.checked = isSeedTheme;
+      document.body.classList.toggle('theme-seed', isSeedTheme);
+    }
+
+    function toggleSeedTheme(checked) {
+      isSeedTheme = checked;
+      document.body.classList.toggle('theme-seed', checked);
+      if (checked) {
+        localStorage.setItem('ui_theme', 'seed');
+      } else {
+        localStorage.removeItem('ui_theme');
+      }
+
+      Swal.fire({
+        icon: 'success',
+        title: checked ? 'Seed 테마 적용' : '기본 Ant Design 테마 적용',
+        text: checked ? '오렌지 & 소프트 라운드 룩이 활성화되었습니다.' : '기본 블루 테마로 복원되었습니다.',
+        toast: true,
+        position: 'top-end',
+        timer: 1400,
+        showConfirmButton: false
+      });
+    }
+
+    // --- 전체화면 모드 (F11 양방향 연동) ---
+    function toggleFullscreen(enable) {
+      if (enable) {
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen().catch(() => {});
+        }
+      } else {
+        if (document.fullscreenElement && document.exitFullscreen) {
+          document.exitFullscreen().catch(() => {});
+        }
+      }
+    }
+
+    function syncFullscreenCheckbox() {
+      const chk = document.getElementById('chkFullscreenMode');
+      if (chk) {
+        chk.checked = !!document.fullscreenElement;
+      }
+    }
+
+    function initFullscreenListener() {
+      document.addEventListener('fullscreenchange', syncFullscreenCheckbox);
+      window.addEventListener('resize', syncFullscreenCheckbox);
+    }
+
+    // --- 키패드 입력 처리 ---
+    function onKeyPress(key, event) {
+      if (event) event.preventDefault();
+
+      if (key === 'CLEAR') {
+        clearInputNumber();
+        return;
+      }
+      if (key === 'BACK') {
+        if (currentInput.length > 0) {
+          currentInput = currentInput.slice(0, -1);
+          updateDisplay();
+        }
+        return;
+      }
+      if (currentInput.length < 4) {
+        currentInput += key;
+        updateDisplay();
+        if (currentInput.length === 4) {
+          setTimeout(() => {
+            searchPatientCar();
+          }, 200);
+        }
+      }
+    }
+
+    function clearInputNumber() {
+      currentInput = "";
+      updateDisplay();
+      const multi = document.getElementById('multiCarCard');
+      if (multi) multi.classList.add('hidden');
+    }
+
+    function updateDisplay() {
+      const display = document.getElementById('displayNum');
+      const btnClearX = document.getElementById('btnClearX');
+      const btnSearch = document.getElementById('btnTriggerSearch');
+
+      if (currentInput.length === 0) {
+        display.innerHTML = '<span class="text-slate-300">____</span>';
+        if (btnClearX) btnClearX.classList.add('hidden');
+        if (btnSearch) btnSearch.disabled = true;
+      } else {
+        const padded = currentInput.padEnd(4, '_');
+        let html = '';
+        for (let i = 0; i < 4; i++) {
+          const char = padded[i];
+          if (char === '_') {
+            html += '<span class="text-slate-300">_</span>';
+          } else {
+            html += `<span class="char-active text-blue-900 font-black">${char}</span>`;
+          }
+        }
+        display.innerHTML = html;
+        if (btnClearX) btnClearX.classList.remove('hidden');
+        if (btnSearch) btnSearch.disabled = currentInput.length < 4;
+      }
+    }
+
+    // --- 차량 조회 API 호출 (/api/patientsearch) ---
+    let isSearchingPatient = false;
+
+    async function searchPatientCar() {
+      if (isSearchingPatient) return;
+      if (currentInput.length < 4) return;
+
+      isSearchingPatient = true;
+      const btnSearch = document.getElementById('btnTriggerSearch');
+      if (btnSearch) {
+        btnSearch.disabled = true;
+        btnSearch.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> <span>확인 중...</span>';
+      }
+
+      const overlay = document.getElementById('loadingOverlay');
+      if (overlay) overlay.classList.remove('hidden');
+
+      try {
+        const res = await fetch('/api/patientsearch', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ carnum: currentInput })
+        });
+        const data = await res.json();
+        if (overlay) overlay.classList.add('hidden');
+
+        if (!data || !data.result || data.result.length === 0) {
+          renderNoCarResult(currentInput);
+          return;
+        }
+
+        if (data.result.length === 1) {
+          document.getElementById('multiCarCard').classList.add('hidden');
+          renderCarResult(data.result[0]);
+        } else {
+          renderMultiCarOptions(data.result);
+        }
+      } catch (err) {
+        if (overlay) overlay.classList.add('hidden');
+        Swal.fire('통신 오류', '주차 관제 시스템 조회 중 오류가 발생했습니다: ' + err.message, 'error');
+      } finally {
+        isSearchingPatient = false;
+        if (btnSearch) {
+          btnSearch.innerHTML = '<i class="fa-solid fa-magnifying-glass"></i> <span>감면 등록 확인하기</span>';
+          btnSearch.disabled = (currentInput.length < 4);
+        }
+      }
+    }
+
+    // --- 다중 일치 차량 목록 렌더링 ---
+    function renderMultiCarOptions(cars) {
+      const card = document.getElementById('multiCarCard');
+      const container = document.getElementById('multiCarItems');
+      container.innerHTML = '';
+      card.classList.remove('hidden');
+
+      cars.forEach(car => {
+        const isStaff = car.isStaff || car['정기구분'] === '등록차량';
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = "w-full p-2.5 rounded-xl bg-white border border-slate-200 hover:border-blue-500 hover:bg-blue-50/50 flex items-center justify-between text-left transition shadow-2xs";
+        btn.onclick = () => {
+          card.classList.add('hidden');
+          renderCarResult(car);
+        };
+        btn.innerHTML = `
+          <div class="flex items-center gap-2">
+            <span class="w-7 h-7 rounded-lg ${isStaff ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'} flex items-center justify-center text-xs font-black">
+              <i class="fa-solid fa-car"></i>
+            </span>
+            <span class="text-base font-black text-slate-800 font-num">${car['차량번호']}</span>
+            <span class="text-xs text-slate-400">(${car['입차일시'] || '-'})</span>
+          </div>
+          <span class="text-xs text-blue-600 font-extrabold">선택 →</span>
+        `;
+        container.appendChild(btn);
+      });
+    }
+
+    // --- 시간 계산 ---
+    function parseKstDate(dateStr) {
+      if (!dateStr) return new Date();
+      let clean = String(dateStr).trim().replace("Z", "");
+      let parts = clean.split(/[- :T]/);
+      if (parts.length >= 6) {
+        return new Date(parts[0], parts[1] - 1, parts[2], parts[3], parts[4], parts[5]);
+      }
+      return new Date(clean);
+    }
+
+    function calculateElapsedTime(inTimeStr, curTimeStr) {
+      if (!inTimeStr) return "-";
+      try {
+        const inDate = parseKstDate(inTimeStr);
+        const curDate = curTimeStr ? parseKstDate(curTimeStr) : new Date();
+        const diffMs = curDate.getTime() - inDate.getTime();
+        if (diffMs < 0 || isNaN(diffMs)) return "00:00";
+
+        const totalMinutes = Math.floor(diffMs / (1000 * 60));
+        const days = Math.floor(totalMinutes / (60 * 24));
+        const hours = Math.floor((totalMinutes % (60 * 24)) / 60);
+        const minutes = totalMinutes % 60;
+
+        const hh = String(hours).padStart(2, '0');
+        const mm = String(minutes).padStart(2, '0');
+
+        if (days > 0) {
+          return `${days}일 ${hh}:${mm}`;
+        } else {
+          return `${hh}:${mm}`;
+        }
+      } catch (e) {
+        return "-";
+      }
+    }
+
+    // --- 미입차 차량 결과 렌더링 ---
+    function renderNoCarResult(num) {
+      const isKiosk = (currentCheckView === 'kiosk');
+
+      if (isKiosk) {
+        openPopupModal({
+          status: 'none',
+          title: '입차 내역이 없습니다',
+          desc: `차량번호 뒷자리 [${num}]번으로 현재 주차장에 입차된 기록을 찾을 수 없습니다. 차량번호를 다시 확인해 주세요.`,
+          carNum: `${num} (미입차)`,
+          inTime: '-',
+          elapsedTime: '-',
+          discounts: [],
+          xindex: ''
+        });
+      } else {
+        document.getElementById('resultPlaceholder').classList.add('hidden');
+        document.getElementById('resultContent').classList.remove('hidden');
+        document.getElementById('timerBarArea').classList.remove('hidden');
+
+        const banner = document.getElementById('statusBanner');
+        banner.className = "p-2.5 rounded-lg border border-rose-300 bg-rose-50 text-rose-950 flex flex-col items-center text-center space-y-1 shadow-2xs";
+
+        document.getElementById('statusIcon').className = "w-8 h-8 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center text-sm shadow-inner";
+        document.getElementById('statusIcon').innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i>';
+
+        document.getElementById('statusTitle').innerText = "입차 내역이 없습니다";
+        document.getElementById('statusDesc').innerText = `차량번호 뒷자리 [${num}]번으로 현재 주차장에 입차된 기록이 없습니다. 차량번호를 다시 확인해 주세요.`;
+
+        document.getElementById('resCarFullNum').innerText = `${num} (미입차)`;
+        document.getElementById('resBadge').className = "text-[10px] px-2 py-0.5 rounded-full font-black bg-rose-100 text-rose-700";
+        document.getElementById('resBadge').innerText = "입차기록 없음";
+
+        document.getElementById('resInTime').innerText = "-";
+        document.getElementById('resElapsedTime').innerText = "-";
+        document.getElementById('resDiscountItems').innerHTML = '<div class="text-rose-600 font-bold py-0.5 text-xs">입차 기록이 없어 감면 내역을 조회할 수 없습니다.</div>';
+        document.getElementById('resPhotoArea').classList.add('hidden');
+      }
+
+      startAutoResetTimer();
+    }
+
+    // --- 차량 조회 결과 렌더링 ---
+    function renderCarResult(car) {
+      const isStaff = car.isStaff || car['정기구분'] === '등록차량';
+      const discounts = car.appliedDiscounts || [];
+      const hasDiscount = discounts.length > 0;
+      const elapsedStr = calculateElapsedTime(car['입차일시'], car['현재시간']);
+      const isKiosk = (currentCheckView === 'kiosk');
+
+      let statusType = 'no_discount';
+      let title = "아직 등록된 감면 내역이 없습니다";
+      let desc = "현재 차량에 등록된 무료 주차 혜택이 없습니다. 1층 원무과 수납 창구 또는 진료과에서 주차 감면을 먼저 받아주시기 바랍니다.";
+
+      if (isStaff) {
+        statusType = 'staff';
+        title = "정기 등록 차량입니다 (무료 출차)";
+        const staffLoc = car['방문위치'] ? `[${car['방문위치']}] ` : '';
+        desc = `${staffLoc}별도의 감면 등록 절차 없이 차단기가 자동으로 무료 개방됩니다. 편안히 출차하십시오.`;
+      } else if (hasDiscount) {
+        statusType = 'discounted';
+        title = "주차 감면이 정상 등록되어 있습니다";
+        desc = "등록된 감면 혜택으로 무료 출차가 가능합니다. 안심하고 출차하십시오.";
+      }
+
+      if (isKiosk) {
+        openPopupModal({
+          status: statusType,
+          title,
+          desc,
+          carNum: car['차량번호'] || '-',
+          inTime: car['입차일시'] || '-',
+          elapsedTime: elapsedStr,
+          discounts,
+          isStaff,
+          xindex: car.xindex,
+          visitchk: car['정기구분']
+        });
+      } else {
+        document.getElementById('resultPlaceholder').classList.add('hidden');
+        document.getElementById('resultContent').classList.remove('hidden');
+        document.getElementById('timerBarArea').classList.remove('hidden');
+
+        const banner = document.getElementById('statusBanner');
+        const icon = document.getElementById('statusIcon');
+        const badge = document.getElementById('resBadge');
+        const discContainer = document.getElementById('resDiscountItems');
+
+        document.getElementById('resCarFullNum').innerText = car['차량번호'] || '-';
+        document.getElementById('resInTime').innerText = car['입차일시'] || '-';
+        document.getElementById('resElapsedTime').innerText = elapsedStr;
+        document.getElementById('statusTitle').innerText = title;
+        document.getElementById('statusDesc').innerText = desc;
+
+        if (statusType === 'staff') {
+          banner.className = "p-2.5 rounded-lg border border-purple-300 bg-purple-50 text-purple-950 flex flex-col items-center text-center space-y-1 shadow-2xs";
+          icon.className = "w-8 h-8 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center text-sm shadow-inner";
+          icon.innerHTML = '<i class="fa-solid fa-id-card-clip"></i>';
+          badge.className = "text-[10px] px-2 py-0.5 rounded-full font-black bg-purple-200 text-purple-800";
+          badge.innerText = "정기 등록차량";
+          discContainer.innerHTML = '<div class="p-2 rounded-md bg-purple-100/70 text-purple-800 font-black text-xs">🅿️ 정기 등록차량 (출차 시 차단기 자동 무료 개방)</div>';
+        } else if (statusType === 'discounted') {
+          banner.className = "p-2.5 rounded-lg border border-emerald-300 bg-emerald-50 text-emerald-950 flex flex-col items-center text-center space-y-1 shadow-2xs";
+          icon.className = "w-8 h-8 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-sm shadow-inner";
+          icon.innerHTML = '<i class="fa-solid fa-circle-check"></i>';
+          badge.className = "text-[10px] px-2 py-0.5 rounded-full font-black bg-emerald-100 text-emerald-800";
+          badge.innerText = "감면 완료";
+
+          let html = '';
+          discounts.forEach(d => {
+            const company = d.상가명 || d.아이디 || '구병원';
+            const discountName = d.할인명 || d.할인이름 || '할인';
+            const priceNum = (d.할인값 != null && !isNaN(d.할인값)) ? Number(d.할인값) : null;
+            const discountVal = (priceNum !== null) ? priceNum.toLocaleString() + '원' : (d.할인값 ? d.할인값 + '원' : '할인');
+            const timeStr = (d.입력시간 || d.입력시각 || '').slice(-8, -3);
+
+            html += `
+              <div class="p-2 sm:p-2.5 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-900 font-extrabold text-xs sm:text-sm flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <i class="fa-solid fa-circle-check text-emerald-600"></i>
+                  <span class="px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[11px] font-black">[${company}]</span>
+                  <span class="font-extrabold text-slate-800">${discountName}</span>
+                  <span class="text-emerald-700 font-black">${discountVal}</span>
+                </div>
+                <span class="text-[11px] text-slate-500 font-bold">${timeStr} 등록</span>
+              </div>
+            `;
+          });
+          discContainer.innerHTML = html;
+        } else {
+          banner.className = "p-2.5 rounded-lg border border-amber-300 bg-amber-50 text-amber-950 flex flex-col items-center text-center space-y-1 shadow-2xs";
+          icon.className = "w-8 h-8 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center text-sm shadow-inner";
+          icon.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i>';
+          badge.className = "text-[10px] px-2 py-0.5 rounded-full font-black bg-amber-100 text-amber-800";
+          badge.innerText = "감면 미등록";
+          discContainer.innerHTML = '<div class="p-2 rounded-md bg-amber-50 border border-amber-200 text-amber-800 font-black text-xs">⚠️ 등록된 감면 내역이 없습니다. (원무과 수납 창구 문의)</div>';
+        }
+
+        // 사진 로드
+        loadPhoto(car.xindex, car['정기구분'], false);
+      }
+
+      startAutoResetTimer();
+    }
+
+    // --- 대형 팝업 모달 제어 (키오스크용) ---
+    function openPopupModal(data) {
+      document.getElementById('checkPopupModal').classList.remove('hidden');
+      document.getElementById('popupCarNum').innerText = data.carNum;
+      document.getElementById('popupInTime').innerText = data.inTime;
+      document.getElementById('popupElapsedTime').innerText = data.elapsedTime;
+      document.getElementById('popupStatusTitle').innerText = data.title;
+      document.getElementById('popupStatusDesc').innerText = data.desc;
+
+      const badge = document.getElementById('popupResBadge');
+      const banner = document.getElementById('popupStatusBanner');
+      const icon = document.getElementById('popupStatusIcon');
+      const discContainer = document.getElementById('popupDiscountItems');
+
+      if (data.status === 'staff') {
+        banner.className = "p-4 sm:p-6 rounded-2xl border-2 border-purple-300 bg-purple-50 text-purple-950 flex flex-col items-center text-center space-y-2 shadow-xs";
+        icon.className = "w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center text-2xl sm:text-3xl shadow-inner mb-1";
+        icon.innerHTML = '<i class="fa-solid fa-id-card-clip"></i>';
+        badge.className = "text-sm sm:text-base px-3.5 py-1.5 rounded-xl font-black bg-purple-200 text-purple-800 shrink-0";
+        badge.innerText = "정기 등록차량";
+        discContainer.innerHTML = '<div class="p-3 sm:p-4 rounded-xl bg-purple-100/70 text-purple-800 font-black text-sm sm:text-base">🅿️ 정기 등록차량 (출차 시 차단기 자동 무료 개방)</div>';
+      } else if (data.status === 'discounted') {
+        banner.className = "p-4 sm:p-6 rounded-2xl border-2 border-emerald-300 bg-emerald-50 text-emerald-950 flex flex-col items-center text-center space-y-2 shadow-xs";
+        icon.className = "w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-2xl sm:text-3xl shadow-inner mb-1";
+        icon.innerHTML = '<i class="fa-solid fa-circle-check"></i>';
+        badge.className = "text-sm sm:text-base px-3.5 py-1.5 rounded-xl font-black bg-emerald-100 text-emerald-800 shrink-0";
+        badge.innerText = "감면 완료 (출차 가능)";
+
+        let html = '';
+        data.discounts.forEach(d => {
+          html += `
+            <div class="p-3 sm:p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 font-extrabold text-sm sm:text-base flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <i class="fa-solid fa-check text-emerald-600 text-lg"></i>
+                <span>${d.상가명 || d.아이디 || '병원'} · <b class="text-emerald-700 font-black">${d.할인값}</b></span>
+              </div>
+              <span class="text-xs sm:text-sm text-slate-400 font-bold">${(d.입력시간 || '').slice(-8, -3)} 등록</span>
+            </div>
+          `;
+        });
+        discContainer.innerHTML = html;
+      } else if (data.status === 'none') {
+        banner.className = "p-4 sm:p-6 rounded-2xl border-2 border-rose-300 bg-rose-50 text-rose-950 flex flex-col items-center text-center space-y-2 shadow-xs";
+        icon.className = "w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center text-2xl sm:text-3xl shadow-inner mb-1";
+        icon.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i>';
+        badge.className = "text-sm sm:text-base px-3.5 py-1.5 rounded-xl font-black bg-rose-100 text-rose-700 shrink-0";
+        badge.innerText = "입차기록 없음";
+        discContainer.innerHTML = '<div class="text-rose-600 font-black text-sm sm:text-base py-1">입차 기록이 없습니다.</div>';
+      } else {
+        banner.className = "p-4 sm:p-6 rounded-2xl border-2 border-amber-300 bg-amber-50 text-amber-950 flex flex-col items-center text-center space-y-2 shadow-xs";
+        icon.className = "w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center text-2xl sm:text-3xl shadow-inner mb-1";
+        icon.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i>';
+        badge.className = "text-sm sm:text-base px-3.5 py-1.5 rounded-xl font-black bg-amber-100 text-amber-800 shrink-0";
+        badge.innerText = "감면 미등록";
+        discContainer.innerHTML = '<div class="p-3 sm:p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 font-black text-sm sm:text-base">⚠️ 등록된 감면 내역이 없습니다. (1층 원무과 수납 창구 문의)</div>';
+      }
+
+      loadPhoto(data.xindex, data.visitchk, true);
+    }
+
+    function closePopupModal() {
+      document.getElementById('checkPopupModal').classList.add('hidden');
+      resetCheckScreen();
+    }
+
+    // --- 사진 로드 ---
+    function loadPhoto(xindex, visitchk, isPopup) {
+      const area = document.getElementById(isPopup ? 'popupPhotoArea' : 'resPhotoArea');
+      const img = document.getElementById(isPopup ? 'popupPhotoImg' : 'resPhotoImg');
+      const spinner = document.getElementById(isPopup ? 'popupPhotoSpinner' : 'resPhotoSpinner');
+
+      if (!area) return;
+      area.classList.remove('hidden');
+
+      if (!xindex) {
+        area.classList.add('hidden');
+        return;
+      }
+
+      if (spinner) spinner.classList.remove('hidden');
+      if (img) img.classList.add('hidden');
+
+      const param = visitchk === '등록차량' ? `visitchk=${encodeURIComponent(visitchk)}&xindex=${encodeURIComponent(xindex)}` : `xindex=${encodeURIComponent(xindex)}`;
+      if (img) img.src = `/api/inimage?${param}`;
+    }
+
+    // --- 15초 자동 초기화 타이머 ---
+    function startAutoResetTimer() {
+      stopAutoResetTimer();
+      resetSecondsLeft = 15;
+      const el = document.getElementById('resetTimerSec');
+      const popupEl = document.getElementById('popupTimerSec');
+      if (el) el.innerText = resetSecondsLeft;
+      if (popupEl) popupEl.innerText = resetSecondsLeft;
+
+      autoResetTimer = setInterval(() => {
+        resetSecondsLeft--;
+        if (el) el.innerText = resetSecondsLeft;
+        if (popupEl) popupEl.innerText = resetSecondsLeft;
+        if (resetSecondsLeft <= 0) {
+          stopAutoResetTimer();
+          resetCheckScreen();
+        }
+      }, 1000);
+    }
+
+    function stopAutoResetTimer() {
+      if (autoResetTimer) {
+        clearInterval(autoResetTimer);
+        autoResetTimer = null;
+      }
+    }
+
+    function resetCheckScreen() {
+      stopAutoResetTimer();
+      clearInputNumber();
+      const place = document.getElementById('resultPlaceholder');
+      const cont = document.getElementById('resultContent');
+      const bar = document.getElementById('timerBarArea');
+      const modal = document.getElementById('checkPopupModal');
+
+      if (place) place.classList.remove('hidden');
+      if (cont) cont.classList.add('hidden');
+      if (bar) bar.classList.add('hidden');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    // --- 도움말 팝오버 토글 ---
+    function toggleHelpPopover(force) {
+      const popover = document.getElementById('helpPopover');
+      if (typeof force === 'boolean') {
+        if (force) popover.classList.add('active');
+        else popover.classList.remove('active');
+      } else {
+        popover.classList.toggle('active');
+      }
+    }
+
+    document.addEventListener('click', (e) => {
+      const pop = document.getElementById('helpPopover');
+      if (pop && pop.classList.contains('active')) {
+        if (!pop.contains(e.target) && !e.target.closest('button[onclick="toggleHelpPopover()"]')) {
+          pop.classList.remove('active');
+        }
+      }
+    });
+
+    // 키보드 지원 (PC 테스트용)
+    document.addEventListener('keydown', (e) => {
+      if (e.key >= '0' && e.key <= '9') {
+        onKeyPress(e.key);
+      } else if (e.key === 'Backspace') {
+        onKeyPress('BACK');
+      } else if (e.key === 'Escape') {
+        onKeyPress('CLEAR');
+      } else if (e.key === 'Enter') {
+        searchPatientCar();
+      }
+    });
+  </script>
+</body>
+</html>
