@@ -18,10 +18,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
   <style>
-    :root {
-      --kiosk-scale: 1;
-    }
-
     * {
       box-sizing: border-box;
       -webkit-tap-highlight-color: transparent;
@@ -46,7 +42,7 @@
       font-feature-settings: 'tnum' 1, 'lnum' 1;
     }
 
-    /* 대형 키패드 버튼 스타일 */
+    /* 대형 키패드 버튼 스타일 (태블릿 터치 최적화) */
     .keypad-btn {
       transition: all 0.08s ease;
       touch-action: manipulation;
@@ -76,60 +72,6 @@
       animation: scanLine 2s ease-in-out infinite;
     }
 
-    /* 슬라이드 햄버거 메뉴 팝오버 */
-    #menuPopover {
-      display: none;
-      position: absolute;
-      top: 65px;
-      right: 16px;
-      width: min(90vw, 360px);
-      background: #ffffff;
-      border: 1.5px solid #fed7aa;
-      border-radius: 1.25rem;
-      box-shadow: 0 20px 30px -10px rgba(0, 0, 0, 0.15), 0 10px 15px -5px rgba(0, 0, 0, 0.08);
-      z-index: 100;
-      padding: 1.25rem;
-    }
-    #menuPopover.active { display: block; }
-
-    /* 토글 스위치 스타일 */
-    .switch {
-      position: relative;
-      display: inline-block;
-      width: 48px;
-      height: 26px;
-    }
-    .switch input {
-      opacity: 0;
-      width: 0;
-      height: 0;
-    }
-    .slider {
-      position: absolute;
-      cursor: pointer;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background-color: #cbd5e1;
-      transition: .3s;
-      border-radius: 34px;
-    }
-    .slider:before {
-      position: absolute;
-      content: "";
-      height: 20px;
-      width: 20px;
-      left: 3px;
-      bottom: 3px;
-      background-color: white;
-      transition: .3s;
-      border-radius: 50%;
-    }
-    input:checked + .slider {
-      background-color: #ff6f0f;
-    }
-    input:checked + .slider:before {
-      transform: translateX(22px);
-    }
-
     /* 반응형 동적 폰트 스케일링 (화면 크기에 비례하여 자동 확대) */
     .kiosk-title {
       font-size: clamp(1.2rem, 2.2vw, 2.2rem);
@@ -151,14 +93,11 @@
 </head>
 <body class="flex flex-col w-screen h-screen overflow-hidden text-slate-800">
 
-  <!-- ⭐️ 바코드 자동 입력 수신용 숨김 인풋 -->
-  <input type="text" id="barcodeHiddenInput" class="opacity-0 absolute -top-100 left-0 pointer-events-none" autocomplete="off">
-
   <!-- ===================================================================== -->
-  <!-- 🧭 상단 헤더 바 (구병원 주차 등록 / 처음으로 / 햄버거 메뉴) -->
+  <!-- 🧭 상단 헤더 바 (구병원 주차 등록 / 처음으로 단일 버튼) -->
   <!-- ===================================================================== -->
   <header class="w-full bg-white/95 backdrop-blur-md border-b border-orange-100 flex-shrink-0 px-4 sm:px-8 py-3 sm:py-4 flex items-center justify-between shadow-xs z-30">
-    <div class="flex items-center gap-3 sm:gap-4">
+    <div class="flex items-center gap-3 sm:gap-4 cursor-pointer" onclick="handleLogoClick()" title="구병원 주차 등록 (3회 연속 터치 시 전체화면 토글)">
       <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-tr from-[#ff6f0f] to-[#ffa352] text-white flex items-center justify-center font-black text-xl sm:text-2xl shadow-sm">
         <i class="fa-solid fa-square-parking"></i>
       </div>
@@ -172,57 +111,14 @@
       </div>
     </div>
 
-    <!-- 우측 도구: [처음으로] & [햄버거(☰)] 버튼 -->
+    <!-- 우측 도구: 환자용 [처음으로] 단일 버튼만 깔끔하게 노출 (햄버거/설정창 완전 삭제) -->
     <div class="flex items-center gap-2 sm:gap-3">
-      <button onclick="resetAllSteps()" class="px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs sm:text-sm flex items-center gap-1.5 transition active:scale-95">
-        <i class="fa-solid fa-rotate-right"></i>
+      <button onclick="resetAllSteps()" class="px-4 sm:px-6 py-2.5 sm:py-3 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-black text-xs sm:text-base flex items-center gap-2 transition active:scale-95 shadow-2xs">
+        <i class="fa-solid fa-rotate-right text-[#ff6f0f]"></i>
         <span>처음으로</span>
-      </button>
-
-      <!-- 햄버거 메뉴 버튼 -->
-      <button id="btnMenu" onclick="toggleMenuPopover(event)" class="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-orange-50 hover:bg-orange-100 border border-orange-200 text-[#ff6f0f] font-black text-lg sm:text-xl flex items-center justify-center transition shadow-2xs" title="메뉴">
-        <i class="fa-solid fa-bars"></i>
       </button>
     </div>
   </header>
-
-  <!-- 💡 햄버거 메뉴 팝오버 (전체화면 토글 스위치 및 안내) -->
-  <div id="menuPopover" class="text-left text-xs text-slate-700">
-    <div class="flex items-center justify-between pb-2 mb-3 border-b border-orange-100">
-      <div class="font-black text-slate-900 text-sm flex items-center gap-1.5">
-        <i class="fa-solid fa-gear text-[#ff6f0f]"></i>
-        <span>키오스크 설정</span>
-      </div>
-      <button onclick="toggleMenuPopover(event)" class="text-slate-400 hover:text-slate-600 p-1">
-        <i class="fa-solid fa-xmark text-base"></i>
-      </button>
-    </div>
-
-    <div class="space-y-4">
-      <!-- 전체화면 토글 스위치 옵션 -->
-      <div class="flex items-center justify-between p-3 rounded-xl bg-orange-50/70 border border-orange-200">
-        <div>
-          <div class="font-bold text-slate-900 text-sm flex items-center gap-1.5">
-            <i class="fa-solid fa-expand text-[#ff6f0f]"></i>
-            <span>전체화면 모드 (F11)</span>
-          </div>
-          <div class="text-[11px] text-slate-500 mt-0.5">키오스크 전용 풀스크린 전환</div>
-        </div>
-        <label class="switch">
-          <input type="checkbox" id="fullscreenToggle" onchange="toggleFullscreenMode(this)">
-          <span class="slider"></span>
-        </label>
-      </div>
-
-      <!-- 시스템 기본 정보 -->
-      <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 text-[11px] space-y-1 text-slate-600">
-        <div>• <b>시스템</b>: 구병원 주차감면 무인 키오스크</div>
-        <div>• <b>접속 경로</b>: <code>/self</code> (포트 :3150)</div>
-        <div>• <b>연동 관제</b>: <code>211.105.143.22</code> (원무과 kooh 연동)</div>
-        <div>• <b>연동 DB</b>: <code>JAIN_WM.WMNAM01</code> / <code>VCARINFO3</code></div>
-      </div>
-    </div>
-  </div>
 
   <!-- ===================================================================== -->
   <!-- 🖥️ 메인 키오스크 대화면 뷰포트 (100% 꽉 채우는 반응형 레이아웃) -->
@@ -259,7 +155,7 @@
         <p class="kiosk-desc text-slate-500">4자리를 누르면 현재 병원에 입차된 차량이 자동으로 검색됩니다.</p>
       </div>
 
-      <!-- 4자리 번호 표시창 (시원하고 큼직한 폰트) -->
+      <!-- 4자리 번호 표시창 -->
       <div class="w-full max-w-md my-2">
         <div class="kiosk-num-box bg-orange-50/70 rounded-2xl border-2 border-orange-300 flex items-center justify-center gap-4 sm:gap-6 px-4 shadow-inner">
           <div id="digit0" class="num-display kiosk-num-digit w-12 sm:w-16 text-center font-black text-slate-800 border-b-4 border-orange-400 pb-1">_</div>
@@ -269,7 +165,7 @@
         </div>
       </div>
 
-      <!-- 시원시원한 대형 터치 숫자 키패드 -->
+      <!-- 대형 터치 숫자 키패드 -->
       <div class="w-full max-w-md grid grid-cols-3 gap-2.5 sm:gap-4 my-2">
         <button onclick="pressNum('1')" class="keypad-btn kiosk-keypad-btn rounded-2xl font-black text-slate-800">1</button>
         <button onclick="pressNum('2')" class="keypad-btn kiosk-keypad-btn rounded-2xl font-black text-slate-800">2</button>
@@ -311,7 +207,7 @@
         </button>
       </div>
 
-      <!-- 검색된 차량 카드 리스트 (대형 카드) -->
+      <!-- 검색된 차량 카드 리스트 -->
       <div id="carCardsContainer" class="flex-1 overflow-y-auto space-y-3 sm:space-y-4 py-3 sm:py-4 pr-1">
         <!-- JS로 동적 렌더링 -->
       </div>
@@ -381,31 +277,31 @@
     <!-- ===================================================================== -->
     <!-- 🏥 STEP 2: 환자 본인 확인 화면 (바코드 스캔 / 주민번호 13자리 마스킹) -->
     <!-- ===================================================================== -->
-    <section id="step2Section" class="hidden w-full max-w-4xl flex-1 bg-white rounded-3xl border-2 border-orange-200 shadow-xl p-4 sm:p-8 flex flex-col justify-between my-auto">
-      <!-- 선택된 차량 요약 상단 바 -->
-      <div class="bg-orange-50 border border-orange-200 rounded-2xl p-3 sm:p-4 flex items-center justify-between shadow-2xs flex-shrink-0">
-        <div class="flex items-center gap-3 sm:gap-4">
-          <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-[#ff6f0f] text-white flex items-center justify-center font-black text-lg sm:text-xl shadow-xs">
+    <section id="step2Section" class="hidden w-full max-w-4xl flex-1 bg-white rounded-3xl border-2 border-orange-200 shadow-xl p-4 sm:p-6 flex flex-col justify-between my-auto">
+      <!-- 선택된 차량 요약 상단 바 (슬림 컴팩트) -->
+      <div class="bg-orange-50 border border-orange-200 rounded-2xl p-2.5 sm:p-3 flex items-center justify-between shadow-2xs flex-shrink-0">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#ff6f0f] text-white flex items-center justify-center font-black text-base sm:text-lg shadow-xs">
             <i class="fa-solid fa-car"></i>
           </div>
           <div>
-            <div class="text-[11px] sm:text-xs text-slate-500 font-bold">선택하신 차량</div>
-            <div class="text-lg sm:text-2xl font-black text-slate-900 font-num tracking-wide" id="step2SelectedCarNum">-</div>
+            <div class="text-[10px] sm:text-xs text-slate-500 font-bold">선택하신 차량</div>
+            <div class="text-base sm:text-xl font-black text-slate-900 font-num tracking-wide" id="step2SelectedCarNum">-</div>
           </div>
         </div>
         <div class="text-right">
-          <div class="text-xs sm:text-sm text-slate-600 font-num" id="step2SelectedCarInTime">입차: -</div>
-          <button onclick="backToStep1Keypad()" class="text-xs sm:text-sm font-bold text-[#ff6f0f] hover:underline mt-0.5">차량 변경 ↺</button>
+          <div class="text-xs text-slate-600 font-num" id="step2SelectedCarInTime">입차: -</div>
+          <button onclick="backToStep1Keypad()" class="text-xs font-bold text-[#ff6f0f] hover:underline">차량 변경 ↺</button>
         </div>
       </div>
 
       <!-- 본인 확인 2가지 탭 메뉴 -->
       <div class="flex items-center justify-center gap-2 sm:gap-4 my-2 flex-shrink-0">
-        <button id="tabBtnBarcode" onclick="switchAuthTab('barcode')" class="flex-1 max-w-xs py-2.5 sm:py-3.5 rounded-2xl font-black text-sm sm:text-lg border-2 transition flex items-center justify-center gap-2 bg-[#ff6f0f] border-[#ff6f0f] text-white shadow-sm">
+        <button id="tabBtnBarcode" onclick="switchAuthTab('barcode')" class="flex-1 max-w-xs py-2 sm:py-3 rounded-2xl font-black text-sm sm:text-base border-2 transition flex items-center justify-center gap-2 bg-[#ff6f0f] border-[#ff6f0f] text-white shadow-sm">
           <i class="fa-solid fa-barcode"></i>
           <span>영수증 바코드 스캔</span>
         </button>
-        <button id="tabBtnJmno" onclick="switchAuthTab('jmno')" class="flex-1 max-w-xs py-2.5 sm:py-3.5 rounded-2xl font-black text-sm sm:text-lg border-2 transition flex items-center justify-center gap-2 bg-slate-100 border-slate-200 text-slate-600 hover:bg-slate-200">
+        <button id="tabBtnJmno" onclick="switchAuthTab('jmno')" class="flex-1 max-w-xs py-2 sm:py-3 rounded-2xl font-black text-sm sm:text-base border-2 transition flex items-center justify-center gap-2 bg-slate-100 border-slate-200 text-slate-600 hover:bg-slate-200">
           <i class="fa-solid fa-id-card"></i>
           <span>주민등록번호 (13자리)</span>
         </button>
@@ -415,23 +311,23 @@
       <div id="tabContentBarcode" class="flex-1 flex flex-col items-center justify-center p-4 sm:p-6 bg-slate-50 border-2 border-dashed border-orange-300 rounded-3xl text-center relative overflow-hidden my-auto">
         <div class="absolute inset-x-8 h-1 bg-gradient-to-r from-transparent via-[#ff6f0f] to-transparent scanner-line pointer-events-none"></div>
 
-        <div class="w-16 h-16 sm:w-24 sm:h-24 rounded-3xl bg-white border border-orange-200 text-[#ff6f0f] flex items-center justify-center text-3xl sm:text-5xl mb-3 shadow-sm">
+        <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-3xl bg-white border border-orange-200 text-[#ff6f0f] flex items-center justify-center text-3xl sm:text-4xl mb-3 shadow-sm">
           <i class="fa-solid fa-barcode"></i>
         </div>
 
         <h3 class="text-lg sm:text-2xl font-black text-slate-900 mb-1">영수증 / 접수증 바코드를 리더기에 대주세요</h3>
         <p class="text-xs sm:text-sm text-slate-600 max-w-md">
-          진료비 영수증 또는 외래 접수증 하단의 <b>바코드</b>를 스캐너에 비추시면 0.1초 만에 본인 확인이 완료됩니다.
+          진료비 영수증 또는 외래 접수증 하단의 <b>바코드</b>를 리더기에 스캔하시면 본인 확인이 즉시 완료됩니다.
         </p>
 
-        <div class="mt-3 flex items-center gap-2">
+        <div class="mt-4 flex items-center gap-2">
           <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs sm:text-sm font-bold animate-pulse">
-            <span class="w-2 h-2 rounded-full bg-emerald-600"></span> 바코드 리더기 대기 중
+            <span class="w-2 h-2 rounded-full bg-emerald-600"></span> 바코드 리더기 상시 대기 중
           </span>
         </div>
       </div>
 
-      <!-- 탭 2 컨텐츠: 주민등록번호 13자리 마스킹 터치 입력 영역 -->
+      <!-- 탭 2 컨텐츠: 주민등록번호 13자리 마스킹 터치 입력 영역 (공간 꽉 차게 최적화) -->
       <div id="tabContentJmno" class="hidden flex-1 flex flex-col items-center justify-between p-3 sm:p-5 bg-slate-50 border-2 border-orange-200 rounded-3xl my-auto">
         <div class="text-center space-y-1">
           <h4 class="text-base sm:text-xl font-black text-slate-900">주민등록번호 13자리를 눌러주세요</h4>
@@ -439,31 +335,31 @@
         </div>
 
         <!-- 13자리 주민번호 표시창 -->
-        <div class="w-full max-w-md my-2">
+        <div class="w-full max-w-md my-1.5">
           <div class="h-14 sm:h-16 bg-white rounded-2xl border-2 border-orange-300 flex items-center justify-center gap-2 sm:gap-3 px-4 shadow-inner">
-            <div id="jmnoFront" class="num-display text-xl sm:text-3xl font-black text-slate-900 tracking-widest">______</div>
-            <span class="text-xl sm:text-3xl font-black text-slate-400">-</span>
-            <div id="jmnoBack" class="num-display text-xl sm:text-3xl font-black text-[#ff6f0f] tracking-widest">_______</div>
+            <div id="jmnoFront" class="num-display text-2xl sm:text-3xl font-black text-slate-900 tracking-widest">______</div>
+            <span class="text-2xl sm:text-3xl font-black text-slate-400">-</span>
+            <div id="jmnoBack" class="num-display text-2xl sm:text-3xl font-black text-[#ff6f0f] tracking-widest">_______</div>
           </div>
         </div>
 
-        <!-- 주민번호 넘버패드 -->
-        <div class="w-full max-w-md grid grid-cols-3 gap-2 sm:gap-3 py-1">
-          <button onclick="pressJmnoNum('1')" class="keypad-btn h-12 sm:h-14 rounded-2xl text-xl sm:text-2xl font-black text-slate-800">1</button>
-          <button onclick="pressJmnoNum('2')" class="keypad-btn h-12 sm:h-14 rounded-2xl text-xl sm:text-2xl font-black text-slate-800">2</button>
-          <button onclick="pressJmnoNum('3')" class="keypad-btn h-12 sm:h-14 rounded-2xl text-xl sm:text-2xl font-black text-slate-800">3</button>
+        <!-- 주민번호 넘버패드 (시원하게 꽉 채운 대형 버튼) -->
+        <div class="w-full max-w-md grid grid-cols-3 gap-2 sm:gap-3 py-1 flex-1 items-center">
+          <button onclick="pressJmnoNum('1')" class="keypad-btn h-14 sm:h-16 rounded-2xl text-2xl sm:text-3xl font-black text-slate-800">1</button>
+          <button onclick="pressJmnoNum('2')" class="keypad-btn h-14 sm:h-16 rounded-2xl text-2xl sm:text-3xl font-black text-slate-800">2</button>
+          <button onclick="pressJmnoNum('3')" class="keypad-btn h-14 sm:h-16 rounded-2xl text-2xl sm:text-3xl font-black text-slate-800">3</button>
 
-          <button onclick="pressJmnoNum('4')" class="keypad-btn h-12 sm:h-14 rounded-2xl text-xl sm:text-2xl font-black text-slate-800">4</button>
-          <button onclick="pressJmnoNum('5')" class="keypad-btn h-12 sm:h-14 rounded-2xl text-xl sm:text-2xl font-black text-slate-800">5</button>
-          <button onclick="pressJmnoNum('6')" class="keypad-btn h-12 sm:h-14 rounded-2xl text-xl sm:text-2xl font-black text-slate-800">6</button>
+          <button onclick="pressJmnoNum('4')" class="keypad-btn h-14 sm:h-16 rounded-2xl text-2xl sm:text-3xl font-black text-slate-800">4</button>
+          <button onclick="pressJmnoNum('5')" class="keypad-btn h-14 sm:h-16 rounded-2xl text-2xl sm:text-3xl font-black text-slate-800">5</button>
+          <button onclick="pressJmnoNum('6')" class="keypad-btn h-14 sm:h-16 rounded-2xl text-2xl sm:text-3xl font-black text-slate-800">6</button>
 
-          <button onclick="pressJmnoNum('7')" class="keypad-btn h-12 sm:h-14 rounded-2xl text-xl sm:text-2xl font-black text-slate-800">7</button>
-          <button onclick="pressJmnoNum('8')" class="keypad-btn h-12 sm:h-14 rounded-2xl text-xl sm:text-2xl font-black text-slate-800">8</button>
-          <button onclick="pressJmnoNum('9')" class="keypad-btn h-12 sm:h-14 rounded-2xl text-xl sm:text-2xl font-black text-slate-800">9</button>
+          <button onclick="pressJmnoNum('7')" class="keypad-btn h-14 sm:h-16 rounded-2xl text-2xl sm:text-3xl font-black text-slate-800">7</button>
+          <button onclick="pressJmnoNum('8')" class="keypad-btn h-14 sm:h-16 rounded-2xl text-2xl sm:text-3xl font-black text-slate-800">8</button>
+          <button onclick="pressJmnoNum('9')" class="keypad-btn h-14 sm:h-16 rounded-2xl text-2xl sm:text-3xl font-black text-slate-800">9</button>
 
-          <button onclick="clearJmnoNum()" class="keypad-btn h-12 sm:h-14 rounded-2xl text-sm sm:text-base font-bold text-rose-600 bg-rose-50 border-rose-200">전체삭제</button>
-          <button onclick="pressJmnoNum('0')" class="keypad-btn h-12 sm:h-14 rounded-2xl text-xl sm:text-2xl font-black text-slate-800">0</button>
-          <button onclick="backspaceJmnoNum()" class="keypad-btn h-12 sm:h-14 rounded-2xl text-lg sm:text-xl font-bold text-slate-600">
+          <button onclick="clearJmnoNum()" class="keypad-btn h-14 sm:h-16 rounded-2xl text-base sm:text-lg font-bold text-rose-600 bg-rose-50 border-rose-200">전체삭제</button>
+          <button onclick="pressJmnoNum('0')" class="keypad-btn h-14 sm:h-16 rounded-2xl text-2xl sm:text-3xl font-black text-slate-800">0</button>
+          <button onclick="backspaceJmnoNum()" class="keypad-btn h-14 sm:h-16 rounded-2xl text-xl sm:text-2xl font-bold text-slate-600">
             <i class="fa-solid fa-delete-left"></i>
           </button>
         </div>
@@ -541,7 +437,7 @@
   </main>
 
   <!-- ===================================================================== -->
-  <!-- ⚙️ 프론트엔드 핵심 로직 스크립트 -->
+  <!-- ⚙️ 프론트엔드 핵심 로직 스크립트 (가상키보드 원천 차단 & 전역 바코드 수신) -->
   <!-- ===================================================================== -->
   <script>
     // 상태 관리
@@ -552,67 +448,55 @@
     let currentPatient = null;     // { jubno, name, birth, carnoPure, benefit }
     let returnCountdownTimer = null;
 
-    document.addEventListener("DOMContentLoaded", () => {
-      // 바코드 리더기 자동 수신 인풋 상시 포커스
-      keepBarcodeFocus();
-      document.addEventListener("click", () => setTimeout(keepBarcodeFocus, 200));
-
-      // 키보드 엔터 입력(바코드 스캐너 완료) 감지
-      const barInput = document.getElementById("barcodeHiddenInput");
-      barInput.addEventListener("keydown", (e) => {
-        if (e.key === "Enter") {
-          const val = barInput.value.trim();
-          barInput.value = "";
-          if (val) {
-            handleBarcodeScanned(val);
-          }
-        }
-      });
-
-      // 전체화면 상태 변경 감지 시 토글 UI 동기화
-      document.addEventListener("fullscreenchange", () => {
-        const toggle = document.getElementById("fullscreenToggle");
-        if (toggle) {
-          toggle.checked = !!document.fullscreenElement;
-        }
-      });
-    });
-
-    function keepBarcodeFocus() {
-      const inp = document.getElementById("barcodeHiddenInput");
-      if (inp) inp.focus();
-    }
-
-    // =========================================================================
-    // 🍔 햄버거 메뉴 및 전체화면 모드 (토글 스위치)
-    // =========================================================================
-    function toggleMenuPopover(e) {
-      if (e) e.stopPropagation();
-      const popover = document.getElementById("menuPopover");
-      popover.classList.toggle("active");
-    }
-
-    document.addEventListener("click", (e) => {
-      const popover = document.getElementById("menuPopover");
-      const btn = document.getElementById("btnMenu");
-      if (popover && popover.classList.contains("active")) {
-        if (!popover.contains(e.target) && !btn.contains(e.target)) {
-          popover.classList.remove("active");
-        }
-      }
-    });
-
-    function toggleFullscreenMode(checkbox) {
-      if (checkbox.checked) {
+    // 관리자 히든 제스처 (로고 3회 연속 터치 시 전체화면 토글)
+    let logoClickCount = 0;
+    let logoClickTimer = null;
+    function handleLogoClick() {
+      logoClickCount++;
+      clearTimeout(logoClickTimer);
+      logoClickTimer = setTimeout(() => { logoClickCount = 0; }, 800);
+      if (logoClickCount >= 3) {
+        logoClickCount = 0;
         if (!document.fullscreenElement) {
           document.documentElement.requestFullscreen().catch(() => {});
-        }
-      } else {
-        if (document.fullscreenElement) {
+        } else {
           document.exitFullscreen().catch(() => {});
         }
       }
     }
+
+    // =========================================================================
+    // ⭐️ [중요] 안드로이드 가상 키보드 원천 차단 & 전역 USB 바코드 수신 엔진
+    // =========================================================================
+    // 화면에 input 포커스를 주지 않고 브라우저 전역 keydown 이벤트를 직접 감지합니다.
+    // USB 바코드 리더기는 하드웨어 키보드로 인식되므로 수십 ms 간격으로 고속 입력 후 Enter를 쏩니다.
+    let barcodeBuffer = "";
+    let lastBarcodeKeyTime = 0;
+
+    window.addEventListener("keydown", (e) => {
+      const now = Date.now();
+
+      // Enter 키 ➔ 바코드 스캔 완료
+      if (e.key === "Enter") {
+        if (barcodeBuffer.length >= 4) {
+          const scannedCode = barcodeBuffer.trim();
+          barcodeBuffer = "";
+          handleBarcodeScanned(scannedCode);
+        }
+        barcodeBuffer = "";
+        return;
+      }
+
+      // 일반 단일 문자/숫자 수집
+      if (e.key && e.key.length === 1) {
+        // 유입 간격이 250ms 이상이면 새로운 바코드 시작으로 보고 버퍼 초기화
+        if (now - lastBarcodeKeyTime > 250) {
+          barcodeBuffer = "";
+        }
+        barcodeBuffer += e.key;
+        lastBarcodeKeyTime = now;
+      }
+    });
 
     // =========================================================================
     // 🚗 STEP 1 로직: 차량 뒷 4자리 키패드
@@ -755,7 +639,7 @@
     function selectCarAndProceed(car) {
       selectedCar = car;
 
-      // ⭐️ 만약 이미 감면이 등록된 차량인 경우 ➔ 기감면 및 초과요금 안내 화면으로 분기
+      // ⭐️ 이미 감면이 등록된 차량인 경우 ➔ 기감면 및 초과요금 안내 화면으로 분기
       if (car.alreadyRegistered) {
         showAlreadyRegisteredScreen(car);
         return;
@@ -768,7 +652,6 @@
 
       document.getElementById("step2SelectedCarNum").textContent = car.carno;
       document.getElementById("step2SelectedCarInTime").textContent = `입차: ${car.intime || '당일'}`;
-      keepBarcodeFocus();
     }
 
     // 🟢 이미 감면이 등록된 차량 안내 화면 렌더링
@@ -869,23 +752,27 @@
       const contentJmno = document.getElementById("tabContentJmno");
 
       if (tab === "barcode") {
-        btnBarcode.className = "flex-1 max-w-xs py-2.5 sm:py-3.5 rounded-2xl font-black text-sm sm:text-lg border-2 transition flex items-center justify-center gap-2 bg-[#ff6f0f] border-[#ff6f0f] text-white shadow-sm";
-        btnJmno.className = "flex-1 max-w-xs py-2.5 sm:py-3.5 rounded-2xl font-black text-sm sm:text-lg border-2 transition flex items-center justify-center gap-2 bg-slate-100 border-slate-200 text-slate-600 hover:bg-slate-200";
+        btnBarcode.className = "flex-1 max-w-xs py-2 sm:py-3 rounded-2xl font-black text-sm sm:text-base border-2 transition flex items-center justify-center gap-2 bg-[#ff6f0f] border-[#ff6f0f] text-white shadow-sm";
+        btnJmno.className = "flex-1 max-w-xs py-2 sm:py-3 rounded-2xl font-black text-sm sm:text-base border-2 transition flex items-center justify-center gap-2 bg-slate-100 border-slate-200 text-slate-600 hover:bg-slate-200";
         contentBarcode.classList.remove("hidden");
         contentJmno.classList.add("hidden");
-        keepBarcodeFocus();
       } else {
-        btnJmno.className = "flex-1 max-w-xs py-2.5 sm:py-3.5 rounded-2xl font-black text-sm sm:text-lg border-2 transition flex items-center justify-center gap-2 bg-[#ff6f0f] border-[#ff6f0f] text-white shadow-sm";
-        btnBarcode.className = "flex-1 max-w-xs py-2.5 sm:py-3.5 rounded-2xl font-black text-sm sm:text-lg border-2 transition flex items-center justify-center gap-2 bg-slate-100 border-slate-200 text-slate-600 hover:bg-slate-200";
+        btnJmno.className = "flex-1 max-w-xs py-2 sm:py-3 rounded-2xl font-black text-sm sm:text-base border-2 transition flex items-center justify-center gap-2 bg-[#ff6f0f] border-[#ff6f0f] text-white shadow-sm";
+        btnBarcode.className = "flex-1 max-w-xs py-2 sm:py-3 rounded-2xl font-black text-sm sm:text-base border-2 transition flex items-center justify-center gap-2 bg-slate-100 border-slate-200 text-slate-600 hover:bg-slate-200";
         contentBarcode.classList.add("hidden");
         contentJmno.classList.remove("hidden");
       }
     }
 
-    // 바코드 스캔 수신 처리
+    // 전역 USB 바코드 스캔 수신 처리
     async function handleBarcodeScanned(barcode) {
       if (!selectedCar) {
-        Swal.fire("안내", "먼저 차량번호 뒷 4자리를 선택해 주세요.", "info");
+        Swal.fire({
+          icon: "info",
+          title: "안내",
+          text: "먼저 차량번호 뒷 4자리를 선택해 주세요.",
+          confirmButtonColor: "#ff6f0f"
+        });
         return;
       }
       lookupPatient({ keyword: barcode });
@@ -1072,6 +959,7 @@
     function resetAllSteps() {
       currentInput4 = "";
       currentJmno = "";
+      barcodeBuffer = "";
       selectedCar = null;
       currentPatient = null;
       if (returnCountdownTimer) clearInterval(returnCountdownTimer);
@@ -1087,7 +975,6 @@
 
       switchAuthTab("barcode");
       updateStepIndicator(1);
-      keepBarcodeFocus();
     }
 
     function updateStepIndicator(step) {
