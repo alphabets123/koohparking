@@ -1109,16 +1109,43 @@
         if (patients.length === 0) {
           Swal.fire({
             icon: "warning",
-            title: "진료 내역을 찾을 수 없습니다",
-            html: `입력하신 정보로 오늘 접수된 외래 진료 또는 입원 내역이 확인되지 않습니다.<br><span class="text-xs text-slate-500 font-bold mt-2 block">외래 접수 후 이용하시거나 1층 원무과 창구에 문의해 주세요.</span>`,
+            title: "환자 정보를 찾을 수 없습니다",
+            html: `입력하신 정보와 일치하는 환자 등록 정보가 없습니다.<br><span class="text-xs text-slate-500 font-bold mt-2 block">주민등록번호나 바코드를 다시 확인해 주세요.</span>`,
             confirmButtonColor: "#ff6f0f",
           });
           clearJmnoNum();
           return;
         }
 
-        // 단건 일치 시 즉시 STEP 3 진행
-        selectPatientAndProceed(patients[0]);
+        const patient = patients[0];
+
+        // ⭐️ 당일 외래 진료 또는 입원 내역이 없는 경우: 3단계 진행 원천 차단!
+        if (!patient.hasTodayVisit || patient.benefit?.benefitType === "NONE" || (patient.benefit?.hours || 0) <= 0) {
+          const nowStr = new Date().toLocaleDateString("ko-KR", { month: "long", day: "numeric" });
+          Swal.fire({
+            icon: "warning",
+            title: "당일 진료 내역이 없습니다",
+            html: `
+              <div class="text-left bg-slate-50 p-3.5 rounded-2xl border border-slate-200 text-sm space-y-1.5 mt-2">
+                <div>• <b>환자명</b>: <span class="font-bold text-slate-900">${patient.maskedName || patient.name} 님</span></div>
+                <div>• <b>등록번호</b>: <span class="font-bold text-slate-700">${patient.jubno}</span></div>
+                <div class="text-rose-600 font-bold pt-1.5 border-t border-slate-200 mt-2 text-xs sm:text-sm">
+                  <i class="fa-solid fa-circle-exclamation mr-1"></i> 오늘(${nowStr}) 접수된 외래 진료 또는 입원 내역이 확인되지 않아 주차 감면을 등록할 수 없습니다.
+                </div>
+              </div>
+              <div class="text-xs text-slate-500 font-bold mt-3">
+                진료 접수(외래 창구/무인접수기) 완료 후 다시 이용하시거나 1층 원무과에 문의해 주세요.
+              </div>
+            `,
+            confirmButtonText: "확인",
+            confirmButtonColor: "#ff6f0f",
+          });
+          clearJmnoNum();
+          return;
+        }
+
+        // 당일 진료/입원 유효 자격 확인 시에만 STEP 3 진행
+        selectPatientAndProceed(patient);
       } catch (err) {
         Swal.close();
         Swal.fire("통신 오류", "환자 정보 조회 중 서버 통신 오류가 발생했습니다.", "error");
@@ -1153,6 +1180,22 @@
       document.getElementById("step3BenefitHours").textContent = b.benefitTitle.split("(")[1]?.replace(")", "") || `${b.hours}시간 무료`;
       document.getElementById("step3BenefitDesc").textContent = b.desc;
       document.getElementById("step3FreeUntil").textContent = b.freeUntil || "차량 등록 완료 시 무료";
+
+      // ⭐️ 혹시 모를 비자격 환자 유입 시 등록 버튼 잠금 방어
+      const btn = document.getElementById("btnSubmitRegister");
+      if (!b || b.benefitType === "NONE" || (b.hours || 0) <= 0) {
+        if (btn) {
+          btn.disabled = true;
+          btn.className = "flex-1 py-4 sm:py-5 rounded-2xl bg-slate-300 text-slate-500 font-black text-lg sm:text-2xl cursor-not-allowed flex items-center justify-center gap-2 whitespace-nowrap";
+          btn.innerHTML = `<i class="fa-solid fa-ban"></i> <span>감면 대상 아님 (당일 진료 없음)</span>`;
+        }
+      } else {
+        if (btn) {
+          btn.disabled = false;
+          btn.className = "flex-1 py-4 sm:py-5 rounded-2xl bg-gradient-to-r from-[#ff6f0f] to-[#ff8f3d] hover:from-[#ea580c] hover:to-[#ff6f0f] text-white font-black text-lg sm:text-2xl shadow-lg active:scale-98 transition flex items-center justify-center gap-2 whitespace-nowrap";
+          btn.innerHTML = `<i class="fa-solid fa-square-check"></i> <span>무료 주차 등록</span>`;
+        }
+      }
     }
 
     // 최종 WMNAM01 차량번호 업데이트 및 감면 등록
