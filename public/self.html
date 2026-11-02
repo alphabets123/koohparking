@@ -23,18 +23,18 @@
       -webkit-tap-highlight-color: transparent;
     }
 
-    /* ⭐️ 태블릿/세로 모니터 뷰포트 맞춤 폰트 스케일링 (2단계 확대 - 최적 가시성) */
+    /* ⭐️ 태블릿/세로 모니터 뷰포트 맞춤 폰트 스케일링 (과도한 팽창 방지 & 비례 유지) */
     html {
-      font-size: 18px;
+      font-size: 16px;
     }
     @media (min-width: 600px) {
-      html { font-size: 19.5px; }
+      html { font-size: 16.5px; }
     }
     @media (min-width: 800px) {
-      html { font-size: 21px; }
+      html { font-size: 17.5px; }
     }
     @media (min-width: 1024px) {
-      html { font-size: 22px; }
+      html { font-size: 18px; }
     }
 
     html, body {
@@ -76,26 +76,20 @@
       font-feature-settings: 'tnum' 1, 'lnum' 1;
     }
 
-    /* 반응형 대형 터치 키패드 버튼 스타일 (가로 2열 & 세로 1열 절대 잘림 방지 핏) */
+    /* 반응형 터치 키패드 버튼 스타일 (화면 비율 맞춤 도톰한 조약돌 버튼) */
     .keypad-btn {
-      height: clamp(54px, 7.6vh, 86px);
-      font-size: clamp(2rem, 3.4vh, 2.9rem);
+      height: clamp(52px, 6.8vh, 76px);
+      font-size: clamp(1.8rem, 3vh, 2.5rem);
       font-weight: 900;
       transition: all 0.08s ease;
       touch-action: manipulation;
       background-color: #ffffff;
       border: 2px solid #fed7aa;
-      border-radius: 1.3rem;
+      border-radius: 1.2rem;
       box-shadow: 0 3px 5px -1px rgba(251, 146, 60, 0.12);
       display: flex;
       align-items: center;
       justify-content: center;
-    }
-    @media (min-height: 900px) and (orientation: portrait) {
-      .keypad-btn {
-        height: clamp(68px, 9.2vh, 98px);
-        font-size: clamp(2.3rem, 3.8vh, 3.2rem);
-      }
     }
     .keypad-btn:hover {
       background-color: #fff7ed;
@@ -123,25 +117,26 @@
 <body class="flex flex-col w-screen h-screen overflow-hidden text-slate-800">
 
   <!-- ===================================================================== -->
-  <!-- 🧭 상단 헤더 바 (구병원 공식 로고 클릭 시 전체화면 토글 + 처음으로 단독 배치) -->
+  <!-- 🧭 상단 헤더 바 (구병원 공식 로고 더블클릭/더블터치 시 전체화면 토글 + 외래 전용 표기) -->
   <!-- ===================================================================== -->
-  <header class="w-full bg-white/95 backdrop-blur-md border-b border-orange-100 flex-shrink-0 px-3.5 sm:px-6 py-2.5 sm:py-3 flex items-center justify-between shadow-xs z-30">
+  <header class="w-full bg-white/95 backdrop-blur-md border-b border-orange-100 flex-shrink-0 px-3.5 sm:px-6 py-2 sm:py-2.5 flex items-center justify-between shadow-xs z-30">
     <div class="flex items-center gap-3 sm:gap-3.5 min-w-0 flex-1 mr-2">
-      <!-- 구병원 공식 로고: 터치(클릭) 시 전체화면 모드 즉시 토글 -->
-      <img src="/kooh_logo.png" alt="구병원" onclick="toggleFullscreenDirect()" class="h-9 sm:h-11 w-auto object-contain cursor-pointer active:scale-90 transition-transform flex-shrink-0" title="화면 전체화면 전환 (클릭)">
+      <!-- 구병원 공식 로고: 빠르게 2번 터치(더블클릭) 시 전체화면 모드 토글 -->
+      <img id="koohHeaderLogo" src="/kooh_logo.png" alt="구병원" class="h-9 sm:h-11 w-auto object-contain cursor-pointer active:scale-95 transition-transform flex-shrink-0" title="구병원 로고를 빠르게 두 번 터치(더블클릭)하면 전체화면이 전환됩니다.">
       <div class="min-w-0 flex-1">
-        <h1 class="text-lg sm:text-2xl font-black text-slate-900 tracking-tight flex items-center gap-1.5 whitespace-nowrap">
+        <h1 class="text-base sm:text-2xl font-black text-slate-900 tracking-tight flex items-center gap-1.5 whitespace-nowrap">
           <span>구병원 주차 등록</span>
+          <span class="px-2 py-0.5 rounded-full bg-orange-500 text-white text-[11px] sm:text-xs font-black shadow-xs whitespace-nowrap">외래 전용</span>
         </h1>
         <p class="text-[11px] sm:text-xs text-slate-500 font-bold truncate mt-0.5">
-          진료 접수 후 차량번호 등록 시 출차 자동 감면
+          진료 접수 후 차량번호 등록 시 출차 자동 감면 (입원/보호자 차량은 1층 원무과 등록)
         </p>
       </div>
     </div>
 
     <!-- 우측 도구: [처음으로] 버튼 단독 배치 (글자 겹침 완벽 방지 flex-shrink-0) -->
     <div class="flex items-center flex-shrink-0">
-      <button onclick="resetAllSteps()" class="px-3.5 py-2 sm:px-4.5 sm:py-2.5 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-black text-xs sm:text-sm flex items-center gap-1.5 transition active:scale-95 whitespace-nowrap border border-slate-200 shadow-2xs">
+      <button onclick="resetAllSteps()" class="px-3 py-1.5 sm:px-4 sm:py-2 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-black text-xs sm:text-sm flex items-center gap-1.5 transition active:scale-95 whitespace-nowrap border border-slate-200 shadow-2xs">
         <i class="fa-solid fa-rotate-right text-[#ff6f0f] text-xs sm:text-sm"></i>
         <span>처음으로</span>
       </button>
@@ -179,29 +174,29 @@
     <!-- ===================================================================== -->
     <!-- 🚗 STEP 1: 차량번호 뒷 4자리 키패드 입력 화면 -->
     <!-- ===================================================================== -->
-    <section id="step1Section" class="kiosk-card w-full max-w-2xl lg:max-w-3xl flex-1 bg-white rounded-3xl border-2 border-orange-200 shadow-xl p-3 sm:p-5 flex flex-col items-center justify-between my-auto overflow-hidden">
+    <section id="step1Section" class="kiosk-card w-full max-w-xl sm:max-w-2xl flex-1 bg-white rounded-3xl border-2 border-orange-200 shadow-xl p-4 sm:p-6 flex flex-col items-center justify-center gap-2 sm:gap-3.5 my-auto overflow-hidden">
       <!-- 상단 제목 & 안내 문구 1곳 통합 배치 -->
-      <div class="text-center space-y-1 flex-shrink-0 pt-0.5">
-        <h2 class="text-xl sm:text-3xl font-black text-slate-900 whitespace-nowrap">차량번호 뒷 4자리를 눌러주세요</h2>
+      <div class="text-center space-y-1 flex-shrink-0">
+        <h2 class="text-xl sm:text-2xl lg:text-3xl font-black text-slate-900 whitespace-nowrap">차량번호 뒷 4자리를 눌러주세요</h2>
         <p class="text-xs sm:text-sm text-slate-500 font-bold">4자리를 누르면 현재 입차된 차량이 자동으로 검색됩니다.</p>
-        <div class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-orange-100 text-[#ea580c] font-black text-xs">
+        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-100 text-[#ea580c] font-black text-[11px] sm:text-xs">
           <i class="fa-solid fa-circle-info"></i>
-          <span>병원 주차장에 정상 입차된 차량만 검색됩니다.</span>
+          <span>외래 진료 환자 전용 키오스크입니다. (입원환자는 1층 원무과 등록)</span>
         </div>
       </div>
 
       <!-- 4자리 번호 표시창 -->
-      <div class="w-full max-w-lg my-1.5 sm:my-2.5 flex-shrink-0">
-        <div class="h-16 sm:h-20 bg-orange-50/70 rounded-3xl border-2 border-orange-300 flex items-center justify-center gap-4 sm:gap-7 px-4 shadow-inner">
-          <div id="digit0" class="num-display text-3xl sm:text-5xl font-black text-[#ff6f0f] border-b-4 border-orange-400 pb-1 w-12 sm:w-16 text-center h-12 sm:h-16 flex items-center justify-center">&nbsp;</div>
-          <div id="digit1" class="num-display text-3xl sm:text-5xl font-black text-[#ff6f0f] border-b-4 border-orange-400 pb-1 w-12 sm:w-16 text-center h-12 sm:h-16 flex items-center justify-center">&nbsp;</div>
-          <div id="digit2" class="num-display text-3xl sm:text-5xl font-black text-[#ff6f0f] border-b-4 border-orange-400 pb-1 w-12 sm:w-16 text-center h-12 sm:h-16 flex items-center justify-center">&nbsp;</div>
-          <div id="digit3" class="num-display text-3xl sm:text-5xl font-black text-[#ff6f0f] border-b-4 border-orange-400 pb-1 w-12 sm:w-16 text-center h-12 sm:h-16 flex items-center justify-center">&nbsp;</div>
+      <div class="w-full max-w-md my-1 flex-shrink-0">
+        <div class="h-14 sm:h-18 bg-orange-50/70 rounded-2xl border-2 border-orange-300 flex items-center justify-center gap-3 sm:gap-5 px-4 shadow-inner">
+          <div id="digit0" class="num-display text-3xl sm:text-4xl font-black text-[#ff6f0f] border-b-4 border-orange-400 pb-0.5 w-10 sm:w-14 text-center h-10 sm:h-14 flex items-center justify-center">&nbsp;</div>
+          <div id="digit1" class="num-display text-3xl sm:text-4xl font-black text-[#ff6f0f] border-b-4 border-orange-400 pb-0.5 w-10 sm:w-14 text-center h-10 sm:h-14 flex items-center justify-center">&nbsp;</div>
+          <div id="digit2" class="num-display text-3xl sm:text-4xl font-black text-[#ff6f0f] border-b-4 border-orange-400 pb-0.5 w-10 sm:w-14 text-center h-10 sm:h-14 flex items-center justify-center">&nbsp;</div>
+          <div id="digit3" class="num-display text-3xl sm:text-4xl font-black text-[#ff6f0f] border-b-4 border-orange-400 pb-0.5 w-10 sm:w-14 text-center h-10 sm:h-14 flex items-center justify-center">&nbsp;</div>
         </div>
       </div>
 
       <!-- 터치 숫자 키패드 (화면 비율 맞춤 도톰한 조약돌 버튼) -->
-      <div class="w-full max-w-lg grid grid-cols-3 gap-2.5 sm:gap-3.5 my-1 sm:my-2 flex-shrink-0">
+      <div class="w-full max-w-md grid grid-cols-3 gap-2 sm:gap-3 my-0.5 flex-shrink-0">
         <button onclick="pressNum('1')" class="keypad-btn text-slate-800">1</button>
         <button onclick="pressNum('2')" class="keypad-btn text-slate-800">2</button>
         <button onclick="pressNum('3')" class="keypad-btn text-slate-800">3</button>
@@ -214,10 +209,10 @@
         <button onclick="pressNum('8')" class="keypad-btn text-slate-800">8</button>
         <button onclick="pressNum('9')" class="keypad-btn text-slate-800">9</button>
 
-        <button onclick="clearNum()" class="keypad-btn !text-sm sm:!text-lg !font-black text-rose-600 bg-rose-50/70 hover:bg-rose-100 border-rose-200 whitespace-nowrap">전체삭제</button>
+        <button onclick="clearNum()" class="keypad-btn !text-xs sm:!text-base !font-black text-rose-600 bg-rose-50/70 hover:bg-rose-100 border-rose-200 whitespace-nowrap">전체삭제</button>
         <button onclick="pressNum('0')" class="keypad-btn text-slate-800">0</button>
         <button onclick="backspaceNum()" class="keypad-btn text-slate-600 hover:text-slate-900">
-          <i class="fa-solid fa-delete-left text-xl sm:text-2xl"></i>
+          <i class="fa-solid fa-delete-left text-lg sm:text-xl"></i>
         </button>
       </div>
     </section>
@@ -517,7 +512,7 @@
     let currentPatient = null;     // { jubno, name, birth, carnoPure, benefit }
     let returnCountdownTimer = null;
 
-    // ⭐️ 구병원 로고 터치(클릭) 시 전체화면 즉시 토글
+    // ⭐️ 구병원 로고 더블클릭/더블터치(Double Tap) 시에만 전체화면 토글 (실수 터치 완벽 방지)
     function toggleFullscreenDirect() {
       if (!document.fullscreenElement) {
         if (document.documentElement.requestFullscreen) {
@@ -533,6 +528,29 @@
         }
       }
     }
+
+    let lastLogoTapTime = 0;
+    document.addEventListener("DOMContentLoaded", () => {
+      const logoEl = document.getElementById("koohHeaderLogo");
+      if (logoEl) {
+        // PC 더블클릭
+        logoEl.addEventListener("dblclick", (e) => {
+          e.preventDefault();
+          toggleFullscreenDirect();
+        });
+        // 모바일/태블릿 더블탭 (350ms 이내 연속 2회 터치)
+        logoEl.addEventListener("touchend", (e) => {
+          const now = Date.now();
+          if (now - lastLogoTapTime < 350) {
+            e.preventDefault();
+            toggleFullscreenDirect();
+            lastLogoTapTime = 0;
+          } else {
+            lastLogoTapTime = now;
+          }
+        });
+      }
+    });
 
     // ⭐️ 안드로이드 가상 키보드 원천 차단 & 전역 USB 바코드 수신 엔진
     let barcodeBuffer = "";
@@ -1119,18 +1137,47 @@
 
         const patient = patients[0];
 
-        // ⭐️ 당일 외래 진료 또는 입원 내역이 없는 경우: 3단계 진행 원천 차단!
+        // ⭐️ 1. 입원 환자/보호자 차량인 경우: 키오스크 직접 등록 차단 및 1층 원무과 창구 유도
+        if (patient.isInpatientOnly || patient.benefit?.benefitType === "INPATIENT_BLOCK") {
+          Swal.fire({
+            icon: "info",
+            title: "입원 환자/보호자 차량 안내",
+            html: `
+              <div class="text-left bg-orange-50 p-4 rounded-2xl border border-orange-200 text-sm space-y-2 mt-2">
+                <div class="flex items-center justify-between pb-1.5 border-b border-orange-200">
+                  <span class="text-xs font-bold text-slate-500">환자명</span>
+                  <span class="font-black text-slate-900">${patient.maskedName || patient.name} 님</span>
+                </div>
+                <p class="text-xs sm:text-sm text-slate-700 font-bold leading-relaxed pt-1">
+                  🏥 입원 환자 및 보호자 차량은 전산 정책상 <b>1층 원무과 창구</b>에서 직접 지정 등록해 드리고 있습니다.
+                </p>
+                <p class="text-xs text-[#ea580c] font-black pt-1">
+                  불편하시더라도 1층 원무과 창구를 방문해 주시기 바랍니다.
+                </p>
+              </div>
+            `,
+            confirmButtonText: "확인 (처음으로)",
+            confirmButtonColor: "#ff6f0f",
+            allowOutsideClick: false,
+          }).then(() => {
+            resetAllSteps();
+          });
+          clearJmnoNum();
+          return;
+        }
+
+        // ⭐️ 2. 당일 외래 진료 내역이 없는 경우: 3단계 진행 원천 차단!
         if (!patient.hasTodayVisit || patient.benefit?.benefitType === "NONE" || (patient.benefit?.hours || 0) <= 0) {
           const nowStr = new Date().toLocaleDateString("ko-KR", { month: "long", day: "numeric" });
           Swal.fire({
             icon: "warning",
-            title: "당일 진료 내역이 없습니다",
+            title: "당일 외래 접수 내역이 없습니다",
             html: `
               <div class="text-left bg-slate-50 p-3.5 rounded-2xl border border-slate-200 text-sm space-y-1.5 mt-2">
                 <div>• <b>환자명</b>: <span class="font-bold text-slate-900">${patient.maskedName || patient.name} 님</span></div>
                 <div>• <b>등록번호</b>: <span class="font-bold text-slate-700">${patient.jubno}</span></div>
                 <div class="text-rose-600 font-bold pt-1.5 border-t border-slate-200 mt-2 text-xs sm:text-sm">
-                  <i class="fa-solid fa-circle-exclamation mr-1"></i> 오늘(${nowStr}) 접수된 외래 진료 또는 입원 내역이 확인되지 않아 주차 감면을 등록할 수 없습니다.
+                  <i class="fa-solid fa-circle-exclamation mr-1"></i> 오늘(${nowStr}) 접수된 외래 진료 내역이 확인되지 않아 주차 감면을 등록할 수 없습니다.
                 </div>
               </div>
               <div class="text-xs text-slate-500 font-bold mt-3">
@@ -1144,7 +1191,50 @@
           return;
         }
 
-        // 당일 진료/입원 유효 자격 확인 시에만 STEP 3 진행
+        // ⭐️ 3. 기존 등록 차량이 있고 오늘 입차한 차량과 다른 경우: 차량 변경 확인 모달 표출!
+        if (patient.carnoPure && selectedCar && patient.carnoPure !== selectedCar.carno) {
+          Swal.fire({
+            icon: "question",
+            title: "등록 차량 변경 확인",
+            html: `
+              <div class="text-left bg-slate-50 p-4 rounded-2xl border border-slate-200 text-sm space-y-3 mt-2">
+                <div class="flex items-center justify-between pb-2 border-b border-slate-200">
+                  <span class="text-xs font-bold text-slate-500">환자명 / 등록번호</span>
+                  <span class="font-black text-slate-900">${patient.maskedName || patient.name} 님 (${patient.jubno})</span>
+                </div>
+                <div class="bg-white p-3 rounded-xl border border-orange-200 space-y-2">
+                  <div class="flex items-center justify-between text-xs sm:text-sm">
+                    <span class="text-slate-500 font-bold">기존 등록 차량</span>
+                    <span class="font-black text-slate-400 line-through font-num">${patient.carnoPure}</span>
+                  </div>
+                  <div class="flex items-center justify-between text-sm sm:text-base text-[#ff6f0f] font-black pt-1 border-t border-dashed border-orange-100">
+                    <span class="flex items-center gap-1.5"><i class="fa-solid fa-arrow-right"></i> 변경할 입차 차량</span>
+                    <span class="text-lg sm:text-xl font-black font-num">${selectedCar.carno}</span>
+                  </div>
+                </div>
+                <p class="text-xs text-slate-600 font-bold leading-relaxed">
+                  환자분의 등록 차량을 오늘 입차하신 새 차량(<b>${selectedCar.carno}</b>)으로 변경하시겠습니까?
+                </p>
+              </div>
+            `,
+            showCancelButton: true,
+            confirmButtonText: "네, 새 차량으로 변경",
+            cancelButtonText: "취소 (처음으로)",
+            confirmButtonColor: "#ff6f0f",
+            cancelButtonColor: "#94a3b8",
+            reverseButtons: true,
+            allowOutsideClick: false,
+          }).then((result) => {
+            if (result.isConfirmed) {
+              selectPatientAndProceed(patient);
+            } else {
+              resetAllSteps();
+            }
+          });
+          return;
+        }
+
+        // 차량 변경이 없거나 신규 등록인 경우 바로 STEP 3 진행
         selectPatientAndProceed(patient);
       } catch (err) {
         Swal.close();

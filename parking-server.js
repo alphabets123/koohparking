@@ -47,58 +47,15 @@ async function getDbConnection() {
 
 /**
  * 당일 진료/입원 상태 기반 주차 감면 자격 산정 헬퍼
+ * - 외래 진료 환자 우선 적용 (일반 외래 6시간, 물리치료 6시간, 응급 12시간, 검진 당일)
+ * - 입원 환자/보호자 차량은 키오스크 직접 등록을 차단하고 1층 원무과 창구 유도
  */
 function evaluateParkingDiscount(patient) {
-  // 1. VIP 병실 (510호, 511호)
-  if (patient.BEDNO && (patient.BEDNO.includes("510") || patient.BEDNO.includes("511"))) {
-    return {
-      benefitType: "VIP",
-      benefitTitle: "VIP 병실 (종일 무료)",
-      hours: 24,
-      desc: "VIP 병실 환자/보호자 24시간 전액 무료",
-      freeUntil: "오늘 자정(24:00)까지"
-    };
-  }
+  const isAdmission = (patient.INPATIENT_STATUS === "HP" || patient.ADMIT_TODAY || patient.DISCHARGE_TODAY || (patient.BEDNO && (patient.BEDNO.includes("510") || patient.BEDNO.includes("511"))));
+  const hasOpd = !!patient.OPD_KWAS;
 
-  // 2. 당일 입원
-  if (patient.ADMIT_TODAY) {
-    return {
-      benefitType: "ADMIT",
-      benefitTitle: "입원 당일 (종일 무료)",
-      hours: 24,
-      desc: "입원 당일 종일 무료 주차",
-      freeUntil: "오늘 자정(24:00)까지"
-    };
-  }
-
-  // 3. 당일 퇴원
-  if (patient.DISCHARGE_TODAY) {
-    const dTime = patient.DISCHARGE_TIME || "12:00";
-    const [h, m] = dTime.split(":").map(Number);
-    const untilH = (h + 6) % 24;
-    const untilStr = `${String(untilH).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
-    return {
-      benefitType: "DISCHARGE",
-      benefitTitle: "퇴원 당일 (6시간 무료)",
-      hours: 6,
-      desc: `퇴원수속(${dTime}) 기준 6시간 무료 주차`,
-      freeUntil: `오늘 ${untilStr}까지`
-    };
-  }
-
-  // 4. 재원 입원환자 보호자
-  if (patient.INPATIENT_STATUS === "HP") {
-    return {
-      benefitType: "INPATIENT",
-      benefitTitle: "입원환자 보호자 (2시간 무료)",
-      hours: 2,
-      desc: "입원 기간 중 보호자 차량 1대 1일 1회 2시간 무료 (야간 18:00~익일 08:00 무료)",
-      freeUntil: "입차 후 2시간 (야간 18:00~익일 08:00 무료)"
-    };
-  }
-
-  // 5. 외래 접수 내역
-  if (patient.OPD_KWAS) {
+  // 1. 외래 접수 내역이 있는 경우 -> 외래 감면 혜택 우선 적용!
+  if (hasOpd) {
     const kwas = patient.OPD_KWAS.split(",");
     const opdTime = patient.OPD_FIRST_TIME || "09:00";
     const [h, m] = opdTime.split(":").map(Number);
@@ -129,9 +86,9 @@ function evaluateParkingDiscount(patient) {
       const untilH = (h + 6) % 24;
       return {
         benefitType: "PT",
-        benefitTitle: "물리치료 (4시간 무료)",
-        hours: 4,
-        desc: "물리치료 4시간 무료 (병원 정책상 출차 유예 2시간 추가 적용)",
+        benefitTitle: "물리치료 (6시간 무료)",
+        hours: 6,
+        desc: `물리치료 접수(${opdTime}) 기준 6시간 무료 주차`,
         freeUntil: `오늘 ${String(untilH).padStart(2, "0")}:${String(m).padStart(2, "0")}까지`
       };
     }
@@ -146,11 +103,23 @@ function evaluateParkingDiscount(patient) {
     };
   }
 
+  // 2. 외래 접수 내역은 없고 입원 환자/보호자인 경우 -> 키오스크 차단 및 1층 원무과 창구 유도
+  if (isAdmission) {
+    return {
+      benefitType: "INPATIENT_BLOCK",
+      benefitTitle: "입원 환자/보호자 차량",
+      hours: 0,
+      isInpatient: true,
+      desc: "입원 환자 및 보호자 차량은 1층 원무과 창구에서 등록해 드립니다.",
+      freeUntil: ""
+    };
+  }
+
   return {
     benefitType: "NONE",
     benefitTitle: "당일 진료/입원 내역 없음",
     hours: 0,
-    desc: "오늘 외래 진료 접수 또는 입원 내역이 확인되지 않습니다.",
+    desc: "오늘 외래 진료 접수 내역이 확인되지 않습니다.",
     freeUntil: ""
   };
 }
@@ -1206,7 +1175,8 @@ const server = http.createServer(async (req, res) => {
               carnoRaw: rawCarno,
               carnoPure: pureCarno,
               benefit: benefit,
-              hasTodayVisit: benefit.benefitType !== "NONE",
+              isInpatientOnly: !!benefit.isInpatient,
+              hasTodayVisit: benefit.benefitType !== "NONE" && benefit.benefitType !== "INPATIENT_BLOCK",
             };
           });
 
