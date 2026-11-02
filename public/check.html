@@ -86,11 +86,11 @@
     }
 
     /* ==========================================================================
-       📟 3. 키오스크 팝업 모드 (전체화면 대형 키패드 + 팝업 모달 전용)
+       📟 3. 키오스크 팝업 모드 (화면 공간 비례 100% 대형 확장 + 초대형 폰트)
        ========================================================================== */
     body.view-kiosk-mode {
       padding: 0 !important;
-      background-color: #ffffff !important;
+      background-color: #f8fafc !important;
       height: 100vh !important;
       max-height: 100vh !important;
       overflow: hidden !important;
@@ -106,35 +106,41 @@
       display: flex !important;
       flex-direction: column !important;
       overflow: hidden !important;
+      background-color: #f8fafc !important;
     }
     body.view-kiosk-mode header {
       flex-shrink: 0 !important;
       padding: 0.75rem 1.5rem !important;
     }
     body.view-kiosk-mode header span.text-slate-900 {
-      font-size: 1.35rem !important;
+      font-size: clamp(1.2rem, 1.8vw, 1.5rem) !important;
     }
     body.view-kiosk-mode header span.header-badge {
-      font-size: 1rem !important;
+      font-size: clamp(0.9rem, 1.2vw, 1.1rem) !important;
       padding: 0.35rem 0.85rem !important;
     }
     body.view-kiosk-mode #checkMainArea {
       flex: 1 1 0% !important;
       display: flex !important;
       flex-direction: column !important;
+      align-items: center !important;
+      justify-content: center !important;
       min-height: 0 !important;
-      padding: 0.85rem 1.5rem !important;
+      padding: clamp(0.6rem, 1.5vh, 1.25rem) clamp(0.75rem, 2vw, 2rem) !important;
       overflow: hidden !important;
+      width: 100% !important;
     }
     body.view-kiosk-mode #checkMainGrid {
       flex: 1 1 0% !important;
       display: flex !important;
       flex-direction: column !important;
+      align-items: center !important;
+      justify-content: center !important;
       min-height: 0 !important;
       height: 100% !important;
-      max-width: 48rem !important;
-      margin: 0 auto !important;
       width: 100% !important;
+      max-width: min(94vw, 1280px) !important; /* 모니터/태블릿 너비에 맞춰 시원하게 풀 와이드 확장 */
+      margin: 0 auto !important;
     }
     body.view-kiosk-mode #checkInputCol {
       flex: 1 1 0% !important;
@@ -143,70 +149,103 @@
       justify-content: space-between !important;
       min-height: 0 !important;
       height: 100% !important;
+      width: 100% !important;
       max-width: 100% !important;
-      gap: 0.75rem !important;
-      padding: 1.25rem 1.5rem !important;
-      border-radius: 1.5rem !important;
-      box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05) !important;
+      gap: clamp(0.5rem, 1.2vh, 1rem) !important;
+      padding: clamp(1rem, 2vh, 1.75rem) clamp(1.2rem, 2.5vw, 2.5rem) !important;
+      border-radius: clamp(1.25rem, 2vw, 2rem) !important;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.03) !important;
+      background-color: #ffffff !important;
     }
+    /* 상단 타이틀 & 서브텍스트 비례 확대 */
     body.view-kiosk-mode #checkInputCol h2 {
-      font-size: 1.35rem !important;
+      font-size: clamp(1.35rem, min(2.6vw, 2.6vh), 2.1rem) !important;
       font-weight: 900 !important;
     }
+    body.view-kiosk-mode #checkInputCol h2 i {
+      font-size: clamp(1.35rem, min(2.6vw, 2.6vh), 2.1rem) !important;
+    }
     body.view-kiosk-mode #checkInputCol p.text-slate-400 {
-      font-size: 1.05rem !important;
+      font-size: clamp(1rem, min(1.6vw, 1.6vh), 1.35rem) !important;
       font-weight: 700 !important;
       margin-top: 0.2rem !important;
     }
+    body.view-kiosk-mode #checkInputCol button[onclick*="clearInputNumber"] {
+      font-size: clamp(1rem, min(1.6vw, 1.6vh), 1.25rem) !important;
+      font-weight: 800 !important;
+    }
+    /* 4자리 입력창 */
     body.view-kiosk-mode #displayBoxArea {
       flex-shrink: 0 !important;
-      margin-bottom: 0.35rem !important;
+      margin-bottom: clamp(0.25rem, 0.6vh, 0.6rem) !important;
     }
     body.view-kiosk-mode #displayBoxArea > div {
-      height: 5.5rem !important;
-      border-radius: 1.25rem !important;
+      height: clamp(5.4rem, min(11vw, 10.5vh), 8rem) !important;
+      border-radius: clamp(1rem, 1.6vw, 1.5rem) !important;
       border-width: 3px !important;
       display: flex !important;
       align-items: center !important;
       justify-content: center !important;
-      padding: 0 1.5rem !important;
+      padding: 0 clamp(1rem, 2vw, 2.5rem) !important;
       overflow: hidden !important;
     }
     body.view-kiosk-mode #displayNum {
-      font-size: clamp(2.6rem, 5vh, 3.8rem) !important;
+      font-size: clamp(3.2rem, min(8.5vw, 8vh), 5.8rem) !important;
       line-height: 1 !important;
-      letter-spacing: 0.35em !important;
+      letter-spacing: clamp(0.25em, 1.8vw, 0.45em) !important;
+      font-weight: 900 !important;
     }
+    /* 3x4 키패드 그리드 */
     body.view-kiosk-mode #touchKeypadGrid {
       flex: 1 1 0% !important;
       display: grid !important;
       grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
       grid-template-rows: repeat(4, minmax(0, 1fr)) !important;
-      gap: 0.75rem !important;
+      gap: clamp(0.6rem, min(1.4vw, 1.3vh), 1.1rem) !important;
       height: 100% !important;
       min-height: 0 !important;
     }
+    /* 키패드 버튼: 버튼 면적에 맞춰 꽉 차는 웅장한 초대형 폰트 (1~9, 0) */
     body.view-kiosk-mode .keypad-btn {
       height: 100% !important;
       width: 100% !important;
       min-height: 0 !important;
-      font-size: clamp(2.4rem, 5.2vh, 4rem) !important;
+      padding: 0 !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      font-size: clamp(3rem, min(7vw, 6.5vh), 5.6rem) !important;
       font-weight: 900 !important;
-      border-radius: 1.25rem !important;
+      border-radius: clamp(1rem, 1.6vw, 1.5rem) !important;
+      line-height: 1 !important;
     }
+    /* 백스페이스 아이콘 대형화 */
     body.view-kiosk-mode .keypad-btn:has(.fa-delete-left),
     body.view-kiosk-mode .keypad-btn i.fa-delete-left {
-      font-size: clamp(1.8rem, 3.5vh, 2.6rem) !important;
+      font-size: clamp(2.2rem, min(5vw, 4.5vh), 3.8rem) !important;
     }
+    /* 전체삭제 버튼 텍스트 비례 확대 */
     body.view-kiosk-mode button[onpointerdown*="CLEAR"] {
-      font-size: clamp(1.2rem, 2.4vh, 1.8rem) !important;
+      font-size: clamp(1.3rem, min(2.8vw, 2.6vh), 2.2rem) !important;
+      white-space: nowrap !important;
       font-weight: 900 !important;
+      letter-spacing: -0.02em !important;
     }
+    /* 하단 감면 확인 버튼 */
     body.view-kiosk-mode #btnTriggerSearch {
-      font-size: 1.35rem !important;
-      padding: 1rem !important;
-      border-radius: 1.25rem !important;
+      flex-shrink: 0 !important;
+      font-size: clamp(1.35rem, min(2.8vw, 2.5vh), 2.1rem) !important;
+      height: clamp(3.8rem, 8vh, 5.4rem) !important;
+      padding: 0 1.5rem !important;
+      border-radius: clamp(1rem, 1.6vw, 1.4rem) !important;
       font-weight: 900 !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      gap: 0.75rem !important;
+    }
+    body.view-kiosk-mode #btnTriggerSearch i {
+      font-size: clamp(1.2rem, min(2.5vw, 2.3vh), 1.9rem) !important;
     }
     body.view-kiosk-mode #checkResultCol {
       display: none !important; /* 키오스크 모드에서는 우측 인라인 결과 숨김 */
