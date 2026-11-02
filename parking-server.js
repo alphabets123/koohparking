@@ -1009,6 +1009,24 @@ const server = http.createServer(async (req, res) => {
               bindObj
             );
 
+            // VCARINFO3의 IDNOA 목록과 당일 진료 환자 차번 매칭
+            const vcarIdnos = (dbRes.rows || []).map(r => r.IDNOA).filter(Boolean);
+            let extraNameMap = new Map();
+            if (vcarIdnos.length > 0) {
+              const idClause = vcarIdnos.map((_, i) => `:id${i}`).join(",");
+              const idBinds = {};
+              vcarIdnos.forEach((id, i) => idBinds[`id${i}`] = id);
+              try {
+                const nameRes = await conn.execute(
+                  `SELECT W01IDNOA, W01NAME FROM JAIN_WM.WMNAM01 WHERE W01IDNOA IN (${idClause})`,
+                  idBinds
+                );
+                (nameRes.rows || []).forEach(nr => {
+                  extraNameMap.set(String(nr.W01IDNOA).trim(), nr.W01NAME);
+                });
+              } catch(e) {}
+            }
+
             // WMNAM01 확인 (차량번호가 등록되어 있고 오늘 진료가 있는 환자)
             const wSql = `
               SELECT m.W01CARNO_PK, m.W01IDNOA, m.W01NAME
@@ -1041,11 +1059,25 @@ const server = http.createServer(async (req, res) => {
 
               if (reg || pMatch || hasControlDiscount) {
                 c.alreadyRegistered = true;
-                c.ocsJubno = (reg && reg.IDNOA) || (pMatch && pMatch.W01IDNOA) || "";
-                c.patientName = pMatch ? pMatch.W01NAME : "";
+                const jubno = (reg && reg.IDNOA) || (pMatch && pMatch.W01IDNOA) || "";
+                c.ocsJubno = jubno;
+                const rawName = (pMatch && pMatch.W01NAME) || (jubno ? extraNameMap.get(String(jubno).trim()) : "") || "";
+                c.patientName = rawName;
+                
+                // 마스킹 처리 (이름: 홍*동, 차트번호: 065****)
+                if (rawName) {
+                  const s = rawName.trim();
+                  c.maskedPatientName = s.length <= 1 ? s : (s.length === 2 ? s[0] + "*" : s[0] + "*".repeat(s.length - 2) + s[s.length - 1]);
+                } else {
+                  c.maskedPatientName = "외래 환자";
+                }
+                c.maskedJubno = jubno ? (String(jubno).trim().padStart(7, "0").substring(0, 3) + "****") : "";
+
                 c.ocsCode = (reg && reg.BIGO1) || (hasControlDiscount ? c.appliedDiscounts[0]["할인명칭"] : "외래진료 6시간");
               } else {
                 c.alreadyRegistered = false;
+                c.maskedPatientName = "";
+                c.maskedJubno = "";
               }
 
               // 초과 시간 및 예상 정산 금액 산정 (기본 6시간 감면 기준)
@@ -1055,6 +1087,8 @@ const server = http.createServer(async (req, res) => {
             cars.forEach((c) => {
               const hasControlDiscount = c.appliedDiscounts && c.appliedDiscounts.length > 0;
               c.alreadyRegistered = hasControlDiscount;
+              c.maskedPatientName = "";
+              c.maskedJubno = "";
               c.overdueInfo = calculateOverdueFee(c.intime, 6);
             });
           }
