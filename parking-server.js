@@ -1133,15 +1133,16 @@ const server = http.createServer(async (req, res) => {
           const bindParams = {};
 
           if (jmno && jmno.length === 13) {
-            // 주민등록번호 13자리 풀 매칭
-            whereClause = "m.W01JMNOA = :jmno";
-            bindParams.jmno = jmno;
+            // 주민등록번호 13자리 풀 매칭 (W01JMNOA 앞 6자리, W01JMNOB 뒤 7자리)
+            whereClause = "m.W01JMNOA = :jmnoa AND TRIM(m.W01JMNOB) = :jmnob";
+            bindParams.jmnoa = jmno.substring(0, 6);
+            bindParams.jmnob = jmno.substring(6, 13);
           } else if (jmno && jmno.length >= 6) {
-            // 앞 6자리 생년월일 + (뒷자리 일부)
-            whereClause = "SUBSTR(m.W01JMNOA, 1, 6) = :birth";
+            // 앞 6자리 생년월일
+            whereClause = "m.W01JMNOA = :birth";
             bindParams.birth = jmno.substring(0, 6);
             if (jmno.length === 13) {
-              whereClause += " AND SUBSTR(m.W01JMNOA, 7, 7) = :back";
+              whereClause += " AND TRIM(m.W01JMNOB) = :back";
               bindParams.back = jmno.substring(6, 13);
             }
           } else {
