@@ -159,6 +159,116 @@ const PORT = process.env.PORT || 3150;
 const TARGET_HOST = "211.105.143.22";
 const TARGET_PORT = 80;
 
+// 시스템(키오스크) 백그라운드 관리자 세션 쿠키 캐시 (kooh 계정 연동)
+let systemParkingCookie = null;
+let systemParkingCookieTime = 0;
+
+async function getSystemParkingCookie() {
+  const now = Date.now();
+  // 10분간 유효 캐시 유지
+  if (systemParkingCookie && now - systemParkingCookieTime < 10 * 60 * 1000) {
+    return systemParkingCookie;
+  }
+
+  try {
+    const id = process.env.PARKING_ADMIN_ID || "kooh";
+    const pw = process.env.PARKING_ADMIN_PW || "1111";
+    const bs = Buffer.from(pw, "utf8").toString("base64");
+    const formBody = new URLSearchParams({ bs, id, pw: "" }).toString();
+
+    const res = await requestToParkingServer({
+      method: "POST",
+      targetPath: "/login/identify",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+        "User-Agent": "Mozilla/5.0",
+      },
+      body: formBody,
+    });
+
+    if (res.headers && res.headers["set-cookie"]) {
+      const rawCookies = res.headers["set-cookie"];
+      const cookieStr = rawCookies.map((c) => c.split(";")[0]).join("; ");
+      systemParkingCookie = cookieStr;
+      systemParkingCookieTime = now;
+      console.log("✅ [PARKING-SERVER] 관제서버 시스템 세션 갱신 완료 (kooh)");
+      return systemParkingCookie;
+    }
+  } catch (err) {
+    console.error("⚠️ [PARKING-SERVER] 관제서버 시스템 세션 로그인 실패:", err.message);
+  }
+  return systemParkingCookie || "";
+}
+
+/**
+ * 입차일시 및 감면시간 기반 초과시간(분)과 정산 예상 요금 산정
+ * - 일반 주차 요금: 최초 30분 800원, 이후 10분당 300원
+ */
+function calculateOverdueFee(inTimeStr, freeHours = 6) {
+  if (!inTimeStr) return { elapsedMinutes: 0, overMinutes: 0, estimatedFee: 0, isOverdue: false, statusText: "입차 기록 없음" };
+  try {
+    const cleanTime = inTimeStr.replace(/-/g, "/");
+    const inDate = new Date(cleanTime);
+    if (isNaN(inDate.getTime())) return { elapsedMinutes: 0, overMinutes: 0, estimatedFee: 0, isOverdue: false, statusText: "입차 시간 오류" };
+
+    const now = new Date();
+    const elapsedMinutes = Math.max(0, Math.floor((now - inDate) / (1000 * 60)));
+    const freeMinutes = freeHours * 60;
+    const overMinutes = elapsedMinutes - freeMinutes;
+
+    const elapsedH = Math.floor(elapsedMinutes / 60);
+    const elapsedM = elapsedMinutes % 60;
+    const elapsedText = elapsedH > 0 ? `${elapsedH}시간 ${elapsedM}분` : `${elapsedM}분`;
+
+    if (overMinutes <= 0) {
+      const remainMinutes = Math.abs(overMinutes);
+      const remainH = Math.floor(remainMinutes / 60);
+      const remainM = remainMinutes % 60;
+      const remainText = remainH > 0 ? `${remainH}시간 ${remainM}분 남음` : `${remainM}분 남음`;
+      return {
+        inTime: inTimeStr,
+        elapsedMinutes,
+        elapsedText,
+        freeMinutes,
+        freeHours,
+        overMinutes: 0,
+        remainMinutes,
+        remainText,
+        estimatedFee: 0,
+        isOverdue: false,
+        statusText: "무료 출차 가능",
+      };
+    }
+
+    // 초과 시 요금 계산: 최초 30분 800원 + 10분당 300원
+    let estimatedFee = 800;
+    if (overMinutes > 30) {
+      const extraMinutes = overMinutes - 30;
+      estimatedFee += Math.ceil(extraMinutes / 10) * 300;
+    }
+    const overH = Math.floor(overMinutes / 60);
+    const overM = overMinutes % 60;
+    const overText = overH > 0 ? `${overH}시간 ${overM}분 초과` : `${overM}분 초과`;
+
+    return {
+      inTime: inTimeStr,
+      elapsedMinutes,
+      elapsedText,
+      freeMinutes,
+      freeHours,
+      overMinutes,
+      overText,
+      remainMinutes: 0,
+      remainText: "초과",
+      estimatedFee,
+      isOverdue: true,
+      statusText: "초과 요금 정산 필요",
+    };
+  } catch (e) {
+    return { elapsedMinutes: 0, overMinutes: 0, estimatedFee: 0, isOverdue: false, statusText: "계산 불가" };
+  }
+}
+
 // 각 클라이언트(브라우저)별 세션 쿠키 개별 격리 (전역 공유 금지)
 
 function proxyToParkingServer({ method, targetPath, headers = {}, body = null }, clientRes) {
@@ -803,12 +913,22 @@ const server = http.createServer(async (req, res) => {
         const day = String(now.getDate()).padStart(2, "0");
         const today = `${year}-${month}-${day}`;
 
+        // 관제 서버 시스템 세션 쿠키 획득 (kooh 관리자 자동 로그인)
+        const sysCookie = await getSystemParkingCookie();
+        const parkingHeaders = {
+          "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+          "User-Agent": "Mozilla/5.0",
+        };
+        if (sysCookie) {
+          parkingHeaders["Cookie"] = sysCookie;
+        }
+
         // (1) 관제 서버에서 입차 차량 검색
         const formBody = new URLSearchParams({ carnum }).toString();
         const p1 = requestToParkingServer({
           method: "POST",
           targetPath: "/discount/searchcar",
-          headers: { ...headers, "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8" },
+          headers: parkingHeaders,
           body: formBody,
         }).catch(() => ({ data: { total: 0, result: [] } }));
 
@@ -816,7 +936,7 @@ const server = http.createServer(async (req, res) => {
         const p2 = requestToParkingServer({
           method: "POST",
           targetPath: "/home/carnumsearch",
-          headers: { ...headers, "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8" },
+          headers: parkingHeaders,
           body: visitBody,
         }).catch(() => ({ data: { total: 0, result: [] } }));
 
@@ -834,6 +954,7 @@ const server = http.createServer(async (req, res) => {
               xindex: c.xindex || "",
               imgUrl: c.xindex ? `/api/inimage?xindex=${encodeURIComponent(c.xindex)}` : "",
               status: "입차중",
+              appliedDiscounts: [],
             });
           }
         });
@@ -847,13 +968,33 @@ const server = http.createServer(async (req, res) => {
               xindex: c.idx || "",
               imgUrl: c.idx ? `/api/inimage?xindex=${encodeURIComponent(c.idx)}&visitchk=${encodeURIComponent(c["정기구분"] || "")}` : "",
               status: c["정기구분"] || "입차중",
+              appliedDiscounts: [],
             });
           }
         });
 
         const cars = Array.from(carMap.values());
 
-        // (2) 오늘 OCS VCARINFO3 뷰에 이미 감면 등록되어 있는지 확인
+        // (2) 관제서버 기적용 감면 내역 병렬 조회
+        await Promise.all(
+          cars.map(async (car) => {
+            if (!car.xindex) return;
+            try {
+              const recBody = new URLSearchParams({ xindex: String(car.xindex) }).toString();
+              const recRes = await requestToParkingServer({
+                method: "POST",
+                targetPath: "/discount/discountrecords",
+                headers: parkingHeaders,
+                body: recBody,
+              });
+              car.appliedDiscounts = (recRes.data && recRes.data.result) || [];
+            } catch (e) {
+              car.appliedDiscounts = [];
+            }
+          })
+        );
+
+        // (3) 오늘 OCS VCARINFO3 뷰 및 WMNAM01에 이미 감면 등록되어 있는지 확인
         try {
           if (oracledb && cars.length > 0) {
             const conn = await getDbConnection();
@@ -862,10 +1003,23 @@ const server = http.createServer(async (req, res) => {
             const bindObj = {};
             carnos.forEach((c, i) => (bindObj[`c${i}`] = c));
 
+            // VCARINFO3 확인
             const dbRes = await conn.execute(
               `SELECT CARNO, IDNOA, BIGO1, DAT1, TIME1 FROM JAIN_WM.VCARINFO3 WHERE CARNO IN (${inClause}) AND DAT2 = TO_CHAR(SYSDATE, 'YYYYMMDD')`,
               bindObj
             );
+
+            // WMNAM01 확인 (차량번호가 등록되어 있고 오늘 진료가 있는 환자)
+            const wSql = `
+              SELECT m.W01CARNO_PK, m.W01IDNOA, m.W01NAME
+                FROM JAIN_WM.WMNAM01 m
+               WHERE (
+                 m.W01IDNOA IN (SELECT OCM01IDNOA FROM JAIN_OCS.OCMKWA01 WHERE OCM01LWDAT = TO_CHAR(SYSDATE, 'YYYYMMDD'))
+                 OR m.W01IDNOA IN (SELECT OMT02IDNOA FROM JAIN_WM.OMTIDN02 WHERE OMT02STATUS = 'HP')
+                 OR m.W01IDNOA IN (SELECT W10IDNOA FROM JAIN_WM.WMCHG10 WHERE W10RTDAT = TO_CHAR(SYSDATE, 'YYYYMMDD') OR W10HPDAT = TO_CHAR(SYSDATE, 'YYYYMMDD'))
+               )
+            `;
+            const wRes = await conn.execute(wSql);
             await conn.close();
 
             const ocsRegMap = new Map();
@@ -873,19 +1027,42 @@ const server = http.createServer(async (req, res) => {
               ocsRegMap.set(row.CARNO, row);
             });
 
+            const patientCarMap = new Map();
+            (wRes.rows || []).forEach((r) => {
+              const full = (r.W01CARNO_PK || "").trim();
+              const pure = full.includes("*") ? full.split("*")[0].trim() : full;
+              if (pure) patientCarMap.set(pure, r);
+            });
+
             cars.forEach((c) => {
               const reg = ocsRegMap.get(c.carno);
-              if (reg) {
+              const pMatch = patientCarMap.get(c.carno);
+              const hasControlDiscount = c.appliedDiscounts && c.appliedDiscounts.length > 0;
+
+              if (reg || pMatch || hasControlDiscount) {
                 c.alreadyRegistered = true;
-                c.ocsJubno = reg.IDNOA;
-                c.ocsCode = reg.BIGO1;
+                c.ocsJubno = (reg && reg.IDNOA) || (pMatch && pMatch.W01IDNOA) || "";
+                c.patientName = pMatch ? pMatch.W01NAME : "";
+                c.ocsCode = (reg && reg.BIGO1) || (hasControlDiscount ? c.appliedDiscounts[0]["할인명칭"] : "외래진료 6시간");
               } else {
                 c.alreadyRegistered = false;
               }
+
+              // 초과 시간 및 예상 정산 금액 산정 (기본 6시간 감면 기준)
+              c.overdueInfo = calculateOverdueFee(c.intime, 6);
+            });
+          } else {
+            cars.forEach((c) => {
+              const hasControlDiscount = c.appliedDiscounts && c.appliedDiscounts.length > 0;
+              c.alreadyRegistered = hasControlDiscount;
+              c.overdueInfo = calculateOverdueFee(c.intime, 6);
             });
           }
         } catch (dbErr) {
           console.warn("⚠️ OCS 기등록 차량 대조 실패:", dbErr.message);
+          cars.forEach((c) => {
+            c.overdueInfo = calculateOverdueFee(c.intime, 6);
+          });
         }
 
         res.writeHead(200, { "Content-Type": "application/json; charset=utf-8" });
@@ -898,14 +1075,11 @@ const server = http.createServer(async (req, res) => {
       if (action === "self/patientinfo") {
         const data = await readJsonBody(req);
         let keyword = (data.keyword || "").trim();
-        if (!keyword) {
-          res.writeHead(400, { "Content-Type": "application/json; charset=utf-8" });
-          return res.end(JSON.stringify({ ok: false, msg: "바코드 번호 또는 생년월일을 입력해주세요." }));
-        }
+        const jmno = (data.jmno || "").replace(/[^0-9]/g, "").trim();
 
-        // 바코드/차트번호 7자리 패딩 보정
-        if (/^\d{1,7}$/.test(keyword) && keyword.length <= 7 && !data.isBirth) {
-          keyword = keyword.padStart(7, "0");
+        if (!keyword && !jmno) {
+          res.writeHead(400, { "Content-Type": "application/json; charset=utf-8" });
+          return res.end(JSON.stringify({ ok: false, msg: "바코드 번호 또는 주민등록번호를 입력해주세요." }));
         }
 
         if (!oracledb) {
@@ -913,9 +1087,35 @@ const server = http.createServer(async (req, res) => {
           return res.end(JSON.stringify({ ok: false, msg: "오라클 DB 연결이 구성되지 않았습니다." }));
         }
 
+        // 바코드/차트번호 7자리 패딩 보정
+        if (keyword && /^\d{1,7}$/.test(keyword) && !data.isBirth) {
+          keyword = keyword.padStart(7, "0");
+        }
+
         let conn;
         try {
           conn = await getDbConnection();
+          let whereClause = "";
+          const bindParams = {};
+
+          if (jmno && jmno.length === 13) {
+            // 주민등록번호 13자리 풀 매칭
+            whereClause = "m.W01JMNOA = :jmno";
+            bindParams.jmno = jmno;
+          } else if (jmno && jmno.length >= 6) {
+            // 앞 6자리 생년월일 + (뒷자리 일부)
+            whereClause = "SUBSTR(m.W01JMNOA, 1, 6) = :birth";
+            bindParams.birth = jmno.substring(0, 6);
+            if (jmno.length === 13) {
+              whereClause += " AND SUBSTR(m.W01JMNOA, 7, 7) = :back";
+              bindParams.back = jmno.substring(6, 13);
+            }
+          } else {
+            // 바코드 또는 차트번호
+            whereClause = "m.W01IDNOA = :kw";
+            bindParams.kw = keyword;
+          }
+
           const sql = `
             SELECT 
               m.W01IDNOA AS JUBNO,
@@ -945,27 +1145,28 @@ const server = http.createServer(async (req, res) => {
               (SELECT MAX(OMT02STATUS) FROM JAIN_WM.OMTIDN02 WHERE OMT02IDNOA = m.W01IDNOA AND OMT02STATUS = 'HP' AND OMT02HPDAT <= TO_CHAR(SYSDATE, 'YYYYMMDD') AND (OMT02RTDAT IS NULL OR OMT02RTDAT > TO_CHAR(SYSDATE, 'YYYYMMDD'))) AS INPATIENT_STATUS,
               (SELECT MAX(OMT02BEDNO) FROM JAIN_WM.OMTIDN02 WHERE OMT02IDNOA = m.W01IDNOA AND OMT02STATUS = 'HP' AND OMT02HPDAT <= TO_CHAR(SYSDATE, 'YYYYMMDD') AND (OMT02RTDAT IS NULL OR OMT02RTDAT > TO_CHAR(SYSDATE, 'YYYYMMDD'))) AS BEDNO
             FROM JAIN_WM.WMNAM01 m
-            WHERE (
-              m.W01IDNOA = :kw1
-              OR (LENGTH(:kw2) = 6 AND SUBSTR(m.W01JMNOA, 1, 6) = :kw2 AND (
-                   m.W01IDNOA IN (SELECT OCM01IDNOA FROM JAIN_OCS.OCMKWA01 WHERE OCM01LWDAT = TO_CHAR(SYSDATE, 'YYYYMMDD'))
-                   OR m.W01IDNOA IN (SELECT OMT02IDNOA FROM JAIN_WM.OMTIDN02 WHERE OMT02STATUS = 'HP')
-                   OR m.W01IDNOA IN (SELECT W10IDNOA FROM JAIN_WM.WMCHG10 WHERE W10RTDAT = TO_CHAR(SYSDATE, 'YYYYMMDD') OR W10HPDAT = TO_CHAR(SYSDATE, 'YYYYMMDD'))
-                 ))
-            )
+            WHERE ${whereClause}
             FETCH FIRST 10 ROWS ONLY
           `;
 
-          const result = await conn.execute(sql, { kw1: keyword, kw2: keyword });
+          const result = await conn.execute(sql, bindParams);
           const patients = (result.rows || []).map((p) => {
             const benefit = evaluateParkingDiscount(p);
-            // 순수 등록 차량번호 추출 (* 앞자리)
             const rawCarno = p.CURRENT_CARNO || "";
             const pureCarno = rawCarno.includes("*") ? rawCarno.split("*")[0].trim() : rawCarno.trim();
+
+            const name = p.PATIENT_NAME || "";
+            let maskedName = name;
+            if (name.length === 2) {
+              maskedName = name[0] + "*";
+            } else if (name.length >= 3) {
+              maskedName = name[0] + "*".repeat(name.length - 2) + name[name.length - 1];
+            }
 
             return {
               jubno: p.JUBNO,
               name: p.PATIENT_NAME,
+              maskedName: maskedName,
               birth: p.BIRTH,
               carnoRaw: rawCarno,
               carnoPure: pureCarno,
