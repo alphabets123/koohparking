@@ -7,10 +7,10 @@
  * - 외부 라이브러리(npm install) 없이 Node.js 기본 내장 모듈만으로 가볍고 안정적으로 구동됩니다.
  */
 
+const path = require("path");
 require("dotenv").config({ path: path.join(__dirname, ".env") });
 const http = require("http");
 const fs = require("fs");
-const path = require("path");
 const { URL, URLSearchParams } = require("url");
 
 // Oracle DB 연동 (안전한 초기화)
