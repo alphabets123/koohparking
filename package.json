@@ -1,0 +1,13 @@
+{
+  "name": "parking-server",
+  "version": "1.0.0",
+  "description": "구병원 주차감면 및 셀프 등록 키오스크 통합 서버",
+  "main": "parking-server.js",
+  "scripts": {
+    "start": "node parking-server.js"
+  },
+  "dependencies": {
+    "dotenv": "^17.3.1",
+    "oracledb": "^6.10.0"
+  }
+}
