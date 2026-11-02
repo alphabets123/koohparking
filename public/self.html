@@ -23,18 +23,18 @@
       -webkit-tap-highlight-color: transparent;
     }
 
-    /* ⭐️ 태블릿 뷰포트 맞춤 폰트 스케일링 (1.5배 시원한 대형화 적용) */
+    /* ⭐️ 태블릿 뷰포트 맞춤 폰트 스케일링 (저번과 이번의 중간 크기 - 완벽한 핏) */
     html {
-      font-size: 21px;
+      font-size: 16.5px;
     }
     @media (min-width: 600px) {
-      html { font-size: 24px; }
+      html { font-size: 18px; }
     }
     @media (min-width: 800px) {
-      html { font-size: 26px; }
+      html { font-size: 19.5px; }
     }
     @media (min-width: 1024px) {
-      html { font-size: 28px; }
+      html { font-size: 20.5px; }
     }
 
     html, body {
@@ -76,33 +76,33 @@
       font-feature-settings: 'tnum' 1, 'lnum' 1;
     }
 
-    /* 대형 터치 키패드 버튼 스타일 (높이 대폭 확대 & 도톰한 3.5rem 폰트) */
+    /* 균형 잡힌 터치 키패드 버튼 스타일 (잘림 방지 황금 높이 & 시원한 터치감) */
     .keypad-btn {
-      height: clamp(84px, 11.5vh, 105px);
-      font-size: clamp(2.5rem, 4.2vh, 3.4rem);
+      height: clamp(62px, 8.2vh, 76px);
+      font-size: clamp(2rem, 3.2vh, 2.7rem);
       font-weight: 900;
       transition: all 0.08s ease;
       touch-action: manipulation;
       background-color: #ffffff;
-      border: 2.5px solid #fed7aa;
-      border-radius: 1.4rem;
-      box-shadow: 0 4px 6px -1px rgba(251, 146, 60, 0.12);
+      border: 2px solid #fed7aa;
+      border-radius: 1.25rem;
+      box-shadow: 0 3px 5px -1px rgba(251, 146, 60, 0.12);
       display: flex;
       align-items: center;
       justify-content: center;
     }
     @media (min-width: 600px) {
       .keypad-btn {
-        height: clamp(92px, 12.5vh, 118px);
-        font-size: clamp(2.8rem, 4.6vh, 3.7rem);
-        border-radius: 1.55rem;
+        height: clamp(66px, 8.8vh, 82px);
+        font-size: clamp(2.2rem, 3.5vh, 2.9rem);
+        border-radius: 1.35rem;
       }
     }
     @media (min-width: 800px) {
       .keypad-btn {
-        height: clamp(100px, 13.5vh, 130px);
-        font-size: clamp(3.1rem, 5vh, 4rem);
-        border-radius: 1.7rem;
+        height: clamp(72px, 9.4vh, 88px);
+        font-size: clamp(2.4rem, 3.8vh, 3.1rem);
+        border-radius: 1.45rem;
       }
     }
     .keypad-btn:hover {
@@ -126,122 +126,35 @@
     .scanner-line {
       animation: scanLine 2s ease-in-out infinite;
     }
-
-    /* 토글 스위치 */
-    .switch {
-      position: relative;
-      display: inline-block;
-      width: 48px;
-      height: 26px;
-    }
-    .switch input {
-      opacity: 0;
-      width: 0;
-      height: 0;
-    }
-    .slider {
-      position: absolute;
-      cursor: pointer;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background-color: #cbd5e1;
-      transition: .25s;
-      border-radius: 26px;
-    }
-    .slider:before {
-      position: absolute;
-      content: "";
-      height: 20px;
-      width: 20px;
-      left: 3px;
-      bottom: 3px;
-      background-color: white;
-      transition: .25s;
-      border-radius: 50%;
-    }
-    input:checked + .slider {
-      background-color: #ff6f0f;
-    }
-    input:checked + .slider:before {
-      transform: translateX(22px);
-    }
-
-    /* 햄버거 메뉴 팝오버 */
-    #menuPopover {
-      display: none;
-      position: absolute;
-      top: 65px;
-      right: 16px;
-      width: 300px;
-      background: #ffffff;
-      border: 2px solid #fed7aa;
-      border-radius: 1.25rem;
-      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.12), 0 8px 10px -6px rgba(0, 0, 0, 0.08);
-      z-index: 100;
-      padding: 1.15rem;
-    }
-    #menuPopover.active { display: block; }
   </style>
 </head>
 <body class="flex flex-col w-screen h-screen overflow-hidden text-slate-800">
 
   <!-- ===================================================================== -->
-  <!-- 🧭 상단 헤더 바 (구병원 공식 로고 + 시원한 타이틀 + 처음으로 + 햄버거) -->
+  <!-- 🧭 상단 헤더 바 (구병원 공식 로고 클릭 시 전체화면 토글 + 처음으로 단독 배치) -->
   <!-- ===================================================================== -->
-  <header class="w-full bg-white/95 backdrop-blur-md border-b border-orange-100 flex-shrink-0 px-4 sm:px-8 py-3 sm:py-3.5 flex items-center justify-between shadow-xs z-30">
-    <div class="flex items-center gap-3.5 sm:gap-4">
-      <!-- 구병원 공식 원본 로고 -->
-      <img src="/kooh_logo.png" alt="구병원" class="h-10 sm:h-12 w-auto object-contain">
-      <div>
-        <h1 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2 whitespace-nowrap">
-          구병원 주차 등록
+  <header class="w-full bg-white/95 backdrop-blur-md border-b border-orange-100 flex-shrink-0 px-3.5 sm:px-6 py-2.5 sm:py-3 flex items-center justify-between shadow-xs z-30">
+    <div class="flex items-center gap-3 sm:gap-3.5 min-w-0 flex-1 mr-2">
+      <!-- 구병원 공식 로고: 터치(클릭) 시 전체화면 모드 즉시 토글 -->
+      <img src="/kooh_logo.png" alt="구병원" onclick="toggleFullscreenDirect()" class="h-9 sm:h-11 w-auto object-contain cursor-pointer active:scale-90 transition-transform flex-shrink-0" title="화면 전체화면 전환 (클릭)">
+      <div class="min-w-0 flex-1">
+        <h1 class="text-lg sm:text-2xl font-black text-slate-900 tracking-tight flex items-center gap-1.5 whitespace-nowrap">
+          <span>구병원 주차 등록</span>
         </h1>
-        <p class="text-xs sm:text-sm text-slate-500 font-bold whitespace-nowrap mt-0.5">
-          진료 접수 후 차량번호를 등록하시면 출차 시 자동 감면됩니다.
+        <p class="text-[11px] sm:text-xs text-slate-500 font-bold truncate mt-0.5">
+          진료 접수 후 차량번호 등록 시 출차 자동 감면
         </p>
       </div>
     </div>
 
-    <!-- 우측 도구: [처음으로] & [햄버거(☰)] 버튼 -->
-    <div class="flex items-center gap-2.5 sm:gap-3">
-      <button onclick="resetAllSteps()" class="px-4 py-2 sm:px-5 sm:py-2.5 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-black text-xs sm:text-base flex items-center gap-2 transition active:scale-95 whitespace-nowrap border border-slate-200 shadow-2xs">
-        <i class="fa-solid fa-rotate-right text-[#ff6f0f] text-sm sm:text-base"></i>
+    <!-- 우측 도구: [처음으로] 버튼 단독 배치 (글자 겹침 완벽 방지 flex-shrink-0) -->
+    <div class="flex items-center flex-shrink-0">
+      <button onclick="resetAllSteps()" class="px-3.5 py-2 sm:px-4.5 sm:py-2.5 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-black text-xs sm:text-sm flex items-center gap-1.5 transition active:scale-95 whitespace-nowrap border border-slate-200 shadow-2xs">
+        <i class="fa-solid fa-rotate-right text-[#ff6f0f] text-xs sm:text-sm"></i>
         <span>처음으로</span>
-      </button>
-
-      <!-- 햄버거 메뉴 버튼 -->
-      <button id="btnMenu" onclick="toggleMenuPopover(event)" class="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-orange-50 hover:bg-orange-100 border-2 border-orange-200 text-[#ff6f0f] font-black text-lg sm:text-xl flex items-center justify-center transition shadow-2xs active:scale-95" title="부가 메뉴">
-        <i class="fa-solid fa-bars"></i>
       </button>
     </div>
   </header>
-
-  <!-- 💡 햄버거 부가메뉴 팝오버 (전체화면 모드 스위치만 심플하게 탑재) -->
-  <div id="menuPopover" class="text-left text-xs text-slate-700">
-    <div class="flex items-center justify-between pb-2 mb-3 border-b border-orange-100">
-      <div class="font-black text-slate-900 text-sm sm:text-base flex items-center gap-1.5">
-        <i class="fa-solid fa-sliders text-[#ff6f0f]"></i>
-        <span>화면 설정</span>
-      </div>
-      <button onclick="toggleMenuPopover(event)" class="text-slate-400 hover:text-slate-600 p-1">
-        <i class="fa-solid fa-xmark text-base"></i>
-      </button>
-    </div>
-
-    <!-- 전체화면 토글 스위치 -->
-    <div class="flex items-center justify-between p-3 rounded-2xl bg-orange-50/70 border-2 border-orange-200">
-      <div>
-        <div class="font-bold text-slate-900 text-xs sm:text-sm flex items-center gap-1.5">
-          <i class="fa-solid fa-expand text-[#ff6f0f]"></i>
-          <span>전체화면 모드 (F11)</span>
-        </div>
-        <div class="text-[11px] text-slate-500 font-medium mt-0.5">상단바 숨김 풀스크린 전환</div>
-      </div>
-      <label class="switch">
-        <input type="checkbox" id="fullscreenToggle" onchange="toggleFullscreenMode(this)">
-        <span class="slider"></span>
-      </label>
-    </div>
-  </div>
 
   <!-- ===================================================================== -->
   <!-- 🖥️ 메인 키오스크 뷰포트 (스크롤 원천 차단 & 100% 핏 풀사이즈 대화면) -->
@@ -274,29 +187,29 @@
     <!-- ===================================================================== -->
     <!-- 🚗 STEP 1: 차량번호 뒷 4자리 키패드 입력 화면 -->
     <!-- ===================================================================== -->
-    <section id="step1Section" class="kiosk-card w-full max-w-3xl lg:max-w-4xl flex-1 bg-white rounded-3xl border-2 border-orange-200 shadow-xl p-4 sm:p-6 flex flex-col items-center justify-between my-auto overflow-hidden">
+    <section id="step1Section" class="kiosk-card w-full max-w-3xl lg:max-w-4xl flex-1 bg-white rounded-3xl border-2 border-orange-200 shadow-xl p-3 sm:p-5 flex flex-col items-center justify-between my-auto overflow-hidden">
       <!-- 상단 제목 & 안내 문구 1곳 통합 배치 -->
-      <div class="text-center space-y-1.5 flex-shrink-0 pt-1 sm:pt-2">
-        <h2 class="text-2xl sm:text-4xl font-black text-slate-900 whitespace-nowrap">차량번호 뒷 4자리를 눌러주세요</h2>
-        <p class="text-sm sm:text-lg text-slate-600 font-bold">4자리를 누르면 현재 입차된 차량이 자동으로 검색됩니다.</p>
-        <div class="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-orange-100 text-[#ea580c] font-black text-xs sm:text-sm">
+      <div class="text-center space-y-1 flex-shrink-0 pt-0.5">
+        <h2 class="text-xl sm:text-3xl font-black text-slate-900 whitespace-nowrap">차량번호 뒷 4자리를 눌러주세요</h2>
+        <p class="text-xs sm:text-sm text-slate-500 font-bold">4자리를 누르면 현재 입차된 차량이 자동으로 검색됩니다.</p>
+        <div class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-orange-100 text-[#ea580c] font-black text-xs">
           <i class="fa-solid fa-circle-info"></i>
           <span>병원 주차장에 정상 입차된 차량만 검색됩니다.</span>
         </div>
       </div>
 
       <!-- 4자리 번호 표시창 (검은 언더스코어 제거, 오직 선명한 주황색 밑줄만 단일 표시) -->
-      <div class="w-full max-w-lg sm:max-w-xl my-auto">
-        <div class="h-20 sm:h-26 bg-orange-50/70 rounded-3xl border-2 border-orange-300 flex items-center justify-center gap-5 sm:gap-8 px-6 shadow-inner">
-          <div id="digit0" class="num-display text-4xl sm:text-6xl font-black text-[#ff6f0f] border-b-4 border-orange-400 pb-1 w-16 sm:w-20 text-center h-16 sm:h-20 flex items-center justify-center">&nbsp;</div>
-          <div id="digit1" class="num-display text-4xl sm:text-6xl font-black text-[#ff6f0f] border-b-4 border-orange-400 pb-1 w-16 sm:w-20 text-center h-16 sm:h-20 flex items-center justify-center">&nbsp;</div>
-          <div id="digit2" class="num-display text-4xl sm:text-6xl font-black text-[#ff6f0f] border-b-4 border-orange-400 pb-1 w-16 sm:w-20 text-center h-16 sm:h-20 flex items-center justify-center">&nbsp;</div>
-          <div id="digit3" class="num-display text-4xl sm:text-6xl font-black text-[#ff6f0f] border-b-4 border-orange-400 pb-1 w-16 sm:w-20 text-center h-16 sm:h-20 flex items-center justify-center">&nbsp;</div>
+      <div class="w-full max-w-md sm:max-w-lg my-auto">
+        <div class="h-16 sm:h-20 bg-orange-50/70 rounded-2xl border-2 border-orange-300 flex items-center justify-center gap-4 sm:gap-6 px-4 shadow-inner">
+          <div id="digit0" class="num-display text-3xl sm:text-5xl font-black text-[#ff6f0f] border-b-4 border-orange-400 pb-1 w-12 sm:w-16 text-center h-12 sm:h-16 flex items-center justify-center">&nbsp;</div>
+          <div id="digit1" class="num-display text-3xl sm:text-5xl font-black text-[#ff6f0f] border-b-4 border-orange-400 pb-1 w-12 sm:w-16 text-center h-12 sm:h-16 flex items-center justify-center">&nbsp;</div>
+          <div id="digit2" class="num-display text-3xl sm:text-5xl font-black text-[#ff6f0f] border-b-4 border-orange-400 pb-1 w-12 sm:w-16 text-center h-12 sm:h-16 flex items-center justify-center">&nbsp;</div>
+          <div id="digit3" class="num-display text-3xl sm:text-5xl font-black text-[#ff6f0f] border-b-4 border-orange-400 pb-1 w-12 sm:w-16 text-center h-12 sm:h-16 flex items-center justify-center">&nbsp;</div>
         </div>
       </div>
 
-      <!-- 터치 숫자 키패드 (화면 높이에 맞춘 탄탄한 대형 조약돌 버튼) -->
-      <div class="w-full max-w-lg sm:max-w-xl grid grid-cols-3 gap-3 sm:gap-4 my-auto">
+      <!-- 터치 숫자 키패드 (화면 높이에 맞춘 황금비율 조약돌 버튼) -->
+      <div class="w-full max-w-md sm:max-w-lg grid grid-cols-3 gap-2 sm:gap-3 my-auto">
         <button onclick="pressNum('1')" class="keypad-btn text-slate-800">1</button>
         <button onclick="pressNum('2')" class="keypad-btn text-slate-800">2</button>
         <button onclick="pressNum('3')" class="keypad-btn text-slate-800">3</button>
@@ -309,12 +222,12 @@
         <button onclick="pressNum('8')" class="keypad-btn text-slate-800">8</button>
         <button onclick="pressNum('9')" class="keypad-btn text-slate-800">9</button>
 
-        <button onclick="clearNum()" class="keypad-btn !text-base sm:!text-2xl !font-black text-rose-600 bg-rose-50/70 hover:bg-rose-100 border-rose-200 whitespace-nowrap">
+        <button onclick="clearNum()" class="keypad-btn !text-sm sm:!text-lg !font-black text-rose-600 bg-rose-50/70 hover:bg-rose-100 border-rose-200 whitespace-nowrap">
           전체삭제
         </button>
         <button onclick="pressNum('0')" class="keypad-btn text-slate-800">0</button>
         <button onclick="backspaceNum()" class="keypad-btn text-slate-600 hover:text-slate-900">
-          <i class="fa-solid fa-delete-left text-2xl sm:text-3xl"></i>
+          <i class="fa-solid fa-delete-left text-xl sm:text-2xl"></i>
         </button>
       </div>
     </section>
@@ -347,86 +260,83 @@
     <!-- ===================================================================== -->
     <!-- 🟢 STEP 1.8: 기감면 내역 및 초과 시간/요금 안내 화면 (이미 감면된 차량) -->
     <!-- ===================================================================== -->
-    <section id="stepAlreadyRegisteredSection" class="kiosk-card hidden w-full max-w-3xl lg:max-w-4xl flex-1 bg-white rounded-3xl border-2 border-emerald-200 shadow-xl p-4 sm:p-6 flex flex-col justify-between my-auto overflow-hidden">
-      <!-- 상단 감면 완료 타이틀 -->
-      <div class="text-center space-y-1.5 flex-shrink-0 pt-1">
-        <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-emerald-100 text-emerald-800 font-black text-xs sm:text-base">
+    <section id="stepAlreadyRegisteredSection" class="kiosk-card hidden w-full max-w-3xl lg:max-w-4xl flex-1 bg-white rounded-3xl border-2 border-emerald-200 shadow-xl p-3 sm:p-5 flex flex-col justify-between my-auto overflow-hidden">
+      <!-- 상단 감면 완료 타이틀 (글자 잘림 방지 break-keep) -->
+      <div class="text-center space-y-1 flex-shrink-0 pt-0.5">
+        <div class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-black text-xs">
           <i class="fa-solid fa-circle-check"></i> 주차 감면 등록 완료 차량
         </div>
-        <h2 class="text-2xl sm:text-4xl font-black text-slate-900 whitespace-nowrap">이미 주차 감면이 등록된 차량입니다</h2>
-        <p class="text-xs sm:text-base text-slate-500 font-bold">환자분의 차량에 무료 감면 혜택이 정상 적용되어 있습니다.</p>
+        <h2 class="text-xl sm:text-3xl font-black text-slate-900 break-keep leading-snug">이미 주차 감면이 등록된 차량입니다</h2>
+        <p class="text-xs sm:text-sm text-slate-500 font-bold">환자분의 차량에 무료 감면 혜택이 정상 적용되어 있습니다.</p>
       </div>
 
       <!-- 기감면 상세 정보 카드 (⭐️ LPR 차량 촬영 사진 + 환자/차량 상세 2단 결합) -->
-      <div class="w-full bg-emerald-50/60 border-2 border-emerald-200 rounded-3xl p-3 sm:p-5 space-y-3 my-auto">
+      <div class="w-full bg-emerald-50/60 border-2 border-emerald-200 rounded-3xl p-2.5 sm:p-4 space-y-2.5 my-auto">
         
         <!-- 상하/좌우 반응형 그리드: LPR 입차 사진 + 환자/차량 번호 헤더 -->
-        <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 sm:gap-4 items-center">
+        <div class="grid grid-cols-1 sm:grid-cols-12 gap-2.5 sm:gap-3.5 items-center">
           
-          <!-- LPR 입차 차량 사진 박스 -->
-          <div class="sm:col-span-5 rounded-2xl overflow-hidden border-2 border-emerald-300 bg-slate-900 relative shadow-sm aspect-[16/10] sm:aspect-[4/3] flex items-center justify-center">
+          <!-- LPR 입차 차량 사진 박스 (화면 넘침 방지 max-h 제한) -->
+          <div class="sm:col-span-5 rounded-2xl overflow-hidden border-2 border-emerald-300 bg-slate-900 relative shadow-sm aspect-[16/10] max-h-36 sm:max-h-44 flex items-center justify-center">
             <img id="alreadyCarImage" src="" alt="LPR 입차 촬영 사진" class="w-full h-full object-cover">
-            <div id="alreadyCarImagePlaceholder" class="hidden flex flex-col items-center justify-center text-slate-400 p-4 text-center">
-              <i class="fa-solid fa-car text-3xl sm:text-4xl mb-1 text-slate-500"></i>
+            <div id="alreadyCarImagePlaceholder" class="hidden flex flex-col items-center justify-center text-slate-400 p-3 text-center">
+              <i class="fa-solid fa-car text-2xl sm:text-3xl mb-1 text-slate-500"></i>
               <span class="text-xs font-bold">입차 사진 등록 차량</span>
             </div>
-            <div class="absolute bottom-1.5 left-1.5 bg-black/70 backdrop-blur-xs text-white text-[10px] sm:text-xs px-2 py-0.5 rounded-full font-bold flex items-center gap-1">
+            <div class="absolute bottom-1 left-1 bg-black/70 backdrop-blur-xs text-white text-[9px] sm:text-[11px] px-2 py-0.5 rounded-full font-bold flex items-center gap-1">
               <i class="fa-solid fa-camera"></i>
               <span>LPR 입차 사진</span>
             </div>
           </div>
 
-          <!-- 환자 및 차량 정보 -->
-          <div class="sm:col-span-7 flex flex-col justify-between space-y-2.5">
+          <!-- 환자 및 차량 정보 (글자 잘림 없는 상하 스택) -->
+          <div class="sm:col-span-7 flex flex-col justify-between space-y-2">
             <!-- 감면 등록 환자 -->
-            <div class="p-2.5 sm:p-3 rounded-2xl bg-white border border-emerald-200 flex items-center justify-between shadow-2xs">
-              <div class="flex items-center gap-2.5">
-                <div class="w-9 h-9 sm:w-11 sm:h-11 rounded-xl bg-emerald-600 text-white flex items-center justify-center text-lg sm:text-xl flex-shrink-0">
+            <div class="p-2 sm:p-2.5 rounded-2xl bg-white border border-emerald-200 flex items-center justify-between shadow-2xs">
+              <div class="flex items-center gap-2">
+                <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center text-base sm:text-lg flex-shrink-0">
                   <i class="fa-solid fa-user-check"></i>
                 </div>
                 <div>
-                  <div class="text-[11px] sm:text-xs text-slate-500 font-bold">감면 등록 환자 (본인 확인)</div>
-                  <div class="text-lg sm:text-2xl font-black text-slate-900 whitespace-nowrap mt-0.5" id="alreadyPatientName">-</div>
+                  <div class="text-[10px] sm:text-xs text-slate-500 font-bold">감면 등록 환자</div>
+                  <div class="text-base sm:text-xl font-black text-slate-900 whitespace-nowrap" id="alreadyPatientName">-</div>
                 </div>
               </div>
-              <span class="text-xs sm:text-sm font-black font-num bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-lg whitespace-nowrap" id="alreadyPatientJubno">-</span>
+              <span class="text-xs sm:text-sm font-black font-num bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-lg whitespace-nowrap" id="alreadyPatientJubno">-</span>
             </div>
 
-            <!-- 등록 차량번호 & 입차시각 -->
-            <div class="p-2.5 sm:p-3 rounded-2xl bg-white border border-emerald-200 flex items-center justify-between shadow-2xs">
-              <div>
-                <div class="text-[11px] sm:text-xs text-slate-500 font-bold">등록 차량번호</div>
-                <div class="text-2xl sm:text-3xl font-black text-[#ff6f0f] font-num tracking-wide whitespace-nowrap" id="alreadyCarNum">-</div>
+            <!-- 등록 차량번호 & 입차시각 (상하 분할로 글자 잘림 방지) -->
+            <div class="p-2 sm:p-2.5 rounded-2xl bg-white border border-emerald-200 flex flex-col justify-center shadow-2xs">
+              <div class="flex items-center justify-between">
+                <span class="text-[10px] sm:text-xs text-slate-500 font-bold">등록 차량번호</span>
+                <span class="text-[11px] sm:text-xs text-slate-600 font-bold font-num" id="alreadyInTime">-</span>
               </div>
-              <div class="text-right">
-                <div class="text-[11px] sm:text-xs text-slate-500 font-bold">입차 시각</div>
-                <div class="text-xs sm:text-sm text-slate-700 font-black font-num whitespace-nowrap mt-0.5" id="alreadyInTime">-</div>
-              </div>
+              <div class="text-xl sm:text-2xl font-black text-[#ff6f0f] font-num tracking-wide whitespace-nowrap mt-0.5" id="alreadyCarNum">-</div>
             </div>
           </div>
         </div>
 
         <!-- 감면 혜택 & 현재 주차 상태 -->
-        <div class="grid grid-cols-2 gap-2.5 sm:gap-3.5 pt-1">
-          <div class="p-3 sm:p-3.5 rounded-2xl bg-white border border-emerald-100 shadow-2xs">
-            <div class="text-[11px] sm:text-xs text-slate-500 font-bold mb-0.5">적용된 감면 혜택</div>
-            <div class="text-base sm:text-xl font-black text-emerald-700 break-keep leading-tight" id="alreadyBenefitTitle">외래진료 6시간 무료</div>
+        <div class="grid grid-cols-2 gap-2 sm:gap-3">
+          <div class="p-2.5 sm:p-3 rounded-2xl bg-white border border-emerald-100 shadow-2xs">
+            <div class="text-[10px] sm:text-xs text-slate-500 font-bold mb-0.5">적용된 감면 혜택</div>
+            <div class="text-sm sm:text-lg font-black text-emerald-700 break-keep leading-tight" id="alreadyBenefitTitle">외래진료 6시간 무료</div>
           </div>
-          <div class="p-3 sm:p-3.5 rounded-2xl bg-white border border-emerald-100 shadow-2xs">
-            <div class="text-[11px] sm:text-xs text-slate-500 font-bold mb-0.5">현재 주차 상태</div>
-            <div class="text-base sm:text-xl font-black break-keep leading-tight" id="alreadyOverdueStatus">-</div>
+          <div class="p-2.5 sm:p-3 rounded-2xl bg-white border border-emerald-100 shadow-2xs">
+            <div class="text-[10px] sm:text-xs text-slate-500 font-bold mb-0.5">현재 주차 상태</div>
+            <div class="text-sm sm:text-lg font-black break-keep leading-tight" id="alreadyOverdueStatus">-</div>
           </div>
         </div>
 
         <!-- 초과 시간 및 결제 예상 금액 배너 -->
-        <div id="alreadyFeeBanner" class="p-3 sm:p-4 rounded-2xl shadow-xs">
+        <div id="alreadyFeeBanner" class="p-2.5 sm:p-3 rounded-2xl shadow-xs">
           <!-- JS 동적 렌더링 -->
         </div>
       </div>
 
       <!-- 하단 확인 버튼 (⭐️ 25초 자동 처음으로 복귀 카운트다운) -->
       <div class="flex items-center justify-center gap-4 flex-shrink-0 pt-1">
-        <button onclick="resetAllSteps()" class="w-full py-4 sm:py-5 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-black text-lg sm:text-2xl shadow-lg active:scale-98 transition flex items-center justify-center gap-2 whitespace-nowrap">
+        <button onclick="resetAllSteps()" class="w-full py-3.5 sm:py-4 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-black text-base sm:text-xl shadow-lg active:scale-98 transition flex items-center justify-center gap-2 whitespace-nowrap">
           <i class="fa-solid fa-check"></i>
           <span>확인 완료 (<span id="alreadyCountdown" class="text-yellow-200">25</span>초 후 처음으로)</span>
         </button>
@@ -617,42 +527,22 @@
     let currentPatient = null;     // { jubno, name, birth, carnoPure, benefit }
     let returnCountdownTimer = null;
 
-    // 햄버거 부가메뉴 토글
-    function toggleMenuPopover(e) {
-      if (e) e.stopPropagation();
-      const popover = document.getElementById("menuPopover");
-      popover.classList.toggle("active");
-    }
-
-    document.addEventListener("click", (e) => {
-      const popover = document.getElementById("menuPopover");
-      const btn = document.getElementById("btnMenu");
-      if (popover && popover.classList.contains("active")) {
-        if (!popover.contains(e.target) && !btn.contains(e.target)) {
-          popover.classList.remove("active");
-        }
-      }
-    });
-
-    // 전체화면 토글
-    function toggleFullscreenMode(checkbox) {
-      if (checkbox.checked) {
-        if (!document.fullscreenElement) {
+    // ⭐️ 구병원 로고 터치(클릭) 시 전체화면 즉시 토글
+    function toggleFullscreenDirect() {
+      if (!document.fullscreenElement) {
+        if (document.documentElement.requestFullscreen) {
           document.documentElement.requestFullscreen().catch(() => {});
+        } else if (document.documentElement.webkitRequestFullscreen) {
+          document.documentElement.webkitRequestFullscreen();
         }
       } else {
-        if (document.fullscreenElement) {
+        if (document.exitFullscreen) {
           document.exitFullscreen().catch(() => {});
+        } else if (document.webkitExitFullscreen) {
+          document.webkitExitFullscreen();
         }
       }
     }
-
-    document.addEventListener("fullscreenchange", () => {
-      const toggle = document.getElementById("fullscreenToggle");
-      if (toggle) {
-        toggle.checked = !!document.fullscreenElement;
-      }
-    });
 
     // ⭐️ 안드로이드 가상 키보드 원천 차단 & 전역 USB 바코드 수신 엔진
     let barcodeBuffer = "";
