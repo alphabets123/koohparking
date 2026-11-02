@@ -2923,6 +2923,8 @@
           data = await res.json();
         } catch(e) {}
 
+        const isStaff = currentCar && (currentCar.isStaff || (currentCar['정기구분'] && currentCar['정기구분'].indexOf('정기') !== -1) || currentCar['정기구분'] === '등록차량');
+
         if (data && data.errcode === null) {
           closeVehicleModal();
           Swal.fire({
@@ -2933,7 +2935,13 @@
             showConfirmButton: false
           });
           loadQuota();
-          loadCarDiscounts(currentCar.xindex);
+          // ⭐️ 감면 성공 시 즉시 1회 로드 + 관제 DB 비동기 커밋 보장을 위해 350ms 후 확정 재갱신 1회 추가
+          loadCarDiscounts(currentCar.xindex, isStaff);
+          setTimeout(() => {
+            if (currentCar && currentCar.xindex) {
+              loadCarDiscounts(currentCar.xindex, isStaff);
+            }
+          }, 350);
 
           // 옵션 체크 여부에 따라 자동 초기화 or 직전 입력 상태 유지
           if (isTablet) {
@@ -2949,9 +2957,19 @@
           const isQuotaOver = errMsg.indexOf('초과') !== -1 || errMsg.indexOf('이미') !== -1;
           Swal.fire({
             icon: isQuotaOver ? 'warning' : 'error',
-            title: isQuotaOver ? '할인 횟수 초과' : '적용 실패',
+            title: isQuotaOver ? '할인 횟수 초과 / 기감면 차량' : '적용 실패',
             text: errMsg
           });
+
+          // ⭐️ 이미 감면이 적용되어 있거나(기감면) 실패한 경우에도, 현재 관제 서버에 등록된 최신 감면 내역을 즉시 화면에 로드!
+          if (currentCar && currentCar.xindex) {
+            loadCarDiscounts(currentCar.xindex, isStaff);
+            setTimeout(() => {
+              if (currentCar && currentCar.xindex) {
+                loadCarDiscounts(currentCar.xindex, isStaff);
+              }
+            }, 350);
+          }
         }
       } catch (err) {
         Swal.fire('통신 오류', err.message, 'error');
