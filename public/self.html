@@ -508,34 +508,45 @@
     let currentPatient = null;     // { jubno, name, birth, carnoPure, benefit }
     let returnCountdownTimer = null;
 
-    // ⭐️ 연속 5회 클릭/터치(5-Tap) 감지 헬퍼 (일반 환자의 실수 터치 100% 방지)
-    function setup5TapTrigger(element, onSuccess) {
+    // ⭐️ 정확한 6회 클릭/터치(6-Tap) 감지 헬퍼
+    // - 모바일/태블릿 터치 시 touchend와 click이 이중으로 발생하는 버그를 완벽 방지!
+    function setup6TapTrigger(element, onSuccess) {
       if (!element) return;
       let tapCount = 0;
       let tapTimer = null;
+      let lastTouchTime = 0;
 
       const handleTap = (e) => {
+        const now = Date.now();
+        // 터치 직후 발생하는 가상 click 이벤트(400ms 이내)는 이중 카운트 방지를 위해 무시
+        if (e.type === "click" && now - lastTouchTime < 400) {
+          return;
+        }
+        if (e.type === "touchend") {
+          lastTouchTime = now;
+        }
+
         tapCount++;
         if (tapTimer) clearTimeout(tapTimer);
 
-        if (tapCount >= 5) {
+        if (tapCount >= 6) {
           tapCount = 0;
           if (e.cancelable) e.preventDefault();
           onSuccess();
           return;
         }
 
-        // 2초 내에 5번을 채우지 못하면 초기화
+        // 2.5초 내에 6번을 연속으로 누르지 못하면 카운터 초기화
         tapTimer = setTimeout(() => {
           tapCount = 0;
-        }, 2000);
+        }, 2500);
       };
 
       element.addEventListener("click", handleTap);
       element.addEventListener("touchend", handleTap);
     }
 
-    // ⭐️ 구병원 로고 5회 연속 터치 시 전체화면 토글
+    // ⭐️ 구병원 로고 6회 연속 터치 시 전체화면 토글
     function toggleFullscreenDirect() {
       if (!document.fullscreenElement) {
         if (document.documentElement.requestFullscreen) {
@@ -617,17 +628,17 @@
     });
 
     document.addEventListener("DOMContentLoaded", () => {
-      // 1. 구병원 로고 5회 클릭/터치 시 전체화면 토글
+      // 1. 구병원 로고 6회 클릭/터치 시 전체화면 토글
       const logoEl = document.getElementById("koohHeaderLogo");
-      setup5TapTrigger(logoEl, toggleFullscreenDirect);
+      setup6TapTrigger(logoEl, toggleFullscreenDirect);
 
-      // 2. 바코드 영역 5회 클릭/터치 시 주민번호 모드로 전환
+      // 2. 바코드 영역 6회 클릭/터치 시 주민번호 모드로 전환
       const barcodeBox = document.getElementById("tabContentBarcode");
-      setup5TapTrigger(barcodeBox, toggleSecretJmnoMode);
+      setup6TapTrigger(barcodeBox, toggleSecretJmnoMode);
 
-      // 3. 주민번호 헤더 영역 5회 터치 시 다시 바코드 전용 모드로 복귀
+      // 3. 주민번호 헤더 영역 6회 터치 시 다시 바코드 전용 모드로 복귀
       const jmnoHeader = document.getElementById("jmnoSecretHeader");
-      setup5TapTrigger(jmnoHeader, toggleSecretJmnoMode);
+      setup6TapTrigger(jmnoHeader, toggleSecretJmnoMode);
     });
 
     // ⭐️ 안드로이드 가상 키보드 원천 차단 & 전역 USB 바코드 수신 엔진
