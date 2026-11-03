@@ -1273,12 +1273,14 @@ const server = http.createServer(async (req, res) => {
     }
   }
 
-  // 2. 정적 웹 파일 서빙 (public/ 디렉터리: /check 및 /kiosk 지원)
+  // 2. 정적 웹 파일 서빙 (public/ 디렉터리: /check 및 /kiosk, /self, /self-test 지원)
   let targetFile = pathname === "/" ? "index.html" : pathname.replace(/^\//, "");
   if (targetFile === "check" || targetFile === "kiosk") {
     targetFile = "check.html";
   } else if (targetFile === "self") {
     targetFile = "self.html";
+  } else if (targetFile === "self-test") {
+    targetFile = "self-test.html";
   }
   const filePath = path.join(__dirname, "public", targetFile);
   fs.readFile(filePath, (err, content) => {
