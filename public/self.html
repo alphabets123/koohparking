@@ -355,19 +355,7 @@
         </button>
       </div>
 
-      <!-- 본인 확인 탭 메뉴 (기본: 영수증 바코드 단독 노출 / 5회 터치 시 주민번호 탭 시크릿 해제) -->
-      <div id="authTabMenuBar" class="flex items-center justify-center gap-2 sm:gap-3 mb-1 sm:mb-1.5 flex-shrink-0">
-        <button id="tabBtnBarcode" onclick="switchAuthTab('barcode')" class="flex-1 py-2 sm:py-2.5 rounded-xl font-black text-xs sm:text-sm border-2 transition flex items-center justify-center gap-1.5 bg-[#ff6f0f] border-[#ff6f0f] text-white shadow-xs whitespace-nowrap cursor-pointer">
-          <i class="fa-solid fa-barcode text-base sm:text-lg"></i>
-          <span>영수증 바코드 스캔</span>
-        </button>
-        <button id="tabBtnJmno" onclick="switchAuthTab('jmno')" class="hidden flex-1 py-2 sm:py-2.5 rounded-xl font-black text-xs sm:text-sm border-2 transition flex items-center justify-center gap-1.5 bg-slate-100 border-slate-200 text-slate-700 hover:bg-slate-200 whitespace-nowrap cursor-pointer">
-          <i class="fa-solid fa-id-card text-base sm:text-lg"></i>
-          <span>주민등록번호 (13자리)</span>
-        </button>
-      </div>
-
-      <!-- 탭 1 컨텐츠: 영수증 바코드 스캐너 안내 영역 -->
+      <!-- 탭 1 컨텐츠: 영수증 바코드 스캐너 안내 영역 (기본 단독 노출, 5회 터치 시 주민번호 모드로 전환) -->
       <div id="tabContentBarcode" class="flex-1 flex flex-col items-center justify-center p-4 sm:p-8 bg-slate-50 border-2 border-dashed border-orange-300 rounded-2xl text-center relative overflow-hidden my-auto cursor-pointer select-none">
         <div class="absolute inset-x-8 h-1 bg-gradient-to-r from-transparent via-[#ff6f0f] to-transparent scanner-line pointer-events-none"></div>
 
@@ -390,9 +378,13 @@
         </div>
       </div>
 
-      <!-- 탭 2 컨텐츠: 주민등록번호 13자리 마스킹 터치 입력 영역 (단일 1열 컴팩트 핏) -->
+      <!-- 탭 2 컨텐츠: 주민등록번호 13자리 마스킹 터치 입력 영역 (5회 터치 시에만 전환되어 단독 노출) -->
       <div id="tabContentJmno" class="hidden flex-1 flex flex-col items-center justify-between p-2.5 sm:p-4 bg-slate-50 border-2 border-orange-200 rounded-2xl my-auto">
-        <div class="text-center space-y-0.5 flex-shrink-0">
+        <div class="text-center space-y-0.5 flex-shrink-0 cursor-pointer select-none" id="jmnoSecretHeader">
+          <div class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-slate-200 text-slate-700 font-black text-[11px] sm:text-xs mb-1">
+            <i class="fa-solid fa-lock-open text-[#ea580c]"></i>
+            <span>직원 지원 모드 (주민번호 입력)</span>
+          </div>
           <h4 class="text-base sm:text-xl font-black text-slate-900 whitespace-nowrap">주민등록번호 13자리를 눌러주세요</h4>
           <p class="text-[10px] sm:text-xs text-slate-500 font-bold">뒷자리는 마스킹(●●●●●●●) 처리됩니다.</p>
         </div>
@@ -428,6 +420,10 @@
           <button onclick="clearJmnoNum()" class="keypad-btn !text-xs sm:!text-base !font-black text-rose-600 bg-rose-50/70 hover:bg-rose-100 border-rose-200 whitespace-nowrap">전체삭제</button>
           <button onclick="pressJmnoNum('0')" class="keypad-btn text-slate-800">0</button>
           <button onclick="backspaceJmnoNum()" class="keypad-btn text-slate-600 hover:text-slate-900">
+            <i class="fa-solid fa-delete-left text-lg sm:text-xl"></i>
+          </button>
+        </div>
+      </div>
             <i class="fa-solid fa-delete-left text-lg sm:text-xl"></i>
           </button>
         </div>
@@ -556,53 +552,82 @@
       }
     }
 
-    // ⭐️ 비밀 모드: 주민등록번호 탭 활성화/비활성화 토글
+    // ⭐️ 비밀 모드: 바코드 모드 ↔ 주민등록번호 모드 완전 화면 전환
     let isSecretJmnoUnlocked = false;
     function toggleSecretJmnoMode() {
       isSecretJmnoUnlocked = !isSecretJmnoUnlocked;
-      const tabBtnJmno = document.getElementById("tabBtnJmno");
+      const contentBarcode = document.getElementById("tabContentBarcode");
+      const contentJmno = document.getElementById("tabContentJmno");
 
       if (isSecretJmnoUnlocked) {
-        if (tabBtnJmno) tabBtnJmno.classList.remove("hidden");
-        switchAuthTab("jmno");
+        contentBarcode.classList.add("hidden");
+        contentJmno.classList.remove("hidden");
+        activeAuthTab = "jmno";
         Swal.fire({
           toast: true,
           position: "top-end",
           icon: "info",
-          title: "직원 모드 활성화",
-          text: "주민등록번호 13자리 입력창이 열렸습니다.",
+          title: "직원 모드 전환",
+          text: "주민등록번호 13자리 입력 화면으로 전환되었습니다.",
           showConfirmButton: false,
           timer: 2000,
         });
       } else {
-        if (tabBtnJmno) tabBtnJmno.classList.add("hidden");
-        switchAuthTab("barcode");
+        contentJmno.classList.add("hidden");
+        contentBarcode.classList.remove("hidden");
+        activeAuthTab = "barcode";
+        clearJmnoNum();
         Swal.fire({
           toast: true,
           position: "top-end",
           icon: "success",
           title: "바코드 전용 모드 복귀",
+          text: "영수증 바코드 스캔 화면으로 복귀했습니다.",
           showConfirmButton: false,
           timer: 1500,
         });
       }
     }
 
+    // ⭐️ [키오스크 필수 수칙] 미조작 자동 타임아웃 엔진 (40초 무반응 시 세션 자동 리셋)
+    let inactivityTimer = null;
+    const INACTIVITY_TIMEOUT_SEC = 40;
+
+    function resetInactivityTimer() {
+      if (inactivityTimer) clearTimeout(inactivityTimer);
+
+      // 감면 완료 안내 화면(25초 타이머 별도 작동 중)일 때는 해당 타이머에 위임
+      const alreadySec = document.getElementById("stepAlreadyRegisteredSection");
+      if (alreadySec && !alreadySec.classList.contains("hidden")) return;
+
+      // 1단계 메인 첫 화면(아무것도 입력 안 된 상태)이면 자동 리셋 불필요
+      const step1Sec = document.getElementById("step1Section");
+      const isStep1Clean = step1Sec && !step1Sec.classList.contains("hidden") && !currentInput4;
+      if (isStep1Clean) return;
+
+      inactivityTimer = setTimeout(() => {
+        console.log("⏱️ [키오스크] 40초간 입력이 없어 자동으로 처음 화면으로 복귀합니다.");
+        resetAllSteps();
+      }, INACTIVITY_TIMEOUT_SEC * 1000);
+    }
+
+    // 화면 터치/클릭/키보드 입력 발생 시 무반응 타이머 자동 갱신
+    ["click", "touchstart", "keydown"].forEach((evt) => {
+      window.addEventListener(evt, resetInactivityTimer, { passive: true });
+    });
+
     document.addEventListener("DOMContentLoaded", () => {
       // 1. 구병원 로고 5회 클릭/터치 시 전체화면 토글
       const logoEl = document.getElementById("koohHeaderLogo");
       setup5TapTrigger(logoEl, toggleFullscreenDirect);
 
-      // 2. 바코드 영역 5회 클릭/터치 시 주민번호 시크릿 모드 토글
+      // 2. 바코드 영역 5회 클릭/터치 시 주민번호 모드로 전환
       const barcodeBox = document.getElementById("tabContentBarcode");
       setup5TapTrigger(barcodeBox, toggleSecretJmnoMode);
 
-      const barcodeBtn = document.getElementById("tabBtnBarcode");
-      setup5TapTrigger(barcodeBtn, toggleSecretJmnoMode);
-
-      // 3. 주민번호 타이틀 5회 터치 시 다시 바코드 전용 모드로 닫기
-      const jmnoTitle = document.querySelector("#tabContentJmno h4");
-      setup5TapTrigger(jmnoTitle, toggleSecretJmnoMode);
+      // 3. 주민번호 헤더 영역 5회 터치 시 다시 바코드 전용 모드로 복귀
+      const jmnoHeader = document.getElementById("jmnoSecretHeader");
+      setup5TapTrigger(jmnoHeader, toggleSecretJmnoMode);
     });
 
     // ⭐️ 안드로이드 가상 키보드 원천 차단 & 전역 USB 바코드 수신 엔진
@@ -1403,11 +1428,14 @@
       document.getElementById("step3Section").classList.add("hidden");
       document.getElementById("step1Section").classList.remove("hidden");
 
-      switchAuthTab("barcode");
-      // ⭐️ 처음으로 복귀 시 비밀 주민번호 모드 자동 잠금
+      // ⭐️ 처음으로 복귀 시 비밀 주민번호 모드 자동 잠금 및 바코드 화면 복원
       isSecretJmnoUnlocked = false;
-      const tabBtnJmno = document.getElementById("tabBtnJmno");
-      if (tabBtnJmno) tabBtnJmno.classList.add("hidden");
+      const contentBarcode = document.getElementById("tabContentBarcode");
+      const contentJmno = document.getElementById("tabContentJmno");
+      if (contentBarcode) contentBarcode.classList.remove("hidden");
+      if (contentJmno) contentJmno.classList.add("hidden");
+      activeAuthTab = "barcode";
+      if (inactivityTimer) clearTimeout(inactivityTimer);
 
       updateStepIndicator(1);
     }
