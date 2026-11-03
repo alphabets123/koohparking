@@ -1293,6 +1293,9 @@
                 <p class="text-xs text-slate-600 font-bold leading-relaxed">
                   환자분의 등록 차량을 오늘 입차하신 새 차량(<b>${selectedCar.carno}</b>)으로 변경하시겠습니까?
                 </p>
+                <div class="text-[11px] text-slate-400 font-bold text-center pt-1">
+                  * 40초 동안 미입력 시 자동으로 취소되고 처음 화면으로 돌아갑니다.
+                </div>
               </div>
             `,
             showCancelButton: true,
@@ -1302,6 +1305,8 @@
             cancelButtonColor: "#94a3b8",
             reverseButtons: true,
             allowOutsideClick: false,
+            timer: 40000,
+            timerProgressBar: true,
           }).then((result) => {
             if (result.isConfirmed) {
               selectPatientAndProceed(patient);
@@ -1412,6 +1417,11 @@
     // 🔄 공통: 처음으로 초기화
     // =========================================================================
     function resetAllSteps() {
+      // ⭐️ 열려있는 모든 SweetAlert 모달 즉시 닫기
+      if (typeof Swal !== "undefined" && Swal.isVisible()) {
+        Swal.close();
+      }
+
       currentInput4 = "";
       currentJmno = "";
       barcodeBuffer = "";
