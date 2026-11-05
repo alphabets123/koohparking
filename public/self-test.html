@@ -92,6 +92,16 @@
       font-feature-settings: 'tnum' 1, 'lnum' 1;
     }
 
+    /* ⭐️ 1단계 차량번호 4자리 초대형 번호판 폰트 규격 (화면 박스 가득 차게 렌더링) */
+    .plate-num-digit {
+      font-size: clamp(3.4rem, 7.8vh, 5.4rem) !important;
+      font-weight: 900 !important;
+      line-height: 1 !important;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
     /* ⭐️ 세로 모드 꽉 차는 초대형 터치 키패드 버튼 */
     .keypad-btn {
       height: clamp(62px, 8.2vh, 98px);
@@ -318,13 +328,13 @@
         </h2>
       </div>
 
-      <!-- 4자리 번호 표시창 (초대형 번호판 스타일) -->
+      <!-- 4자리 번호 표시창 (초대형 번호판 스타일: 박스 가득 차는 대형 폰트) -->
       <div class="w-full max-w-lg mx-auto flex-shrink-0 my-auto">
-        <div class="h-20 sm:h-28 bg-slate-50/90 rounded-3xl border-3 border-blue-600 flex items-center justify-center gap-4 sm:gap-7 px-4 shadow-inner">
-          <div id="digit0" class="num-display text-4.5xl sm:text-6xl font-black text-blue-600 border-b-4 border-blue-600 pb-1 w-14 sm:w-20 text-center h-16 sm:h-20 flex items-center justify-center">&nbsp;</div>
-          <div id="digit1" class="num-display text-4.5xl sm:text-6xl font-black text-blue-600 border-b-4 border-blue-600 pb-1 w-14 sm:w-20 text-center h-16 sm:h-20 flex items-center justify-center">&nbsp;</div>
-          <div id="digit2" class="num-display text-4.5xl sm:text-6xl font-black text-blue-600 border-b-4 border-blue-600 pb-1 w-14 sm:w-20 text-center h-16 sm:h-20 flex items-center justify-center">&nbsp;</div>
-          <div id="digit3" class="num-display text-4.5xl sm:text-6xl font-black text-blue-600 border-b-4 border-blue-600 pb-1 w-14 sm:w-20 text-center h-16 sm:h-20 flex items-center justify-center">&nbsp;</div>
+        <div class="h-24 sm:h-32 bg-slate-50/90 rounded-3xl border-3 border-blue-600 flex items-center justify-center gap-3 sm:gap-6 px-3 sm:px-6 shadow-inner">
+          <div id="digit0" class="num-display plate-num-digit text-blue-600 border-b-4 border-blue-600 pb-1 w-16 sm:w-24 h-20 sm:h-26 text-center">&nbsp;</div>
+          <div id="digit1" class="num-display plate-num-digit text-blue-600 border-b-4 border-blue-600 pb-1 w-16 sm:w-24 h-20 sm:h-26 text-center">&nbsp;</div>
+          <div id="digit2" class="num-display plate-num-digit text-blue-600 border-b-4 border-blue-600 pb-1 w-16 sm:w-24 h-20 sm:h-26 text-center">&nbsp;</div>
+          <div id="digit3" class="num-display plate-num-digit text-blue-600 border-b-4 border-blue-600 pb-1 w-16 sm:w-24 h-20 sm:h-26 text-center">&nbsp;</div>
         </div>
       </div>
 
@@ -462,27 +472,27 @@
       <!-- ⭐️ 통합 화면 컨텐츠 (기본 상시 노출) -->
       <div id="unifiedStep2Box" class="flex-1 flex flex-col justify-between overflow-hidden">
         
-        <!-- ⭐️ 핵심 통합 안내 헤더: [등록번호], [영수증 바코드] 도드라지게 강조 -->
-        <div class="text-center flex-shrink-0 space-y-2">
+        <!-- ⭐️ 핵심 통합 안내 헤더: 뱃지 박스 제거 & 선명한 타이포그래피 강조 -->
+        <div class="text-center flex-shrink-0 space-y-1.5 pt-1">
           <h3 class="text-2xl sm:text-3.5xl font-black text-slate-950 whitespace-nowrap leading-tight tracking-tight">
-            <span class="text-blue-600 bg-blue-100/90 px-3 py-1 rounded-2xl border-2 border-blue-300 shadow-2xs">등록번호</span>를 누르거나, 
-            <span class="text-emerald-700 bg-emerald-100/90 px-3 py-1 rounded-2xl border-2 border-emerald-300 shadow-2xs inline-flex items-center gap-1">
+            <span class="text-blue-600 underline underline-offset-8 decoration-4">등록번호</span>를 누르거나, 
+            <span class="text-emerald-700 underline underline-offset-8 decoration-4 inline-flex items-center gap-1.5">
               <i class="fa-solid fa-barcode text-emerald-600"></i> 영수증 바코드
             </span>를 찍어주세요
           </h3>
 
-          <!-- ⭐️ 바코드 리더기 대기 안내 띠 배너 ("상시" 제외 & 6회 터치 시 히든 주민번호 모드 발동!) -->
-          <div id="barcodeGuideBanner" class="cursor-pointer select-none inline-flex items-center justify-center gap-2 px-4 py-2 rounded-2xl bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 border-2 border-blue-300 text-blue-900 font-black text-xs sm:text-base scanner-badge-pulse shadow-xs active:scale-98 transition" title="이 영역을 빠르게 6번 터치하면 주민등록번호 모드가 열립니다.">
-            <span class="w-3 h-3 rounded-full bg-emerald-500 animate-ping"></span>
-            <i class="fa-solid fa-barcode text-blue-600 text-base sm:text-lg"></i>
-            <span>바코드 리더기 대기 중 (영수증을 대면 즉시 인식됩니다)</span>
+          <!-- ⭐️ 바코드 리더기 대기 안내 (버튼형 뱃지 제거, 정갈하고 심플한 한 줄 안내 & 6회 터치 시 히든 모드) -->
+          <div id="barcodeGuideBanner" class="cursor-pointer select-none flex items-center justify-center gap-2 text-slate-500 font-bold text-xs sm:text-sm py-1 active:opacity-60 transition" title="이 영역을 빠르게 6번 터치하면 주민등록번호 모드가 열립니다.">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
+            <i class="fa-solid fa-barcode text-slate-600 text-sm sm:text-base"></i>
+            <span class="text-slate-700 font-black">바코드 리더기 대기 중 (영수증을 대면 즉시 인식됩니다)</span>
           </div>
         </div>
 
-        <!-- 등록번호(차트번호) 7자리 표시창 -->
+        <!-- 등록번호(차트번호) 7자리 표시창 (크고 시원한 폰트) -->
         <div class="w-full max-w-lg mx-auto flex-shrink-0 my-auto">
-          <div class="h-16 sm:h-22 bg-white rounded-3xl border-3 border-blue-600 flex items-center justify-center px-4 shadow-inner">
-            <div id="chartNumDisplay" class="num-display text-4xl sm:text-5xl font-black text-blue-600 tracking-widest whitespace-nowrap">
+          <div class="h-20 sm:h-28 bg-white rounded-3xl border-3 border-blue-600 flex items-center justify-center px-4 shadow-inner">
+            <div id="chartNumDisplay" class="num-display font-black text-blue-600 tracking-widest whitespace-nowrap" style="font-size: clamp(2.8rem, 5.5vh, 4.4rem) !important; line-height: 1;">
               _______
             </div>
           </div>
@@ -518,24 +528,25 @@
         </div>
       </div>
 
-      <!-- ⭐️ [히든 기능] 주민등록번호 13자리 입력 모드 (바코드 배너 6회 터치 시 전환) -->
+      <!-- ⭐️ [히든 기능] 주민등록번호 13자리 입력 모드 -->
       <div id="hiddenJmnoBox" class="hidden flex-1 flex flex-col justify-between overflow-hidden">
-        <div class="text-center flex-shrink-0 space-y-1.5 pt-1">
-          <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-800 text-amber-300 font-black text-xs sm:text-sm">
+        <!-- ⭐️ 주민번호 상단 헤더 (빠르게 6회 터치 시 일반 모드로 복귀!) -->
+        <div id="jmnoHeaderTitle" class="cursor-pointer select-none text-center flex-shrink-0 space-y-1 pt-1 active:opacity-75 transition" title="이 영역을 빠르게 6번 터치하면 일반 모드로 복귀합니다.">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800 text-amber-300 font-black text-xs sm:text-sm">
             <i class="fa-solid fa-lock-open text-amber-400"></i>
             <span>[직원 전용] 주민등록번호 13자리 입력 모드</span>
           </div>
-          <h4 class="text-2xl sm:text-3xl font-black text-slate-950 whitespace-nowrap">
-            주민등록번호 13자리를 누르세요
+          <h4 class="text-2xl sm:text-3.5xl font-black text-slate-950 whitespace-nowrap leading-tight">
+            주민등록번호 <span class="text-blue-600 underline underline-offset-8 decoration-4">13자리</span>를 누르세요
           </h4>
         </div>
 
-        <!-- 주민번호 표시창 (마스킹) -->
+        <!-- 주민번호 표시창 (마스킹, 크고 시원한 폰트) -->
         <div class="w-full max-w-lg mx-auto flex-shrink-0 my-auto">
-          <div class="h-16 sm:h-22 bg-white rounded-3xl border-3 border-slate-700 flex items-center justify-center gap-3 sm:gap-4 px-4 shadow-inner">
-            <div id="jmnoFront" class="num-display text-3xl sm:text-4.5xl font-black text-slate-900 tracking-wider whitespace-nowrap">______</div>
-            <span class="text-3xl sm:text-4.5xl font-black text-slate-400">-</span>
-            <div id="jmnoBack" class="num-display text-3xl sm:text-4.5xl font-black text-blue-600 tracking-wider whitespace-nowrap">_______</div>
+          <div class="h-20 sm:h-28 bg-white rounded-3xl border-3 border-slate-700 flex items-center justify-center gap-3 sm:gap-4 px-4 shadow-inner">
+            <div id="jmnoFront" class="num-display font-black text-slate-900 tracking-wider whitespace-nowrap" style="font-size: clamp(2.4rem, 5vh, 3.8rem) !important; line-height: 1;">______</div>
+            <span class="font-black text-slate-400" style="font-size: clamp(2.4rem, 5vh, 3.8rem) !important; line-height: 1;">-</span>
+            <div id="jmnoBack" class="num-display font-black text-blue-600 tracking-wider whitespace-nowrap" style="font-size: clamp(2.4rem, 5vh, 3.8rem) !important; line-height: 1;">_______</div>
           </div>
         </div>
 
@@ -560,11 +571,11 @@
           </button>
         </div>
 
-        <!-- 하단 복귀 버튼 -->
+        <!-- 하단 등록 버튼 (일반 모드처럼 시원한 블루 정식 등록 버튼 배치) -->
         <div class="w-full max-w-lg mx-auto mt-2 sm:mt-3 flex-shrink-0">
-          <button onclick="toggleHiddenJmnoMode(false)" class="w-full py-3.5 sm:py-4.5 rounded-2xl bg-slate-700 hover:bg-slate-800 text-white font-black text-base sm:text-xl shadow-md active:scale-98 transition flex items-center justify-center gap-2">
-            <i class="fa-solid fa-arrow-left"></i>
-            <span>일반 모드 복귀 (바코드 / 등록번호)</span>
+          <button id="btnUnifiedJmnoSubmit" onclick="submitJmnoDirect()" class="w-full py-4 sm:py-5 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-black text-lg sm:text-2xl shadow-lg active:scale-98 transition flex items-center justify-center gap-2">
+            <i class="fa-solid fa-square-check text-xl sm:text-2xl"></i>
+            <span>주민등록번호로 등록</span>
           </button>
         </div>
       </div>
@@ -938,6 +949,12 @@
       // ⭐️ 바코드 배너 영역 6회 터치 ➔ 히든 주민등록번호 13자리 모드 전환!
       const bannerEl = document.getElementById("barcodeGuideBanner");
       setup6TapTrigger(bannerEl, () => toggleHiddenJmnoMode(true));
+
+      // ⭐️ 주민등록번호 헤더 영역 6회 터치 ➔ 일반 모드로 복귀!
+      const jmnoTitleEl = document.getElementById("jmnoHeaderTitle");
+      if (jmnoTitleEl) {
+        setup6TapTrigger(jmnoTitleEl, () => toggleHiddenJmnoMode(false));
+      }
     });
 
     // 전역 USB 바코드 수신 (상시 대기)
@@ -1292,6 +1309,14 @@
     function clearJmnoNum() {
       currentJmno = "";
       updateJmnoDisplay();
+    }
+
+    function submitJmnoDirect() {
+      if (currentJmno.length < 13) {
+        Swal.fire("안내", "주민등록번호 13자리를 모두 입력해 주세요.", "warning");
+        return;
+      }
+      mockLookupPatient(currentJmno);
     }
 
     // 환자 정보 Mock 조회 엔진
