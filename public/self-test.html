@@ -37,6 +37,7 @@
       html { font-size: 19px; }
     }
 
+    /* ⭐️ 호텔/병원 로비 스타일의 프리미엄 카라라 화이트 & 소프트 실버 대리석(Marble) 테마 */
     html, body {
       width: 100vw;
       height: 100vh;
@@ -45,7 +46,19 @@
       overflow: hidden !important;
       font-family: "Pretendard", -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
       letter-spacing: -0.02em;
-      background-color: #f1f5f9 !important; /* 깔끔한 라이트 슬레이트 그레이 */
+      background-color: #f6f5f2 !important;
+      background-image: 
+        /* 부드러운 대리석 결(Vein) 드리프트 1 */
+        radial-gradient(ellipse 65% 50% at 15% 15%, rgba(205, 200, 190, 0.4) 0%, transparent 65%),
+        /* 부드러운 대리석 결(Vein) 드리프트 2 */
+        radial-gradient(ellipse 70% 60% at 85% 85%, rgba(195, 190, 180, 0.35) 0%, transparent 70%),
+        /* 중앙 은은한 스톤 블렌딩 */
+        radial-gradient(ellipse 55% 45% at 50% 45%, rgba(225, 220, 210, 0.3) 0%, transparent 60%),
+        /* 대리석 톤 선형 그라데이션 */
+        linear-gradient(135deg, rgba(255, 255, 255, 0.75) 0%, rgba(242, 239, 233, 0.5) 45%, rgba(248, 246, 240, 0.8) 100%),
+        /* 미세 텍스처 노이즈 오버레이 */
+        url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E") !important;
+      background-attachment: fixed;
       touch-action: manipulation;
       user-select: none;
       -webkit-user-select: none;
@@ -62,11 +75,17 @@
       z-index: 9999 !important;
     }
 
+    /* ⭐️ 대리석 질감의 프리미엄 글래스모피즘 메인 카드 */
     .kiosk-card {
       flex: 1 1 0% !important;
       min-height: 0 !important;
       max-height: 100% !important;
       height: 100% !important;
+      background: rgba(255, 255, 255, 0.96) !important;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 2px solid #cbd5e1 !important;
+      box-shadow: 0 20px 35px -5px rgba(15, 23, 42, 0.08), 0 10px 15px -5px rgba(15, 23, 42, 0.04) !important;
     }
 
     .font-num, .keypad-btn, .num-display, .plate-font {
@@ -74,7 +93,7 @@
       font-feature-settings: 'tnum' 1, 'lnum' 1;
     }
 
-    /* ⭐️ 쿠팡/토스형 초대형 고시인성 터치 키패드 버튼 */
+    /* ⭐️ 초대형 고시인성 터치 키패드 버튼 */
     .keypad-btn {
       height: clamp(58px, 7.5vh, 84px);
       font-size: clamp(2rem, 3.8vh, 2.8rem);
@@ -85,7 +104,7 @@
       border: 2px solid #cbd5e1;
       border-radius: 1.25rem;
       color: #0f172a;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.07);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -120,14 +139,29 @@
     .scanner-line {
       animation: scanLine 2s ease-in-out infinite;
     }
+
+    /* ⭐️ 등록완료 버튼 강력 펄스(Glow + Scale) 애니메이션 */
+    @keyframes registerPulse {
+      0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.7), 0 10px 20px -3px rgba(37, 99, 235, 0.4);
+      }
+      50% {
+        transform: scale(1.025);
+        box-shadow: 0 0 0 16px rgba(37, 99, 235, 0), 0 15px 25px -3px rgba(37, 99, 235, 0.6);
+      }
+    }
+    .btn-register-pulse {
+      animation: registerPulse 1.8s infinite ease-in-out;
+    }
   </style>
 </head>
 <body class="flex flex-col w-screen h-screen overflow-hidden text-slate-900">
 
   <!-- ===================================================================== -->
-  <!-- 🧭 상단 헤더 바 (고시인성 네이비 & 화이트) -->
+  <!-- 🧭 상단 헤더 바 (고시인성 딥 네이비 마블) -->
   <!-- ===================================================================== -->
-  <header class="w-full bg-slate-900 text-white flex-shrink-0 px-4 sm:px-8 py-2.5 sm:py-3.5 flex items-center justify-between shadow-md z-30 relative">
+  <header class="w-full bg-slate-950 text-white flex-shrink-0 px-4 sm:px-8 py-2.5 sm:py-3.5 flex items-center justify-between shadow-lg z-30 relative border-b border-slate-800">
     <div class="flex items-center gap-3 min-w-0 flex-1 mr-2">
       <!-- 구병원 공식 로고: 6회 터치 시 전체화면 토글 -->
       <img id="koohHeaderLogo" src="/kooh_logo.png" alt="구병원" class="h-10 sm:h-12 w-auto object-contain bg-white rounded-xl p-1 cursor-pointer active:scale-95 transition-transform flex-shrink-0" title="구병원 로고를 6번 터치하면 전체화면이 전환됩니다.">
@@ -136,7 +170,7 @@
           <span>구병원 주차 등록</span>
           <span class="px-2.5 py-0.5 rounded-full bg-blue-600 text-white text-xs sm:text-sm font-black shadow-xs whitespace-nowrap">외래 무료</span>
           <span class="px-2 py-0.5 rounded-full bg-amber-400 text-slate-950 text-[11px] sm:text-xs font-black shadow-xs whitespace-nowrap flex items-center gap-1">
-            <i class="fa-solid fa-flask"></i> <span>테스트 Mockup</span>
+            <i class="fa-solid fa-flask"></i> <span>대리석 테마 Mockup</span>
           </span>
         </h1>
       </div>
@@ -175,7 +209,7 @@
         <button onclick="simulateCase('CASE_NEW')" class="w-full p-2.5 rounded-2xl bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 text-left transition flex items-center justify-between">
           <div>
             <div class="text-xs font-black text-indigo-900 flex items-center gap-1.5">
-              <span class="w-2 h-2 rounded-full bg-indigo-500"></span> 1. 외래 신환 첫 등록 (6시간 무료)
+              <span class="w-2 h-2 rounded-full bg-indigo-500"></span> 1. 외래 신환 등록 (6시간 무료)
             </div>
             <div class="text-[11px] text-slate-500 font-bold mt-0.5">미등록 차 67부3455 + 바코드 1234567</div>
           </div>
@@ -241,7 +275,7 @@
         <button onclick="simulateCase('CASE_SECRET_JMNO')" class="w-full p-2.5 rounded-2xl bg-teal-50 hover:bg-teal-100 border border-teal-200 text-left transition flex items-center justify-between">
           <div>
             <div class="text-xs font-black text-teal-900 flex items-center gap-1.5">
-              <span class="w-2 h-2 rounded-full bg-teal-500"></span> 7. 직접 입력 모드 (등록번호/주민번호)
+              <span class="w-2 h-2 rounded-full bg-teal-500"></span> 7. 직접 입력 모드 (등록번호 직접 입력)
             </div>
             <div class="text-[11px] text-slate-500 font-bold mt-0.5">바코드 대신 등록번호 키패드로 즉시 전환</div>
           </div>
@@ -256,7 +290,7 @@
   <!-- ===================================================================== -->
   <main class="flex-1 w-full h-full flex flex-col items-center justify-between p-3 sm:p-5 overflow-hidden">
 
-    <!-- ⭐️ 고시인성 1, 2, 3 단계 진행 바 (심플 & 볼드) -->
+    <!-- ⭐️ 고시인성 1, 2, 3 단계 진행 바 (오해 없는 명확한 라벨) -->
     <div class="w-full max-w-3xl lg:max-w-4xl mx-auto flex items-center justify-between mb-2 sm:mb-3 px-4 sm:px-8 flex-shrink-0">
       <div id="stepTab1" class="flex items-center gap-2 sm:gap-2.5">
         <div class="step-circle w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-blue-600 text-white flex items-center justify-center text-base sm:text-xl font-black shadow-sm">1</div>
@@ -272,14 +306,14 @@
 
       <div id="stepTab3" class="flex items-center gap-2 sm:gap-2.5">
         <div class="step-circle w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-slate-300 text-slate-600 flex items-center justify-center text-base sm:text-xl font-black">3</div>
-        <span class="text-sm sm:text-lg font-bold text-slate-400 whitespace-nowrap">등록 완료</span>
+        <span class="text-sm sm:text-lg font-bold text-slate-400 whitespace-nowrap">최종 등록</span>
       </div>
     </div>
 
     <!-- ===================================================================== -->
     <!-- 🚗 STEP 1: 차량번호 뒷 4자리 키패드 입력 화면 -->
     <!-- ===================================================================== -->
-    <section id="step1Section" class="kiosk-card w-full max-w-xl sm:max-w-2xl flex-1 bg-white rounded-3xl border-2 border-slate-300 shadow-xl p-4 sm:p-7 flex flex-col items-center justify-center gap-3 sm:gap-5 my-auto overflow-hidden">
+    <section id="step1Section" class="kiosk-card w-full max-w-xl sm:max-w-2xl flex-1 rounded-3xl p-4 sm:p-7 flex flex-col items-center justify-center gap-3 sm:gap-5 my-auto overflow-hidden">
       <!-- 핵심 질문 1줄만 초대형 표기! -->
       <div class="text-center flex-shrink-0">
         <h2 class="text-2xl sm:text-3.5xl lg:text-4xl font-black text-slate-950 tracking-tight whitespace-nowrap">
@@ -289,7 +323,7 @@
 
       <!-- 4자리 번호 표시창 (초대형 번호판 스타일) -->
       <div class="w-full max-w-md flex-shrink-0">
-        <div class="h-20 sm:h-24 bg-slate-50 rounded-2xl border-3 border-blue-600 flex items-center justify-center gap-4 sm:gap-6 px-4 shadow-inner">
+        <div class="h-20 sm:h-24 bg-slate-50/90 rounded-2xl border-3 border-blue-600 flex items-center justify-center gap-4 sm:gap-6 px-4 shadow-inner">
           <div id="digit0" class="num-display text-4xl sm:text-5xl font-black text-blue-600 border-b-4 border-blue-600 pb-1 w-12 sm:w-16 text-center h-14 sm:h-16 flex items-center justify-center">&nbsp;</div>
           <div id="digit1" class="num-display text-4xl sm:text-5xl font-black text-blue-600 border-b-4 border-blue-600 pb-1 w-12 sm:w-16 text-center h-14 sm:h-16 flex items-center justify-center">&nbsp;</div>
           <div id="digit2" class="num-display text-4xl sm:text-5xl font-black text-blue-600 border-b-4 border-blue-600 pb-1 w-12 sm:w-16 text-center h-14 sm:h-16 flex items-center justify-center">&nbsp;</div>
@@ -297,7 +331,7 @@
         </div>
       </div>
 
-      <!-- 터치 숫자 키패드 (크고 선명함) -->
+      <!-- 터치 숫자 키패드 -->
       <div class="w-full max-w-md grid grid-cols-3 gap-2.5 sm:gap-3.5 my-0.5 flex-shrink-0">
         <button onclick="pressNum('1')" class="keypad-btn">1</button>
         <button onclick="pressNum('2')" class="keypad-btn">2</button>
@@ -322,7 +356,7 @@
     <!-- ===================================================================== -->
     <!-- 🚘 STEP 1.5: 4자리 검색 결과 차량 선택 목록 화면 -->
     <!-- ===================================================================== -->
-    <section id="step1CarsSection" class="kiosk-card hidden w-full max-w-3xl lg:max-w-4xl flex-1 bg-white rounded-3xl border-2 border-slate-300 shadow-xl p-4 sm:p-6 flex flex-col justify-between my-auto overflow-hidden">
+    <section id="step1CarsSection" class="kiosk-card hidden w-full max-w-3xl lg:max-w-4xl flex-1 rounded-3xl p-4 sm:p-6 flex flex-col justify-between my-auto overflow-hidden">
       <div class="flex items-center justify-between pb-3 sm:pb-4 border-b-2 border-slate-200 flex-shrink-0">
         <div>
           <h3 class="text-2xl sm:text-3xl font-black text-slate-950 whitespace-nowrap">
@@ -341,9 +375,9 @@
     <!-- ===================================================================== -->
     <!-- 🟢 STEP 1.8: 기감면 내역 및 초과 시간/요금 안내 화면 -->
     <!-- ===================================================================== -->
-    <section id="stepAlreadyRegisteredSection" class="kiosk-card hidden w-full max-w-3xl lg:max-w-4xl flex-1 bg-white rounded-3xl border-2 border-emerald-300 shadow-xl p-4 sm:p-6 flex flex-col justify-between my-auto overflow-hidden">
+    <section id="stepAlreadyRegisteredSection" class="kiosk-card hidden w-full max-w-3xl lg:max-w-4xl flex-1 rounded-3xl p-4 sm:p-6 flex flex-col justify-between my-auto overflow-hidden">
       <div class="text-center space-y-1.5 flex-shrink-0 pt-1">
-        <div id="alreadyBadgeWrap" class="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-emerald-100 text-emerald-800 font-black text-sm sm:text-base">
+        <div id="alreadyBadgeWrap" class="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-emerald-100 text-emerald-800 font-black text-sm sm:text-base border border-emerald-300">
           <i class="fa-solid fa-circle-check text-emerald-600"></i> <span id="alreadyBadgeText">주차 감면 완료</span>
         </div>
         <h2 id="alreadyTitle" class="text-2xl sm:text-3.5xl font-black text-slate-950 break-keep leading-snug">
@@ -351,8 +385,8 @@
         </h2>
       </div>
 
-      <!-- 기감면 상세 정보 카드 (고시인성 박스) -->
-      <div class="w-full bg-slate-50 border-2 border-slate-200 rounded-3xl p-3 sm:p-5 space-y-3 my-auto">
+      <!-- 기감면 상세 정보 카드 -->
+      <div class="w-full bg-slate-50/90 border-2 border-slate-200 rounded-3xl p-3 sm:p-5 space-y-3 my-auto">
         <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 sm:gap-4 items-center">
           <!-- LPR 입차 사진 박스 -->
           <div class="sm:col-span-5 rounded-2xl overflow-hidden border-2 border-slate-300 bg-slate-900 relative shadow-xs aspect-[16/10] max-h-40 sm:max-h-48 flex items-center justify-center">
@@ -414,9 +448,9 @@
     <!-- ===================================================================== -->
     <!-- 🏥 STEP 2: 환자 본인 확인 화면 (바코드 스캔 or 등록번호 직접입력) -->
     <!-- ===================================================================== -->
-    <section id="step2Section" class="kiosk-card hidden w-full max-w-2xl lg:max-w-3xl flex-1 bg-white rounded-3xl border-2 border-slate-300 shadow-xl p-4 sm:p-6 flex flex-col justify-between my-auto overflow-hidden">
+    <section id="step2Section" class="kiosk-card hidden w-full max-w-2xl lg:max-w-3xl flex-1 rounded-3xl p-4 sm:p-6 flex flex-col justify-between my-auto overflow-hidden">
       
-      <!-- 선택된 차량 요약 상단 바 (고시인성) -->
+      <!-- 선택된 차량 요약 상단 바 -->
       <div class="bg-slate-100 border-2 border-slate-300 rounded-2xl p-2.5 sm:p-3 flex items-center justify-between shadow-xs flex-shrink-0 mb-2">
         <div class="flex items-center gap-3">
           <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-blue-600 text-white flex items-center justify-center font-black text-xl sm:text-2xl shadow-xs flex-shrink-0">
@@ -434,7 +468,7 @@
         </button>
       </div>
 
-      <!-- ⭐️ 상단 인증 방식 선택 탭 (누구나 한눈에 알 수 있는 직관적 2개 버튼) -->
+      <!-- 상단 인증 방식 선택 탭 -->
       <div class="grid grid-cols-2 gap-2 flex-shrink-0 mb-2">
         <button id="btnTabBarcode" onclick="switchAuthTab('barcode')" class="py-2.5 sm:py-3 rounded-2xl font-black text-sm sm:text-lg transition flex items-center justify-center gap-2 border-2 bg-blue-600 text-white border-blue-600 shadow-xs">
           <i class="fa-solid fa-barcode text-lg"></i>
@@ -447,7 +481,7 @@
       </div>
 
       <!-- 탭 1 컨텐츠: 영수증 바코드 스캐너 안내 영역 -->
-      <div id="tabContentBarcode" class="flex-1 flex flex-col items-center justify-center p-4 sm:p-6 bg-slate-50 border-3 border-dashed border-blue-400 rounded-2xl text-center relative overflow-hidden my-auto cursor-pointer select-none">
+      <div id="tabContentBarcode" class="flex-1 flex flex-col items-center justify-center p-4 sm:p-6 bg-slate-50/90 border-3 border-dashed border-blue-400 rounded-2xl text-center relative overflow-hidden my-auto cursor-pointer select-none">
         <div class="absolute inset-x-8 h-1.5 bg-gradient-to-r from-transparent via-red-500 to-transparent scanner-line pointer-events-none"></div>
 
         <div class="w-20 h-20 sm:w-26 sm:h-26 rounded-3xl bg-white border-2 border-blue-200 text-blue-600 flex items-center justify-center text-4xl sm:text-6xl mb-3 shadow-md pointer-events-none">
@@ -471,7 +505,7 @@
       </div>
 
       <!-- 탭 2 컨텐츠: 등록번호(차트번호) 7자리 직접 입력 키패드 영역 -->
-      <div id="tabContentDirect" class="hidden flex-1 flex flex-col items-center justify-between p-3 sm:p-4 bg-slate-50 border-2 border-slate-300 rounded-2xl my-auto">
+      <div id="tabContentDirect" class="hidden flex-1 flex flex-col items-center justify-between p-3 sm:p-4 bg-slate-50/90 border-2 border-slate-300 rounded-2xl my-auto">
         <div class="text-center flex-shrink-0">
           <h4 class="text-xl sm:text-2xl font-black text-slate-950 whitespace-nowrap">
             환자 <span class="text-blue-600 underline underline-offset-4">등록번호(차트번호)</span>를 누르세요
@@ -520,40 +554,49 @@
     </section>
 
     <!-- ===================================================================== -->
-    <!-- 🎉 STEP 3: 최종 진료 자격 확인 & 감면 등록 완료 화면 -->
+    <!-- ⚠️ STEP 3: 최종 등록 직전 확인 화면 (착각 방지 & 강력한 버튼 유도) -->
     <!-- ===================================================================== -->
-    <section id="step3Section" class="kiosk-card hidden w-full max-w-3xl lg:max-w-4xl flex-1 bg-white rounded-3xl border-2 border-emerald-300 shadow-xl p-4 sm:p-7 flex flex-col justify-between my-auto overflow-hidden">
-      <div class="text-center space-y-1.5 flex-shrink-0">
-        <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-100 text-emerald-800 font-black text-sm sm:text-base">
-          <i class="fa-solid fa-circle-check text-emerald-600"></i> 자격 확인 완료
+    <section id="step3Section" class="kiosk-card hidden w-full max-w-3xl lg:max-w-4xl flex-1 rounded-3xl p-4 sm:p-7 flex flex-col justify-between my-auto overflow-hidden">
+      
+      <!-- ⭐️ 착각 방지 경고 및 행동 유도 헤더 -->
+      <div class="text-center space-y-2 flex-shrink-0">
+        <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-100 text-amber-950 border-2 border-amber-300 font-black text-sm sm:text-base animate-pulse">
+          <i class="fa-solid fa-bell text-amber-600 text-lg"></i>
+          <span>마지막 단계! 아직 등록되지 않았습니다</span>
         </div>
-        <h2 class="text-2xl sm:text-4xl font-black text-slate-950 whitespace-nowrap">
-          무료 주차 감면 혜택이 확인되었습니다
+        <h2 class="text-2xl sm:text-3.5xl lg:text-4xl font-black text-slate-950 tracking-tight whitespace-nowrap">
+          아래 <span class="text-blue-600 underline underline-offset-8 decoration-4">[등록 완료]</span> 버튼을 꼭 눌러주세요!
         </h2>
       </div>
 
-      <!-- 환자 및 감면 상세 카드 (선명하고 큼직함) -->
-      <div class="w-full bg-slate-50 border-2 border-slate-200 rounded-3xl p-5 sm:p-7 shadow-xs space-y-4 my-auto">
-        <div class="grid grid-cols-2 gap-4 pb-4 border-b-2 border-slate-200">
+      <!-- ⚠️ 긴급 주의 알림 배너 -->
+      <div class="p-3 sm:p-3.5 rounded-2xl bg-amber-50 border-2 border-amber-300 text-amber-950 font-black text-center text-sm sm:text-base flex items-center justify-center gap-2 flex-shrink-0 my-1 shadow-xs">
+        <i class="fa-solid fa-triangle-exclamation text-amber-600 text-xl flex-shrink-0"></i>
+        <span><b>버튼을 터치하셔야 주차 감면이 최종 등록됩니다!</b> (미등록 시 일반 요금 부과)</span>
+      </div>
+
+      <!-- 환자 및 감면 상세 카드 -->
+      <div class="w-full bg-slate-50/90 border-2 border-slate-200 rounded-3xl p-4 sm:p-6 shadow-xs space-y-3.5 my-auto">
+        <div class="grid grid-cols-2 gap-4 pb-3 border-b-2 border-slate-200">
           <div>
-            <span class="text-xs sm:text-sm font-bold text-slate-500">환자명 / 등록번호</span>
-            <div class="text-2xl sm:text-3xl font-black text-slate-900 whitespace-nowrap mt-1" id="step3PatientName">-</div>
+            <span class="text-xs sm:text-sm font-bold text-slate-500">감면 대상 환자</span>
+            <div class="text-2xl sm:text-3xl font-black text-slate-900 whitespace-nowrap mt-0.5" id="step3PatientName">-</div>
             <div class="text-sm sm:text-base text-slate-500 font-bold font-num whitespace-nowrap" id="step3PatientJubno">-</div>
           </div>
           <div class="text-right">
-            <span class="text-xs sm:text-sm font-bold text-slate-500">등록할 차량번호</span>
-            <div class="text-3xl sm:text-4xl lg:text-5xl font-black text-blue-600 font-num whitespace-nowrap mt-1" id="step3CarNum">-</div>
+            <span class="text-xs sm:text-sm font-bold text-slate-500">등록할 내 차량번호</span>
+            <div class="text-3xl sm:text-4xl lg:text-5xl font-black text-blue-600 font-num whitespace-nowrap mt-0.5" id="step3CarNum">-</div>
             <div class="text-xs sm:text-sm text-slate-500 font-bold font-num whitespace-nowrap" id="step3CarInTime">입차: -</div>
           </div>
         </div>
 
-        <div class="p-4 sm:p-5 rounded-2xl bg-emerald-50 border-2 border-emerald-200 flex items-center justify-between">
-          <div class="flex items-center gap-4">
-            <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-emerald-600 text-white flex items-center justify-center font-black text-2xl sm:text-3xl shadow-sm flex-shrink-0">
+        <div class="p-3.5 sm:p-4 rounded-2xl bg-white border-2 border-emerald-300 flex items-center justify-between shadow-2xs">
+          <div class="flex items-center gap-3.5">
+            <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-emerald-600 text-white flex items-center justify-center font-black text-2xl shadow-sm flex-shrink-0">
               <i class="fa-solid fa-gift"></i>
             </div>
             <div>
-              <div class="text-2xl sm:text-3xl font-black text-emerald-800 whitespace-nowrap" id="step3BenefitHours">
+              <div class="text-xl sm:text-2xl font-black text-emerald-800 whitespace-nowrap" id="step3BenefitHours">
                 6시간 무료 주차
               </div>
               <div class="text-xs sm:text-sm text-emerald-700 font-bold mt-0.5" id="step3BenefitDesc">
@@ -562,19 +605,32 @@
             </div>
           </div>
           <div class="text-right flex-shrink-0">
-            <div class="text-sm sm:text-lg font-black text-emerald-800 whitespace-nowrap">당일 무료 출차</div>
+            <div class="text-xs text-slate-400 font-bold">출차 혜택</div>
+            <div class="text-sm sm:text-base font-black text-emerald-800 whitespace-nowrap">당일 무료 출차</div>
           </div>
         </div>
       </div>
 
-      <!-- 하단 버튼 -->
-      <div class="flex items-center justify-center gap-3 sm:gap-4 flex-shrink-0 pt-2">
-        <button onclick="backToStep1Keypad()" class="px-5 sm:px-8 py-4 sm:py-5 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-black text-base sm:text-xl transition active:scale-95 border-2 border-slate-300 whitespace-nowrap">
-          다시 입력
-        </button>
-        <button id="btnSubmitRegister" onclick="submitCarRegistrationMock()" class="flex-1 py-4 sm:py-5 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-black text-xl sm:text-2.5xl shadow-lg active:scale-98 transition flex items-center justify-center gap-2 whitespace-nowrap">
-          <i class="fa-solid fa-square-check text-2xl sm:text-3xl"></i> <span>무료 주차 등록 완료</span>
-        </button>
+      <!-- ⭐️ 강력한 액션 유도 등록 버튼 영역 -->
+      <div class="flex flex-col items-center flex-shrink-0 pt-1">
+        <!-- 상단 통통 튀는 화살표 안내 -->
+        <div class="animate-bounce text-blue-700 font-black text-sm sm:text-base flex items-center justify-center gap-2 mb-1.5">
+          <i class="fa-solid fa-arrow-down text-lg"></i>
+          <span>여기를 터치하여 주차 등록을 완료하세요!</span>
+          <i class="fa-solid fa-arrow-down text-lg"></i>
+        </div>
+
+        <div class="w-full flex items-center justify-center gap-3 sm:gap-4">
+          <button onclick="backToStep1Keypad()" class="px-5 sm:px-7 py-4 sm:py-5 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-black text-base sm:text-xl transition active:scale-95 border-2 border-slate-300 whitespace-nowrap flex-shrink-0">
+            다시 입력
+          </button>
+          
+          <!-- ⭐️ 펄스 애니메이션 + 초대형 등록완료 버튼 -->
+          <button id="btnSubmitRegister" onclick="submitCarRegistrationMock()" class="btn-register-pulse flex-1 py-4 sm:py-5 rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-600 hover:from-blue-700 hover:to-indigo-700 text-white font-black text-xl sm:text-2.5xl shadow-xl active:scale-95 transition flex items-center justify-center gap-3 whitespace-nowrap">
+            <i class="fa-solid fa-hand-pointer text-amber-300 text-2xl sm:text-3xl animate-pulse"></i>
+            <span>👉 무료 주차 등록 완료하기 (<span id="autoCommitCountdown" class="text-amber-300 font-num">15</span>초 자동)</span>
+          </button>
+        </div>
       </div>
     </section>
 
@@ -590,6 +646,7 @@
     let selectedCar = null;
     let currentPatient = null;
     let returnCountdownTimer = null;
+    let autoCommitTimer = null;
     let inactivityTimer = null;
     const INACTIVITY_TIMEOUT_SEC = 40;
 
@@ -979,6 +1036,7 @@
 
     function showStep2() {
       clearChartNum();
+      if (autoCommitTimer) clearInterval(autoCommitTimer);
       document.getElementById("step1Section").classList.add("hidden");
       document.getElementById("step1CarsSection").classList.add("hidden");
       document.getElementById("stepAlreadyRegisteredSection").classList.add("hidden");
@@ -995,6 +1053,7 @@
     function backToStep1Keypad() {
       clearNum();
       clearChartNum();
+      if (autoCommitTimer) clearInterval(autoCommitTimer);
       document.getElementById("step1CarsSection").classList.add("hidden");
       document.getElementById("step2Section").classList.add("hidden");
       document.getElementById("step3Section").classList.add("hidden");
@@ -1005,13 +1064,14 @@
 
     // ⭐️ 감면 완료 화면 표출
     function showAlreadyRegisteredScreen(car, isJustRegistered) {
+      if (autoCommitTimer) clearInterval(autoCommitTimer);
       document.getElementById("step1Section").classList.add("hidden");
       document.getElementById("step1CarsSection").classList.add("hidden");
       document.getElementById("step2Section").classList.add("hidden");
       document.getElementById("step3Section").classList.add("hidden");
       document.getElementById("stepAlreadyRegisteredSection").classList.remove("hidden");
 
-      updateStepIndicator(3);
+      updateStepIndicator(3, true); // ⭐️ 최종 완료(체크) 상태
 
       const badgeTextEl = document.getElementById("alreadyBadgeText");
       const titleEl = document.getElementById("alreadyTitle");
@@ -1287,7 +1347,9 @@
       currentPatient = p;
       document.getElementById("step2Section").classList.add("hidden");
       document.getElementById("step3Section").classList.remove("hidden");
-      updateStepIndicator(3);
+      
+      // ⭐️ 3단계: 아직 완료 전이므로 숫자 '3'과 "최종 등록" 파란색 유지! (오해 방지)
+      updateStepIndicator(3, false);
 
       const b = p.benefit;
       document.getElementById("step3PatientName").textContent = `${p.maskedName} 님`;
@@ -1297,13 +1359,29 @@
 
       document.getElementById("step3BenefitHours").textContent = b.benefitTitle.split("(")[1]?.replace(")", "") || `${b.hours}시간 무료 주차`;
       document.getElementById("step3BenefitDesc").textContent = b.desc;
+
+      // ⭐️ 안 누르고 그냥 가버리는 환자 방어용: 15초 자동 등록 안전장치
+      if (autoCommitTimer) clearInterval(autoCommitTimer);
+      let autoSeconds = 15;
+      const autoEl = document.getElementById("autoCommitCountdown");
+      if (autoEl) autoEl.textContent = autoSeconds;
+      autoCommitTimer = setInterval(() => {
+        autoSeconds--;
+        if (autoEl) autoEl.textContent = autoSeconds;
+        if (autoSeconds <= 0) {
+          clearInterval(autoCommitTimer);
+          console.log("⏱️ [Mockup] 환자 미터치 방어용 15초 자동 등록 완료 실행");
+          submitCarRegistrationMock();
+        }
+      }, 1000);
     }
 
     // ⭐️ 감면 등록 완료 모의 실행
     function submitCarRegistrationMock() {
+      if (autoCommitTimer) clearInterval(autoCommitTimer);
       const btn = document.getElementById("btnSubmitRegister");
       btn.disabled = true;
-      btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> 등록 중...`;
+      btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> 주차 감면 등록 중...`;
 
       setTimeout(() => {
         btn.disabled = false;
@@ -1323,6 +1401,7 @@
     // ⭐️ 처음으로 전체 초기화
     function resetAllSteps() {
       if (typeof Swal !== "undefined" && Swal.isVisible()) Swal.close();
+      if (autoCommitTimer) clearInterval(autoCommitTimer);
 
       currentInput4 = "";
       currentChartNum = "";
@@ -1346,30 +1425,56 @@
       updateStepIndicator(1);
     }
 
-    function updateStepIndicator(step) {
+    // ⭐️ 단계 표시 인디케이터 업데이트 (isFinalDone으로 3단계 오해 원천 차단)
+    function updateStepIndicator(step, isFinalDone = false) {
       for (let i = 1; i <= 3; i++) {
         const tab = document.getElementById(`stepTab${i}`);
         const circle = tab.querySelector(".step-circle");
         const label = tab.querySelector("span:last-child");
 
-        if (i === step) {
-          if (step === 3) {
+        if (i === 1) {
+          if (step > 1) {
             circle.className = "step-circle w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-emerald-600 text-white flex items-center justify-center text-base sm:text-xl font-black shadow-sm";
             circle.innerHTML = `<i class="fa-solid fa-check"></i>`;
-            label.className = "text-sm sm:text-lg font-black text-emerald-700 whitespace-nowrap";
+            label.className = "text-sm sm:text-lg font-black text-emerald-800 whitespace-nowrap";
           } else {
             circle.className = "step-circle w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-blue-600 text-white flex items-center justify-center text-base sm:text-xl font-black shadow-sm";
-            circle.innerHTML = `${i}`;
+            circle.innerHTML = `1`;
             label.className = "text-sm sm:text-lg font-black text-slate-950 whitespace-nowrap";
           }
-        } else if (i < step) {
-          circle.className = "step-circle w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-emerald-600 text-white flex items-center justify-center text-base sm:text-xl font-black shadow-sm";
-          circle.innerHTML = `<i class="fa-solid fa-check"></i>`;
-          label.className = "text-sm sm:text-lg font-black text-emerald-700 whitespace-nowrap";
-        } else {
-          circle.className = "step-circle w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-slate-300 text-slate-600 flex items-center justify-center text-base sm:text-xl font-bold";
-          circle.innerHTML = `${i}`;
-          label.className = "text-sm sm:text-lg font-bold text-slate-400 whitespace-nowrap";
+        } else if (i === 2) {
+          if (step > 2) {
+            circle.className = "step-circle w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-emerald-600 text-white flex items-center justify-center text-base sm:text-xl font-black shadow-sm";
+            circle.innerHTML = `<i class="fa-solid fa-check"></i>`;
+            label.className = "text-sm sm:text-lg font-black text-emerald-800 whitespace-nowrap";
+          } else if (step === 2) {
+            circle.className = "step-circle w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-blue-600 text-white flex items-center justify-center text-base sm:text-xl font-black shadow-sm";
+            circle.innerHTML = `2`;
+            label.className = "text-sm sm:text-lg font-black text-slate-950 whitespace-nowrap";
+          } else {
+            circle.className = "step-circle w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-slate-300 text-slate-600 flex items-center justify-center text-base sm:text-xl font-bold";
+            circle.innerHTML = `2`;
+            label.className = "text-sm sm:text-lg font-bold text-slate-400 whitespace-nowrap";
+          }
+        } else if (i === 3) {
+          if (isFinalDone) {
+            // 진짜 최종 등록이 완료된 경우 ➔ 초록색 체크 + "등록 완료"
+            circle.className = "step-circle w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-emerald-600 text-white flex items-center justify-center text-base sm:text-xl font-black shadow-sm";
+            circle.innerHTML = `<i class="fa-solid fa-check"></i>`;
+            label.textContent = "등록 완료";
+            label.className = "text-sm sm:text-lg font-black text-emerald-800 whitespace-nowrap";
+          } else if (step === 3) {
+            // ⭐️ 아직 버튼 누르기 전: 파란색 숫자 '3' + "최종 등록" (초록 체크 절대 아님!)
+            circle.className = "step-circle w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-blue-600 text-white flex items-center justify-center text-base sm:text-xl font-black shadow-sm animate-pulse";
+            circle.innerHTML = `3`;
+            label.textContent = "최종 등록";
+            label.className = "text-sm sm:text-lg font-black text-blue-700 whitespace-nowrap";
+          } else {
+            circle.className = "step-circle w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-slate-300 text-slate-600 flex items-center justify-center text-base sm:text-xl font-bold";
+            circle.innerHTML = `3`;
+            label.textContent = "최종 등록";
+            label.className = "text-sm sm:text-lg font-bold text-slate-400 whitespace-nowrap";
+          }
         }
       }
     }
