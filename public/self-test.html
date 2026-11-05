@@ -588,81 +588,63 @@
     </section>
 
     <!-- ===================================================================== -->
-    <!-- ⚠️ STEP 3: 최종 등록 직전 확인 화면 (세로 풀핏 & 반응형 유도) -->
+    <!-- ⚠️ STEP 3: 최종 등록 직전 확인 화면 (군더더기 텍스트 제거 & 명확한 확인) -->
     <!-- ===================================================================== -->
     <section id="step3Section" class="kiosk-card hidden w-full max-w-2xl lg:max-w-3xl flex-1 rounded-3xl p-3 sm:p-5 flex flex-col justify-between overflow-hidden">
       
-      <!-- 착각 방지 경고 및 행동 유도 헤더 (글자 잘림 없는 반응형) -->
-      <div class="text-center space-y-1 flex-shrink-0 pt-0.5">
-        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100 text-amber-950 border-2 border-amber-300 font-black text-xs sm:text-sm animate-pulse">
-          <i class="fa-solid fa-bell text-amber-600 text-sm sm:text-base"></i>
-          <span>마지막 단계! 아직 등록되지 않았습니다</span>
-        </div>
-        <h2 class="text-xl sm:text-2.5xl md:text-3xl font-black text-slate-950 tracking-tight break-keep px-1">
-          아래 <span class="text-blue-600 underline underline-offset-6 decoration-4">[등록 완료]</span> 버튼을 꼭 눌러주세요!
+      <!-- 명확하고 직관적인 단 한 문장 질문 헤더 -->
+      <div class="text-center flex-shrink-0 pt-2 pb-1">
+        <h2 class="text-2.5xl sm:text-4xl font-black text-slate-950 tracking-tight">
+          이대로 <span class="text-blue-600 underline underline-offset-8 decoration-4">등록</span>하시겠습니까?
         </h2>
       </div>
 
-      <!-- 긴급 주의 알림 배너 (컴팩트) -->
-      <div class="p-2.5 sm:p-3 rounded-2xl bg-amber-50 border-2 border-amber-300 text-amber-950 font-black text-center text-xs sm:text-sm flex items-center justify-center gap-2 flex-shrink-0 my-auto shadow-xs">
-        <i class="fa-solid fa-triangle-exclamation text-amber-600 text-lg sm:text-xl flex-shrink-0"></i>
-        <span class="break-keep"><b>버튼을 터치하셔야 주차 감면이 최종 등록됩니다!</b> (미등록 시 일반 요금 부과)</span>
-      </div>
-
-      <!-- 환자 및 감면 상세 카드 (컴팩트) -->
-      <div class="w-full bg-slate-50/90 border-2 border-slate-200 rounded-2xl p-3 sm:p-5 shadow-xs space-y-2.5 my-auto">
-        <div class="grid grid-cols-2 gap-3 pb-2.5 border-b-2 border-slate-200">
+      <!-- 환자 및 감면 상세 카드 (핵심 정보만 깔끔하게 노출) -->
+      <div class="w-full bg-slate-50/90 border-2 border-slate-200 rounded-2xl p-4 sm:p-6 shadow-xs space-y-3.5 my-auto">
+        <div class="grid grid-cols-2 gap-3 pb-3 border-b-2 border-slate-200">
           <div>
-            <span class="text-[11px] sm:text-xs font-bold text-slate-500">감면 대상 환자</span>
-            <div class="text-xl sm:text-2.5xl font-black text-slate-900 whitespace-nowrap mt-0.5" id="step3PatientName">-</div>
+            <span class="text-xs sm:text-sm font-bold text-slate-500">감면 환자</span>
+            <div class="text-2xl sm:text-3xl font-black text-slate-900 whitespace-nowrap mt-0.5" id="step3PatientName">-</div>
             <div class="text-xs sm:text-sm text-slate-500 font-bold font-num whitespace-nowrap" id="step3PatientJubno">-</div>
           </div>
           <div class="text-right">
-            <span class="text-[11px] sm:text-xs font-bold text-slate-500">등록할 내 차량번호</span>
+            <span class="text-xs sm:text-sm font-bold text-slate-500">등록할 내 차량</span>
             <div class="text-2.5xl sm:text-4xl font-black text-blue-600 font-num whitespace-nowrap mt-0.5" id="step3CarNum">-</div>
-            <div class="text-[11px] sm:text-xs text-slate-500 font-bold font-num whitespace-nowrap" id="step3CarInTime">입차: -</div>
+            <div class="text-xs sm:text-sm text-slate-400 font-bold font-num whitespace-nowrap" id="step3CarInTime">입차: -</div>
           </div>
         </div>
 
-        <div class="p-3 sm:p-4 rounded-xl bg-white border-2 border-emerald-300 flex items-center justify-between shadow-2xs">
-          <div class="flex items-center gap-3">
-            <div class="w-11 h-11 sm:w-13 sm:h-13 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-black text-xl sm:text-2xl shadow-sm flex-shrink-0">
+        <div class="p-3.5 sm:p-4 rounded-xl bg-white border-2 border-emerald-300 flex items-center justify-between shadow-2xs">
+          <div class="flex items-center gap-3 sm:gap-4">
+            <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-black text-2xl sm:text-2.5xl shadow-sm flex-shrink-0">
               <i class="fa-solid fa-gift"></i>
             </div>
             <div>
-              <div class="text-lg sm:text-2xl font-black text-emerald-800 whitespace-nowrap" id="step3BenefitHours">
+              <div class="text-xl sm:text-2.5xl font-black text-emerald-800 whitespace-nowrap" id="step3BenefitHours">
                 6시간 무료 주차
               </div>
-              <div class="text-[11px] sm:text-xs text-emerald-700 font-bold mt-0.5" id="step3BenefitDesc">
+              <div class="text-xs sm:text-sm text-emerald-700 font-bold mt-0.5" id="step3BenefitDesc">
                 당일 외래진료 환자 6시간 무료
               </div>
             </div>
           </div>
           <div class="text-right flex-shrink-0">
-            <div class="text-[11px] text-slate-400 font-bold">출차 혜택</div>
+            <div class="text-xs text-slate-400 font-bold">출차 혜택</div>
             <div class="text-sm sm:text-base font-black text-emerald-800 whitespace-nowrap">당일 무료 출차</div>
           </div>
         </div>
       </div>
 
-      <!-- 강력한 액션 유도 등록 버튼 영역 (하단 뷰포트 내 100% 안전 안착) -->
-      <div class="flex flex-col items-center flex-shrink-0 pt-1 pb-0.5">
-        <div class="animate-bounce text-blue-700 font-black text-xs sm:text-base flex items-center justify-center gap-1.5 mb-1.5">
-          <i class="fa-solid fa-arrow-down text-base sm:text-lg"></i>
-          <span>여기를 터치하여 주차 등록을 완료하세요!</span>
-          <i class="fa-solid fa-arrow-down text-base sm:text-lg"></i>
-        </div>
-
-        <div class="w-full flex items-center justify-center gap-2.5 sm:gap-3.5">
-          <button onclick="backToStep1Keypad()" class="px-4 sm:px-6 py-3 sm:py-3.5 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-black text-sm sm:text-base transition active:scale-95 border-2 border-slate-300 whitespace-nowrap flex-shrink-0">
-            다시 입력
-          </button>
-          
-          <button id="btnSubmitRegister" onclick="submitCarRegistrationMock()" class="btn-register-pulse flex-1 py-3 sm:py-3.5 rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-600 hover:from-blue-700 hover:to-indigo-700 text-white font-black text-base sm:text-xl shadow-xl active:scale-95 transition flex items-center justify-center gap-2 whitespace-nowrap">
-            <i class="fa-solid fa-hand-pointer text-amber-300 text-xl sm:text-2xl animate-pulse"></i>
-            <span>👉 무료 주차 등록 완료하기 (<span id="autoCommitCountdown" class="text-amber-300 font-num">15</span>초 자동)</span>
-          </button>
-        </div>
+      <!-- 하단 직관적인 행동 버튼 영역 -->
+      <div class="w-full flex items-center justify-center gap-2.5 sm:gap-4 flex-shrink-0 pt-2 pb-1">
+        <button onclick="backToStep1Keypad()" class="px-5 sm:px-7 py-3.5 sm:py-4.5 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-black text-base sm:text-xl transition active:scale-95 border-2 border-slate-300 whitespace-nowrap flex-shrink-0">
+          다시 입력
+        </button>
+        
+        <button id="btnSubmitRegister" onclick="submitCarRegistrationMock()" class="btn-register-pulse flex-1 py-3.5 sm:py-4.5 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-black text-lg sm:text-2.5xl shadow-xl active:scale-95 transition flex items-center justify-center gap-2.5 whitespace-nowrap">
+          <i class="fa-solid fa-circle-check text-xl sm:text-2xl"></i>
+          <span>네, 등록합니다 (<span id="autoCommitCountdown" class="text-yellow-300 font-num">15</span>초)</span>
+        </button>
       </div>
     </section>
 
