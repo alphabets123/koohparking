@@ -1356,7 +1356,6 @@
           body: JSON.stringify(payload),
         });
         const data = await res.json();
-        Swal.close();
 
         let patient = (data.patients && data.patients[0]) || null;
 
@@ -1440,8 +1439,11 @@
           return;
         }
 
-        // 3. 차량 변경 확인 (기존 등록 차와 다른 경우)
-        if (patient.carnoPure && selectedCar && patient.carnoPure !== selectedCar.carno) {
+        // 3. 차량 변경 확인 (기존 등록 차와 다른 경우 - 공백 및 특수문자 제거 무결 1:1 비교)
+        const pureExistingCar = (patient.carnoPure || "").replace(/[^0-9가-힣a-zA-Z]/g, "").trim();
+        const pureSelectedCar = (selectedCar?.carno || "").replace(/[^0-9가-힣a-zA-Z]/g, "").trim();
+
+        if (pureExistingCar && pureSelectedCar && pureExistingCar !== pureSelectedCar) {
           Swal.fire({
             icon: "question",
             title: "등록 차량 변경 확인",
@@ -1483,6 +1485,8 @@
           return;
         }
 
+        // 차량 변경이 없거나 신규 등록인 경우 로딩창 닫고 바로 STEP 3 진행
+        Swal.close();
         proceedToStep3(patient);
       } catch (err) {
         Swal.close();
