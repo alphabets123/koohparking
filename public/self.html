@@ -184,7 +184,7 @@
       <div class="min-w-0 flex-1">
         <h1 class="text-base sm:text-2xl font-black tracking-tight flex items-center gap-2 whitespace-nowrap">
           <span>구병원 주차 등록</span>
-          <span class="px-2.5 py-0.5 rounded-full bg-[#3182f6] text-white text-[11px] sm:text-xs font-black shadow-xs whitespace-nowrap">외래 무료</span>
+          <span class="px-2.5 py-0.5 rounded-full bg-[#3182f6] text-white text-[11px] sm:text-xs font-black shadow-xs whitespace-nowrap">외래만 가능</span>
         </h1>
       </div>
     </div>
@@ -231,11 +231,14 @@
     <!-- 🚗 STEP 1: 차량번호 뒷 4자리 키패드 입력 화면 (상단 기준 안착 & 키패드 직결) -->
     <!-- ===================================================================== -->
     <section id="step1Section" class="kiosk-card w-full max-w-2xl lg:max-w-3xl flex-1 rounded-3xl p-4 sm:p-7 flex flex-col justify-start gap-3.5 sm:gap-5 overflow-y-auto">
-      <!-- 상단 제목 (간격 확보 및 서브 문구 제거) -->
+      <!-- 상단 제목 & 입원환자 안내 문구 -->
       <div class="text-center flex-shrink-0 pt-3 sm:pt-6 pb-1 sm:pb-2">
         <h2 class="text-3xl sm:text-4xl md:text-5xl font-black text-slate-950 tracking-tight break-keep">
           차량번호 <span class="text-[#3182f6] underline underline-offset-8 decoration-4">뒤 4자리</span>를 누르세요
         </h2>
+        <p class="text-base sm:text-xl md:text-2xl font-bold text-slate-600 mt-2 sm:mt-3 break-keep">
+          <span class="text-amber-600 underline underline-offset-4 decoration-2 font-black">입원환자</span>는 <span class="text-[#3182f6] underline underline-offset-4 decoration-2 font-black">원무과 창구</span>에 문의하세요
+        </p>
       </div>
 
       <!-- 4자리 번호 표시창 (상단 기준 정렬, 키패드와 바로 이어짐) -->
@@ -416,8 +419,8 @@
           </div>
         </div>
 
-        <!-- 7자리 넘버패드 그리드 (표시창 바로 아래 안착) -->
-        <div class="w-full max-w-xl sm:max-w-2xl mx-auto grid grid-cols-3 gap-3.5 sm:gap-4.5 md:gap-5 flex-shrink-0">
+        <!-- 7자리 넘버패드 그리드 (표시창 바로 아래 안착 & 여백) -->
+        <div class="w-full max-w-xl sm:max-w-2xl mx-auto grid grid-cols-3 gap-3.5 sm:gap-4.5 md:gap-5 flex-shrink-0 pb-6 sm:pb-8">
           <button onclick="pressChartNum('1')" class="keypad-btn">1</button>
           <button onclick="pressChartNum('2')" class="keypad-btn">2</button>
           <button onclick="pressChartNum('3')" class="keypad-btn">3</button>
@@ -434,14 +437,6 @@
           <button onclick="pressChartNum('0')" class="keypad-btn">0</button>
           <button onclick="backspaceChartNum()" class="keypad-btn text-slate-700 hover:text-slate-950">
             <i class="fa-solid fa-delete-left text-2.5xl sm:text-3.5xl"></i>
-          </button>
-        </div>
-
-        <!-- 확인 버튼 (키패드 바로 아래 배치) -->
-        <div class="w-full max-w-xl sm:max-w-2xl mx-auto flex-shrink-0 pb-6">
-          <button id="btnUnifiedChartSubmit" onclick="submitChartNumDirect()" class="w-full py-4 sm:py-5 md:py-5.5 rounded-2xl bg-[#3182f6] hover:bg-[#1b64da] text-white font-black text-xl sm:text-2.5xl shadow-lg active:scale-98 transition flex items-center justify-center gap-2">
-            <i class="fa-solid fa-square-check text-xl sm:text-2xl"></i>
-            <span>등록번호 입력 (바코드 가능)</span>
           </button>
         </div>
       </div>
@@ -1067,12 +1062,11 @@
     }
 
     function submitChartNumDirect() {
-      if (currentChartNum.length === 0) {
-        Swal.fire("안내", "등록번호(차트번호)를 입력하거나 영수증 바코드를 스캔해 주세요.", "warning");
+      // 7자리가 모두 입력되었을 때만 처리 (미만 입력 차단)
+      if (currentChartNum.length !== 7) {
         return;
       }
-      const paddedNum = currentChartNum.padStart(7, "0");
-      lookupPatientReal({ keyword: paddedNum });
+      lookupPatientReal({ keyword: currentChartNum });
     }
 
     // [히든 모드] 주민등록번호 13자리 입력 로직
@@ -1128,9 +1122,6 @@
     // 🏥 2단계: 실제 병원 OCS 환자 진료 자격 조회 API
     // =========================================================================
     async function lookupPatientReal(payload) {
-      // ⭐️ [테스트 차량 프리패스 안전망] 총무과 수동 입차 차량(00테...)은 OCS 접수가 없어도 테스트 통과 허용
-      const isTestCar = selectedCar && selectedCar.carno && selectedCar.carno.startsWith("00");
-
       Swal.fire({
         title: "진료내역 확인 중...",
         text: "당일 외래 접수 및 감면 자격을 확인하고 있습니다.",
@@ -1149,28 +1140,14 @@
 
         let patient = (data.patients && data.patients[0]) || null;
 
-        // 환자를 못 찾았거나 당일 접수가 없더라도, 테스트 차량인 경우 가상 외래 6시간 자격 자동 부여
-        if ((!patient || !patient.hasTodayVisit) && isTestCar) {
-          patient = {
-            jubno: (payload.keyword || "0000000").padStart(7, "0"),
-            name: "테스트환자",
-            maskedName: "테*트",
-            carnoPure: "",
-            hasTodayVisit: true,
-            benefit: {
-              benefitType: "OPD",
-              benefitTitle: "외래진료 (6시간 무료)",
-              hours: 6,
-              desc: "테스트용 외래진료 6시간 무료",
-              freeUntil: "오늘 여유 출차"
-            }
-          };
-        } else if (!data.ok || !patient) {
+        // OCS 등록 환자가 없거나 조회가 실패한 경우
+        if (!data.ok || !patient) {
           Swal.fire({
             icon: "warning",
             title: "환자 정보를 찾을 수 없습니다",
-            html: `입력하신 정보와 일치하는 환자 등록 정보가 없습니다.<br><span class="text-xs text-slate-500 font-bold mt-2 block">바코드나 등록번호를 다시 확인해 주세요.</span>`,
+            html: `입력하신 정보와 일치하는 환자 등록 정보가 없습니다.<br><span class="text-xs text-slate-500 font-bold mt-2 block">바코드나 7자리 등록번호를 다시 확인해 주세요.</span>`,
             confirmButtonColor: "#3182f6",
+            confirmButtonText: "확인"
           });
           clearChartNum();
           clearJmnoNum();
@@ -1225,7 +1202,7 @@
         }
 
         // 3. 차량 변경 확인 (기존 등록 차와 다른 경우)
-        if (patient.carnoPure && selectedCar && patient.carnoPure !== selectedCar.carno && !isTestCar) {
+        if (patient.carnoPure && selectedCar && patient.carnoPure !== selectedCar.carno) {
           Swal.fire({
             icon: "question",
             title: "등록 차량 변경 확인",
