@@ -191,9 +191,9 @@
 
     <!-- 헤더 우측: 무조작 타이머 뱃지 + 처음으로 버튼 -->
     <div class="flex items-center gap-2 sm:gap-3 flex-shrink-0">
-      <div id="inactivityBadge" class="flex items-center gap-1.5 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-xl bg-slate-800/90 border border-slate-700 text-amber-300 text-[11px] sm:text-xs font-bold shadow-xs whitespace-nowrap">
-        <i class="fa-regular fa-clock text-amber-400"></i>
-        <span><b id="inactivitySecRemaining" class="font-num text-xs sm:text-sm font-black text-amber-300">40</b>초 후 초기화</span>
+      <div id="inactivityBadge" class="flex items-center gap-1.5 px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-xl bg-slate-800/90 border border-slate-700 text-amber-300 shadow-xs whitespace-nowrap">
+        <i class="fa-regular fa-clock text-amber-400 text-sm sm:text-base"></i>
+        <span class="font-num text-sm sm:text-lg font-black text-amber-300"><span id="inactivitySecRemaining">40</span>초</span>
       </div>
       <button onclick="resetAllSteps()" class="px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-black text-xs sm:text-sm flex items-center gap-1.5 transition active:scale-95 whitespace-nowrap border border-slate-700 shadow-xs">
         <i class="fa-solid fa-rotate-right text-[#3182f6]"></i>
@@ -228,20 +228,22 @@
     </div>
 
     <!-- ===================================================================== -->
-    <!-- 🚗 STEP 1: 차량번호 뒷 4자리 키패드 입력 화면 (태블릿 꽉 찬 세로 풀핏) -->
+    <!-- 🚗 STEP 1: 차량번호 뒷 4자리 키패드 입력 화면 (상단 기준 안착 & 키패드 직결) -->
     <!-- ===================================================================== -->
-    <section id="step1Section" class="kiosk-card w-full max-w-2xl lg:max-w-3xl flex-1 rounded-3xl p-4 sm:p-7 flex flex-col justify-between overflow-hidden">
-      <!-- 상단 제목 및 안내 -->
-      <div class="text-center flex-shrink-0 pt-2 sm:pt-4">
-        <h2 class="text-2.5xl sm:text-3.5xl md:text-4xl font-black text-slate-950 tracking-tight break-keep">
+    <section id="step1Section" class="kiosk-card w-full max-w-2xl lg:max-w-3xl flex-1 rounded-3xl p-4 sm:p-7 flex flex-col justify-start gap-3.5 sm:gap-5 overflow-y-auto">
+      <!-- 상단 제목 및 큼직한 안내 문구 -->
+      <div class="text-center flex-shrink-0 pt-1 sm:pt-2">
+        <h2 class="text-3xl sm:text-4xl md:text-4.5xl font-black text-slate-950 tracking-tight break-keep">
           차량번호 <span class="text-[#3182f6] underline underline-offset-8 decoration-4">뒤 4자리</span>를 누르세요
         </h2>
-        <p class="text-xs sm:text-base font-bold text-slate-500 mt-1 sm:mt-2">병원에 입차하신 차량의 끝 4자리를 터치해 주세요</p>
+        <p class="text-base sm:text-xl md:text-2xl font-bold text-slate-600 mt-1.5 sm:mt-2.5">
+          병원에 입차하신 차량의 끝 4자리를 터치해 주세요
+        </p>
       </div>
 
-      <!-- 4자리 번호 표시창 (태블릿 화면에 맞춘 큼직한 번호판) -->
-      <div class="w-full max-w-xl sm:max-w-2xl mx-auto flex-shrink-0 my-auto py-2 sm:py-4">
-        <div class="h-28 sm:h-36 md:h-42 bg-slate-50/90 rounded-3xl border-3 border-[#3182f6] flex items-center justify-center gap-4 sm:gap-8 px-6 sm:px-10 shadow-inner">
+      <!-- 4자리 번호 표시창 (상단 기준 정렬, 키패드와 바로 이어짐) -->
+      <div class="w-full max-w-xl sm:max-w-2xl mx-auto flex-shrink-0">
+        <div class="h-24 sm:h-32 md:h-36 bg-slate-50/90 rounded-3xl border-3 border-[#3182f6] flex items-center justify-center gap-4 sm:gap-8 px-6 sm:px-10 shadow-inner">
           <div id="digit0" class="num-display plate-num-digit">&nbsp;</div>
           <div id="digit1" class="num-display plate-num-digit">&nbsp;</div>
           <div id="digit2" class="num-display plate-num-digit">&nbsp;</div>
@@ -249,8 +251,8 @@
         </div>
       </div>
 
-      <!-- 터치 숫자 키패드 (태블릿 세로 여백 없이 시원하고 묵직하게 꽉 참 + 하단 시스템 제스처 간섭 방지 안전 패딩) -->
-      <div class="w-full max-w-xl sm:max-w-2xl mx-auto grid grid-cols-3 gap-3.5 sm:gap-4.5 md:gap-5 flex-shrink-0 pb-6 sm:pb-10 md:pb-12">
+      <!-- 터치 숫자 키패드 (입력창 바로 아래 적정 간격으로 배치, 아래 여백 자연 방치) -->
+      <div class="w-full max-w-xl sm:max-w-2xl mx-auto grid grid-cols-3 gap-3.5 sm:gap-4.5 md:gap-5 flex-shrink-0 pb-6">
         <button onclick="pressNum('1')" class="keypad-btn">1</button>
         <button onclick="pressNum('2')" class="keypad-btn">2</button>
         <button onclick="pressNum('3')" class="keypad-btn">3</button>
@@ -263,7 +265,7 @@
         <button onclick="pressNum('8')" class="keypad-btn">8</button>
         <button onclick="pressNum('9')" class="keypad-btn">9</button>
 
-        <button onclick="clearNum()" class="keypad-btn !text-lg sm:!text-2xl !font-black text-rose-600 bg-rose-50/80 hover:bg-rose-100 border-rose-300 whitespace-nowrap">전체삭제</button>
+        <button onclick="clearNum()" class="keypad-btn !text-xl sm:!text-2.5xl !font-black text-rose-600 bg-rose-50/80 hover:bg-rose-100 border-rose-300 whitespace-nowrap">전체삭제</button>
         <button onclick="pressNum('0')" class="keypad-btn">0</button>
         <button onclick="backspaceNum()" class="keypad-btn text-slate-700 hover:text-slate-950">
           <i class="fa-solid fa-delete-left text-2.5xl sm:text-3.5xl"></i>
@@ -272,28 +274,28 @@
     </section>
 
     <!-- ===================================================================== -->
-    <!-- 🚘 STEP 1.5: 4자리 검색 결과 차량 선택 목록 화면 -->
+    <!-- 🚘 STEP 1.5: 4자리 검색 결과 차량 선택 목록 화면 (상단 기준 정렬 & 스크롤 지원) -->
     <!-- ===================================================================== -->
-    <section id="step1CarsSection" class="kiosk-card hidden w-full max-w-2xl lg:max-w-3xl flex-1 rounded-3xl p-4 sm:p-7 flex flex-col justify-between overflow-hidden">
+    <section id="step1CarsSection" class="kiosk-card hidden w-full max-w-2xl lg:max-w-3xl flex-1 rounded-3xl p-4 sm:p-7 flex flex-col justify-start gap-3 sm:gap-4 overflow-y-auto">
       <div class="flex items-center justify-between pb-3 sm:pb-5 border-b-2 border-slate-200 flex-shrink-0">
         <div>
-          <h3 class="text-2xl sm:text-3.5xl font-black text-slate-950 whitespace-nowrap">
+          <h3 class="text-2.5xl sm:text-4xl font-black text-slate-950 whitespace-nowrap">
             내 차량을 <span class="text-[#3182f6] underline underline-offset-6 decoration-4">선택</span>해 주세요
           </h3>
-          <p class="text-xs sm:text-base text-slate-500 font-bold mt-1">끝자리 <b id="lblSearchedNum" class="text-[#3182f6] font-num text-sm sm:text-xl"></b> 번 검색 결과 (해당 차량을 터치하세요)</p>
+          <p class="text-sm sm:text-lg text-slate-600 font-bold mt-1">끝자리 <b id="lblSearchedNum" class="text-[#3182f6] font-num text-base sm:text-2xl"></b> 번 검색 결과 (해당 차량을 터치하세요)</p>
         </div>
-        <button onclick="backToStep1Keypad()" class="px-4 py-2.5 sm:px-6 sm:py-3.5 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-black text-xs sm:text-base flex items-center gap-2 transition active:scale-95 whitespace-nowrap border-2 border-slate-300 shadow-xs flex-shrink-0">
+        <button onclick="backToStep1Keypad()" class="px-4 py-2.5 sm:px-7 sm:py-3.5 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-black text-sm sm:text-lg flex items-center gap-2 transition active:scale-95 whitespace-nowrap border-2 border-slate-300 shadow-xs flex-shrink-0">
           <i class="fa-solid fa-arrow-left"></i> 번호 다시 입력
         </button>
       </div>
 
-      <div id="carCardsContainer" class="flex-1 overflow-y-auto space-y-3.5 sm:space-y-5 py-3 sm:py-5 pr-1.5 pb-6 sm:pb-10"></div>
+      <div id="carCardsContainer" class="flex-1 overflow-y-auto space-y-3.5 sm:space-y-5 py-2 pr-1.5 pb-6"></div>
     </section>
 
     <!-- ===================================================================== -->
-    <!-- 🟢 STEP 1.8: 기감면 내역 및 초과 시간/요금 안내 화면 (태블릿 꽉 찬 시원한 레이아웃) -->
+    <!-- 🟢 STEP 1.8: 기감면 내역 및 초과 시간/요금 안내 화면 (상단 기준 안착 & 스크롤 지원) -->
     <!-- ===================================================================== -->
-    <section id="stepAlreadyRegisteredSection" class="kiosk-card hidden w-full max-w-2xl lg:max-w-3xl flex-1 rounded-3xl p-4 sm:p-7 flex flex-col justify-between overflow-hidden">
+    <section id="stepAlreadyRegisteredSection" class="kiosk-card hidden w-full max-w-2xl lg:max-w-3xl flex-1 rounded-3xl p-4 sm:p-7 flex flex-col justify-start gap-4 sm:gap-5 overflow-y-auto">
       <!-- 헤더 안내 -->
       <div class="text-center space-y-2 flex-shrink-0 pt-1">
         <div id="alreadyBadgeWrap" class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-100 text-emerald-800 font-black text-sm sm:text-base border border-emerald-300">
@@ -304,8 +306,8 @@
         </h2>
       </div>
 
-      <!-- 메인 정보 카드 (여백 꽉 채운 큼직한 풀와이드 카드) -->
-      <div class="w-full bg-slate-50/90 border-2 border-slate-200 rounded-3xl p-4 sm:p-6 space-y-3.5 sm:space-y-4 my-auto">
+      <!-- 메인 정보 카드 (상단 기준 정렬) -->
+      <div class="w-full bg-slate-50/90 border-2 border-slate-200 rounded-3xl p-4 sm:p-6 space-y-3.5 sm:space-y-4 flex-shrink-0">
         <!-- 1. 핵심 차량 정보 (번호판 + LPR 사진 통합 블록) -->
         <div class="p-4 sm:p-5 rounded-2xl bg-white border-2 border-slate-200 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
           <!-- 좌측: 초대형 자동차 번호판 & 입차 시각 -->
@@ -365,8 +367,8 @@
         <div id="alreadyFeeBanner" class="p-3.5 sm:p-5 rounded-2xl shadow-sm"></div>
       </div>
 
-      <!-- 하단 확인 완료 버튼 -->
-      <div class="flex items-center justify-center flex-shrink-0 pt-2 pb-6 sm:pb-10 md:pb-12">
+      <!-- 하단 확인 완료 버튼 (메인 카드 바로 아래 배치) -->
+      <div class="w-full flex items-center justify-center flex-shrink-0 pt-1 pb-6">
         <button onclick="resetAllSteps()" class="w-full py-4.5 sm:py-5.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xl sm:text-2.5xl shadow-xl active:scale-98 transition flex items-center justify-center gap-3 whitespace-nowrap">
           <i class="fa-solid fa-check text-2xl sm:text-3xl"></i>
           <span>확인 완료 (<span id="alreadyCountdown" class="text-yellow-300 font-num">25</span>초 후 처음으로)</span>
@@ -375,34 +377,34 @@
     </section>
 
     <!-- ===================================================================== -->
-    <!-- 🏥 STEP 2: 본인 확인 화면 (바코드 & 등록번호 통합, 태블릿 꽉 찬 세로 풀핏) -->
+    <!-- 🏥 STEP 2: 본인 확인 화면 (상단 기준 정렬 & 키패드 직결 & 스크롤 지원) -->
     <!-- ===================================================================== -->
-    <section id="step2Section" class="kiosk-card hidden w-full max-w-2xl lg:max-w-3xl flex-1 rounded-3xl p-4 sm:p-7 flex flex-col justify-between overflow-hidden">
+    <section id="step2Section" class="kiosk-card hidden w-full max-w-2xl lg:max-w-3xl flex-1 rounded-3xl p-4 sm:p-7 flex flex-col justify-start gap-3.5 sm:gap-4 overflow-y-auto">
       
       <!-- 선택된 차량 요약 상단 바 (토스 톤) -->
-      <div class="bg-slate-100 border border-slate-300 rounded-2xl p-2.5 sm:p-3 flex items-center justify-between shadow-xs flex-shrink-0 mb-2 sm:mb-3">
+      <div class="bg-slate-100 border border-slate-300 rounded-2xl p-3 sm:p-3.5 flex items-center justify-between shadow-xs flex-shrink-0">
         <div class="flex items-center gap-3">
           <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-[#3182f6] text-white flex items-center justify-center font-black text-xl sm:text-2xl shadow-xs flex-shrink-0">
             <i class="fa-solid fa-car"></i>
           </div>
           <div>
-            <div class="text-xs text-slate-500 font-bold" id="step2SelectedCarInTime">선택 차량</div>
-            <div class="text-xl sm:text-2.5xl font-black text-slate-900 font-num tracking-wide whitespace-nowrap" id="step2SelectedCarNum">-</div>
+            <div class="text-xs sm:text-sm text-slate-500 font-bold" id="step2SelectedCarInTime">선택 차량</div>
+            <div class="text-2xl sm:text-3xl font-black text-slate-900 font-num tracking-wide whitespace-nowrap" id="step2SelectedCarNum">-</div>
           </div>
         </div>
 
-        <button onclick="backToStep1Keypad()" class="px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-black text-xs sm:text-sm shadow-xs active:scale-95 transition flex items-center gap-1.5 whitespace-nowrap">
+        <button onclick="backToStep1Keypad()" class="px-4 py-2 sm:px-5 sm:py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-black text-xs sm:text-base shadow-xs active:scale-95 transition flex items-center gap-1.5 whitespace-nowrap">
           <i class="fa-solid fa-rotate-right"></i>
           <span>차량 변경</span>
         </button>
       </div>
 
-      <!-- ⭐️ 통합 화면 컨텐츠 -->
-      <div id="unifiedStep2Box" class="flex-1 min-h-0 flex flex-col justify-between overflow-hidden">
+      <!-- ⭐️ 통합 화면 컨텐츠 (위쪽 기준 연속 배치) -->
+      <div id="unifiedStep2Box" class="flex flex-col justify-start gap-3 sm:gap-4 flex-shrink-0">
         
         <!-- 핵심 통합 안내 헤더 -->
-        <div class="text-center flex-shrink-0 space-y-1.5 pt-1">
-          <h3 class="text-xl sm:text-2.5xl lg:text-3xl font-black text-slate-950 leading-snug tracking-tight break-keep px-1">
+        <div class="text-center flex-shrink-0 space-y-1 pt-1">
+          <h3 class="text-2xl sm:text-3xl lg:text-3.5xl font-black text-slate-950 leading-snug tracking-tight break-keep px-1">
             <span class="text-[#3182f6] underline underline-offset-6 decoration-3">등록번호</span>를 누르거나, 
             <span class="text-emerald-700 underline underline-offset-6 decoration-3 inline-flex items-center gap-1.5">
               <i class="fa-solid fa-barcode text-emerald-600"></i> 영수증 바코드
@@ -410,23 +412,23 @@
           </h3>
 
           <!-- 바코드 리더기 대기 안내 (6회 터치 시 주민등록번호 모드 전환) -->
-          <div id="barcodeGuideBanner" class="cursor-pointer select-none flex items-center justify-center gap-2 text-slate-500 font-bold text-xs sm:text-sm py-1 active:opacity-60 transition" title="이 영역을 빠르게 6번 터치하면 주민등록번호 모드가 열립니다.">
+          <div id="barcodeGuideBanner" class="cursor-pointer select-none flex items-center justify-center gap-2 text-slate-500 font-bold text-xs sm:text-base py-1 active:opacity-60 transition" title="이 영역을 빠르게 6번 터치하면 주민등록번호 모드가 열립니다.">
             <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
-            <i class="fa-solid fa-barcode text-slate-600 text-sm sm:text-base"></i>
+            <i class="fa-solid fa-barcode text-slate-600 text-sm sm:text-lg"></i>
             <span class="text-slate-700 font-extrabold break-keep">바코드 리더기 대기 중 (영수증을 대면 즉시 인식됩니다)</span>
           </div>
         </div>
 
-        <!-- 등록번호(차트번호) 7자리 표시창 (태블릿 화면 꽉 차게 팽창) -->
-        <div class="w-full max-w-xl sm:max-w-2xl mx-auto flex-shrink-0 my-auto py-2 sm:py-4">
-          <div class="h-24 sm:h-32 md:h-38 bg-white rounded-3xl border-3 border-[#3182f6] flex items-center justify-center px-4 shadow-inner">
+        <!-- 등록번호(차트번호) 7자리 표시창 (상단 기준 정렬) -->
+        <div class="w-full max-w-xl sm:max-w-2xl mx-auto flex-shrink-0">
+          <div class="h-22 sm:h-28 md:h-32 bg-white rounded-3xl border-3 border-[#3182f6] flex items-center justify-center px-4 shadow-inner">
             <div id="chartNumDisplay" class="num-display font-black text-[#3182f6] tracking-widest whitespace-nowrap" style="font-size: clamp(2.8rem, 6vh, 4.5rem) !important; line-height: 1;">
               _______
             </div>
           </div>
         </div>
 
-        <!-- 7자리 넘버패드 그리드 (태블릿 꽉 찬 세로 풀핏) -->
+        <!-- 7자리 넘버패드 그리드 (표시창 바로 아래 안착) -->
         <div class="w-full max-w-xl sm:max-w-2xl mx-auto grid grid-cols-3 gap-3.5 sm:gap-4.5 md:gap-5 flex-shrink-0">
           <button onclick="pressChartNum('1')" class="keypad-btn">1</button>
           <button onclick="pressChartNum('2')" class="keypad-btn">2</button>
@@ -440,15 +442,15 @@
           <button onclick="pressChartNum('8')" class="keypad-btn">8</button>
           <button onclick="pressChartNum('9')" class="keypad-btn">9</button>
 
-          <button onclick="clearChartNum()" class="keypad-btn !text-lg sm:!text-2xl !font-black text-rose-600 bg-rose-50 hover:bg-rose-100 border-rose-300 whitespace-nowrap">전체삭제</button>
+          <button onclick="clearChartNum()" class="keypad-btn !text-xl sm:!text-2.5xl !font-black text-rose-600 bg-rose-50 hover:bg-rose-100 border-rose-300 whitespace-nowrap">전체삭제</button>
           <button onclick="pressChartNum('0')" class="keypad-btn">0</button>
           <button onclick="backspaceChartNum()" class="keypad-btn text-slate-700 hover:text-slate-950">
             <i class="fa-solid fa-delete-left text-2.5xl sm:text-3.5xl"></i>
           </button>
         </div>
 
-        <!-- 하단 확인 버튼 (하단 안전 패딩 확보) -->
-        <div class="w-full max-w-xl sm:max-w-2xl mx-auto mt-2 sm:mt-3 flex-shrink-0 pb-6 sm:pb-10 md:pb-12">
+        <!-- 확인 버튼 (키패드 바로 아래 배치) -->
+        <div class="w-full max-w-xl sm:max-w-2xl mx-auto flex-shrink-0 pb-6">
           <button id="btnUnifiedChartSubmit" onclick="submitChartNumDirect()" class="w-full py-4 sm:py-5 md:py-5.5 rounded-2xl bg-[#3182f6] hover:bg-[#1b64da] text-white font-black text-xl sm:text-2.5xl shadow-lg active:scale-98 transition flex items-center justify-center gap-2">
             <i class="fa-solid fa-square-check text-xl sm:text-2xl"></i>
             <span>등록번호 입력 (바코드 가능)</span>
@@ -456,22 +458,22 @@
         </div>
       </div>
 
-      <!-- ⭐️ [히든 기능] 주민등록번호 13자리 입력 모드 -->
-      <div id="hiddenJmnoBox" class="hidden flex-1 min-h-0 flex flex-col justify-between overflow-hidden">
+      <!-- ⭐️ [히든 기능] 주민등록번호 13자리 입력 모드 (위쪽 기준 정렬) -->
+      <div id="hiddenJmnoBox" class="hidden flex flex-col justify-start gap-3 sm:gap-4 flex-shrink-0">
         <!-- ⭐️ 헤더 6회 터치 시 일반 모드로 복귀 -->
         <div id="jmnoHeaderTitle" class="cursor-pointer select-none text-center flex-shrink-0 space-y-1 pt-1 active:opacity-75 transition" title="이 영역을 빠르게 6번 터치하면 일반 모드로 복귀합니다.">
           <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-800 text-amber-300 font-black text-xs sm:text-sm">
             <i class="fa-solid fa-lock-open text-amber-400"></i>
             <span>[직원 전용] 주민등록번호 13자리 입력 모드</span>
           </div>
-          <h4 class="text-xl sm:text-2.5xl lg:text-3xl font-black text-slate-950 leading-snug break-keep px-1">
+          <h4 class="text-2xl sm:text-3xl lg:text-3.5xl font-black text-slate-950 leading-snug break-keep px-1">
             주민등록번호 <span class="text-[#3182f6] underline underline-offset-6 decoration-3">13자리</span>를 누르세요
           </h4>
         </div>
 
         <!-- 주민번호 표시창 -->
-        <div class="w-full max-w-xl sm:max-w-2xl mx-auto flex-shrink-0 my-auto py-2 sm:py-4">
-          <div class="h-24 sm:h-32 md:h-38 bg-white rounded-3xl border-3 border-slate-700 flex items-center justify-center gap-3 sm:gap-4 px-4 shadow-inner">
+        <div class="w-full max-w-xl sm:max-w-2xl mx-auto flex-shrink-0">
+          <div class="h-22 sm:h-28 md:h-32 bg-white rounded-3xl border-3 border-slate-700 flex items-center justify-center gap-3 sm:gap-4 px-4 shadow-inner">
             <div id="jmnoFront" class="num-display font-black text-slate-900 tracking-wider whitespace-nowrap" style="font-size: clamp(2rem, 4.5vh, 3.2rem) !important; line-height: 1;">______</div>
             <span class="font-black text-slate-400" style="font-size: clamp(2rem, 4.5vh, 3.2rem) !important; line-height: 1;">-</span>
             <div id="jmnoBack" class="num-display font-black text-[#3182f6] tracking-wider whitespace-nowrap" style="font-size: clamp(2rem, 4.5vh, 3.2rem) !important; line-height: 1;">_______</div>
@@ -492,15 +494,15 @@
           <button onclick="pressJmnoNum('8')" class="keypad-btn">8</button>
           <button onclick="pressJmnoNum('9')" class="keypad-btn">9</button>
 
-          <button onclick="clearJmnoNum()" class="keypad-btn !text-lg sm:!text-2xl !font-black text-rose-600 bg-rose-50 hover:bg-rose-100 border-rose-300 whitespace-nowrap">전체삭제</button>
+          <button onclick="clearJmnoNum()" class="keypad-btn !text-xl sm:!text-2.5xl !font-black text-rose-600 bg-rose-50 hover:bg-rose-100 border-rose-300 whitespace-nowrap">전체삭제</button>
           <button onclick="pressJmnoNum('0')" class="keypad-btn">0</button>
           <button onclick="backspaceJmnoNum()" class="keypad-btn text-slate-700 hover:text-slate-950">
             <i class="fa-solid fa-delete-left text-2.5xl sm:text-3.5xl"></i>
           </button>
         </div>
 
-        <!-- 하단 등록 버튼 (하단 안전 패딩 확보) -->
-        <div class="w-full max-w-xl sm:max-w-2xl mx-auto mt-2 sm:mt-3 flex-shrink-0 pb-6 sm:pb-10 md:pb-12">
+        <!-- 하단 등록 버튼 -->
+        <div class="w-full max-w-xl sm:max-w-2xl mx-auto flex-shrink-0 pb-6">
           <button id="btnUnifiedJmnoSubmit" onclick="submitJmnoDirect()" class="w-full py-4 sm:py-5 md:py-5.5 rounded-2xl bg-[#3182f6] hover:bg-[#1b64da] text-white font-black text-xl sm:text-2.5xl shadow-lg active:scale-98 transition flex items-center justify-center gap-2">
             <i class="fa-solid fa-square-check text-xl sm:text-2xl"></i>
             <span>주민등록번호로 등록</span>
@@ -510,60 +512,60 @@
     </section>
 
     <!-- ===================================================================== -->
-    <!-- ⚠️ STEP 3: 최종 확인 및 감면 등록 화면 (토스 스타일 초간결) -->
+    <!-- ⚠️ STEP 3: 최종 확인 및 감면 등록 화면 (상단 기준 정렬 & 스크롤 지원) -->
     <!-- ===================================================================== -->
-    <section id="step3Section" class="kiosk-card hidden w-full max-w-2xl lg:max-w-3xl flex-1 rounded-3xl p-3 sm:p-5 flex flex-col justify-between overflow-hidden">
+    <section id="step3Section" class="kiosk-card hidden w-full max-w-2xl lg:max-w-3xl flex-1 rounded-3xl p-4 sm:p-7 flex flex-col justify-start gap-4 sm:gap-6 overflow-y-auto">
       
       <!-- 직관적인 단 한 문장 질문 헤더 -->
-      <div class="text-center flex-shrink-0 pt-2 pb-1">
-        <h2 class="text-2.5xl sm:text-4xl font-black text-slate-950 tracking-tight">
+      <div class="text-center flex-shrink-0 pt-1">
+        <h2 class="text-3xl sm:text-4.5xl font-black text-slate-950 tracking-tight">
           이대로 <span class="text-[#3182f6] underline underline-offset-8 decoration-4">등록</span>하시겠습니까?
         </h2>
       </div>
 
-      <!-- 환자 및 감면 상세 카드 -->
-      <div class="w-full bg-slate-50/90 border-2 border-slate-200 rounded-2xl p-4 sm:p-6 shadow-xs space-y-3.5 my-auto">
+      <!-- 환자 및 감면 상세 카드 (상단 기준 정렬) -->
+      <div class="w-full bg-slate-50/90 border-2 border-slate-200 rounded-3xl p-4 sm:p-6 shadow-xs space-y-4 flex-shrink-0">
         <div class="grid grid-cols-2 gap-3 pb-3 border-b-2 border-slate-200">
           <div>
-            <span class="text-xs sm:text-sm font-bold text-slate-500">감면 환자</span>
-            <div class="text-2xl sm:text-3xl font-black text-slate-900 whitespace-nowrap mt-0.5" id="step3PatientName">-</div>
-            <div class="text-xs sm:text-sm text-slate-500 font-bold font-num whitespace-nowrap" id="step3PatientJubno">-</div>
+            <span class="text-xs sm:text-base font-bold text-slate-500">감면 환자</span>
+            <div class="text-2xl sm:text-3.5xl font-black text-slate-900 whitespace-nowrap mt-0.5" id="step3PatientName">-</div>
+            <div class="text-sm sm:text-base text-slate-500 font-bold font-num whitespace-nowrap mt-0.5" id="step3PatientJubno">-</div>
           </div>
           <div class="text-right">
-            <span class="text-xs sm:text-sm font-bold text-slate-500">등록할 내 차량</span>
-            <div class="text-2.5xl sm:text-4xl font-black text-[#3182f6] font-num whitespace-nowrap mt-0.5" id="step3CarNum">-</div>
-            <div class="text-xs sm:text-sm text-slate-400 font-bold font-num whitespace-nowrap" id="step3CarInTime">입차: -</div>
+            <span class="text-xs sm:text-base font-bold text-slate-500">등록할 내 차량</span>
+            <div class="text-3xl sm:text-4.5xl font-black text-[#3182f6] font-num whitespace-nowrap mt-0.5" id="step3CarNum">-</div>
+            <div class="text-xs sm:text-base text-slate-400 font-bold font-num whitespace-nowrap mt-0.5" id="step3CarInTime">입차: -</div>
           </div>
         </div>
 
-        <div class="p-3.5 sm:p-4 rounded-xl bg-white border-2 border-emerald-300 flex items-center justify-between shadow-2xs">
+        <div class="p-4 sm:p-5 rounded-2xl bg-white border-2 border-emerald-300 flex items-center justify-between shadow-2xs">
           <div class="flex items-center gap-3 sm:gap-4">
-            <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-black text-2xl sm:text-2.5xl shadow-sm flex-shrink-0">
+            <div class="w-12 h-12 sm:w-16 sm:h-16 rounded-2xl bg-emerald-600 text-white flex items-center justify-center font-black text-2xl sm:text-3xl shadow-sm flex-shrink-0">
               <i class="fa-solid fa-gift"></i>
             </div>
             <div>
-              <div class="text-xl sm:text-2.5xl font-black text-emerald-800 whitespace-nowrap" id="step3BenefitHours">
+              <div class="text-xl sm:text-3xl font-black text-emerald-800 whitespace-nowrap" id="step3BenefitHours">
                 6시간 무료 주차
               </div>
-              <div class="text-xs sm:text-sm text-emerald-700 font-bold mt-0.5" id="step3BenefitDesc">
+              <div class="text-xs sm:text-base text-emerald-700 font-bold mt-1" id="step3BenefitDesc">
                 당일 외래진료 환자 6시간 무료
               </div>
             </div>
           </div>
           <div class="text-right flex-shrink-0">
-            <div class="text-xs text-slate-400 font-bold">출차 혜택</div>
-            <div class="text-sm sm:text-base font-black text-emerald-800 whitespace-nowrap">당일 무료 출차</div>
+            <div class="text-xs sm:text-sm text-slate-400 font-bold">출차 혜택</div>
+            <div class="text-sm sm:text-lg font-black text-emerald-800 whitespace-nowrap">당일 무료 출차</div>
           </div>
         </div>
       </div>
 
-      <!-- 하단 직관적인 행동 버튼 영역 (하단 안전 패딩 확보) -->
-      <div class="w-full flex items-center justify-center gap-2.5 sm:gap-4 flex-shrink-0 pt-2 pb-6 sm:pb-10 md:pb-12">
-        <button onclick="backToStep1Keypad()" class="px-5 sm:px-8 py-4 sm:py-5.5 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-black text-lg sm:text-2xl transition active:scale-95 border-2 border-slate-300 whitespace-nowrap flex-shrink-0">
+      <!-- 하단 직관적인 행동 버튼 영역 (상세 카드 바로 아래에 안착) -->
+      <div class="w-full flex items-center justify-center gap-3 sm:gap-5 flex-shrink-0 pt-1 pb-6">
+        <button onclick="backToStep1Keypad()" class="px-6 sm:px-9 py-4 sm:py-5.5 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-black text-lg sm:text-2xl transition active:scale-95 border-2 border-slate-300 whitespace-nowrap flex-shrink-0">
           다시 입력
         </button>
         
-        <button id="btnSubmitRegister" onclick="submitCarRegistration()" class="btn-register-pulse flex-1 py-4 sm:py-5.5 rounded-2xl bg-[#3182f6] hover:bg-[#1b64da] text-white font-black text-xl sm:text-3xl shadow-xl active:scale-95 transition flex items-center justify-center gap-2.5 whitespace-nowrap">
+        <button id="btnSubmitRegister" onclick="submitCarRegistration()" class="btn-register-pulse flex-1 py-4 sm:py-5.5 rounded-2xl bg-[#3182f6] hover:bg-[#1b64da] text-white font-black text-xl sm:text-3xl shadow-xl active:scale-95 transition flex items-center justify-center gap-3 whitespace-nowrap">
           <i class="fa-solid fa-circle-check text-2xl sm:text-3xl"></i>
           <span>네, 등록합니다 (<span id="autoCommitCountdown" class="text-yellow-300 font-num">15</span>초)</span>
         </button>
@@ -683,9 +685,9 @@
 
       // 10초 이하일 때 붉은색 펄스로 경고 강조
       if (inactivityRemaining <= 10) {
-        badgeEl.className = "flex items-center gap-1.5 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-xl bg-rose-900/90 border border-rose-500 text-rose-200 text-[11px] sm:text-xs font-bold shadow-xs whitespace-nowrap animate-pulse";
+        badgeEl.className = "flex items-center gap-1.5 px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-xl bg-rose-900/90 border border-rose-500 text-rose-200 shadow-xs whitespace-nowrap animate-pulse";
       } else {
-        badgeEl.className = "flex items-center gap-1.5 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-xl bg-slate-800/90 border border-slate-700 text-amber-300 text-[11px] sm:text-xs font-bold shadow-xs whitespace-nowrap";
+        badgeEl.className = "flex items-center gap-1.5 px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-xl bg-slate-800/90 border border-slate-700 text-amber-300 shadow-xs whitespace-nowrap";
       }
     }
 
@@ -848,7 +850,7 @@
       }
     }
 
-    // 차량 목록 렌더링 (태블릿 세로 화면에 맞춘 초대형 카드 & 시원한 가독성)
+    // 차량 목록 렌더링 (번호판 아래 입차시각 배치로 줄바꿈 방지 & 초대형 선택 버튼)
     function renderCarsList(cars) {
       document.getElementById("step1Section").classList.add("hidden");
       document.getElementById("step1CarsSection").classList.remove("hidden");
@@ -860,23 +862,28 @@
 
       cars.forEach((car) => {
         const card = document.createElement("div");
-        card.className = "w-full p-4 sm:p-7 md:p-8 rounded-3xl border-3 border-slate-200 hover:border-[#3182f6] bg-white shadow-md hover:shadow-lg transition active:scale-98 cursor-pointer flex items-center justify-between";
+        card.className = "w-full p-4 sm:p-6 md:p-7 rounded-3xl border-3 border-slate-200 hover:border-[#3182f6] bg-white shadow-md hover:shadow-lg transition active:scale-98 cursor-pointer flex items-center justify-between gap-3";
         card.onclick = () => selectCarAndProceed(car);
 
         card.innerHTML = `
-          <div class="flex items-center gap-4 sm:gap-7 min-w-0">
-            <div class="license-plate px-4 py-2 sm:px-7 sm:py-3.5 bg-white border-3 sm:border-4 border-slate-900 rounded-2xl flex-shrink-0 shadow-xs">
-              <span class="plate-font text-2.5xl sm:text-4.5xl md:text-5xl font-black text-slate-950 tracking-wider">${car.carno}</span>
+          <div class="flex flex-col gap-2 min-w-0 flex-1 pr-2">
+            <!-- 1. 차량번호 플레이트 -->
+            <div class="inline-flex self-start license-plate px-5 py-2.5 sm:px-7 sm:py-3.5 bg-white border-3 sm:border-4 border-slate-900 rounded-2xl shadow-xs">
+              <span class="plate-font text-3xl sm:text-4.5xl md:text-5xl font-black text-slate-950 tracking-wider">${car.carno}</span>
             </div>
-            <div class="min-w-0">
-              <div class="text-xs sm:text-sm font-bold text-slate-400">입차 시각</div>
-              <div class="text-sm sm:text-xl md:text-2xl font-black text-slate-800 font-num mt-0.5">${car.intime || '당일 입차'}</div>
-              ${car.alreadyRegistered ? '<span class="inline-block mt-1 sm:mt-1.5 text-xs sm:text-sm font-black px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300">✓ 감면 등록 완료</span>' : ''}
+            
+            <!-- 2. 번호판 바로 아래: 입차시각 & 감면 뱃지 (가로 한 줄로 온전하게 표기) -->
+            <div class="flex flex-wrap items-center gap-2 sm:gap-3 pl-1 mt-0.5">
+              <span class="text-xs sm:text-base font-bold text-slate-400">입차 시각:</span>
+              <span class="text-sm sm:text-xl md:text-2xl font-black text-slate-800 font-num whitespace-nowrap">${car.intime || '당일 입차'}</span>
+              ${car.alreadyRegistered ? '<span class="text-xs sm:text-sm font-black px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 whitespace-nowrap">✓ 감면 등록 완료</span>' : ''}
             </div>
           </div>
-          <div class="text-right flex-shrink-0 pl-3">
-            <span class="px-4 py-3 sm:px-7 sm:py-4 rounded-2xl bg-[#3182f6] hover:bg-[#1b64da] text-white font-black text-sm sm:text-lg shadow-md inline-flex items-center gap-2">
-              <span>선택</span> <i class="fa-solid fa-chevron-right text-xs sm:text-sm"></i>
+
+          <!-- 3. 우측: 초대형 선택 버튼 -->
+          <div class="text-right flex-shrink-0 pl-2">
+            <span class="px-6 py-4 sm:px-9 sm:py-5.5 rounded-2xl bg-[#3182f6] hover:bg-[#1b64da] text-white font-black text-lg sm:text-2.5xl shadow-lg active:scale-95 inline-flex items-center gap-2.5 whitespace-nowrap">
+              <span>선택</span> <i class="fa-solid fa-chevron-right text-base sm:text-2xl"></i>
             </span>
           </div>
         `;
