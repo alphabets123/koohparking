@@ -765,13 +765,16 @@
       resetInactivityTimer();
     });
 
-    // 전역 USB 바코드 수신 (상시 대기)
+    // 전역 USB 바코드 수신 엔진 (상시 대기 & Enter/Tab 포용)
     let barcodeBuffer = "";
     let lastBarcodeKeyTime = 0;
     window.addEventListener("keydown", (e) => {
       const now = Date.now();
-      if (e.key === "Enter") {
-        if (barcodeBuffer.length >= 4) {
+      const isEnter = e.key === "Enter" || e.keyCode === 13 || e.which === 13;
+      const isTab = e.key === "Tab" || e.keyCode === 9;
+
+      if (isEnter || isTab) {
+        if (barcodeBuffer.length >= 3) {
           const scanned = barcodeBuffer.trim();
           barcodeBuffer = "";
           handleBarcodeScanned(scanned);
@@ -779,8 +782,10 @@
         barcodeBuffer = "";
         return;
       }
+
+      // 일반 단일 문자/숫자 수집
       if (e.key && e.key.length === 1) {
-        if (now - lastBarcodeKeyTime > 250) barcodeBuffer = "";
+        if (now - lastBarcodeKeyTime > 350) barcodeBuffer = "";
         barcodeBuffer += e.key;
         lastBarcodeKeyTime = now;
       }
@@ -1062,13 +1067,44 @@
       }, 1000);
     }
 
-    // 바코드 수신 시 환자 조회
+    // ⭐️ 바코드 수신 시 환자 조회 및 화면 7자리 표시창 즉시 시각화
     function handleBarcodeScanned(barcode) {
+      const cleanBarcode = (barcode || "").replace(/[^0-9a-zA-Z]/g, "").trim();
+      if (!cleanBarcode) return;
+
+      // 1. 차량이 아직 선택되지 않은 경우
       if (!selectedCar) {
-        Swal.fire("안내", "먼저 차량번호 뒷 4자리를 선택해 주세요.", "info");
+        Swal.fire({
+          icon: "info",
+          title: "차량 번호 먼저 선택",
+          html: `
+            <div class="py-2 space-y-2">
+              <p class="text-xl sm:text-2xl font-black text-slate-800 break-keep">
+                병원에 입차하신 <b>차량번호 끝 4자리</b>를 먼저 터치해 주세요!
+              </p>
+              <p class="text-sm sm:text-base text-slate-500 font-bold mt-2">
+                차량 선택 후 2단계 화면에서 영수증 바코드를 찍어주시면 됩니다.
+              </p>
+            </div>
+          `,
+          confirmButtonColor: "#3182f6",
+          confirmButtonText: "확인"
+        });
         return;
       }
-      lookupPatientReal({ keyword: barcode });
+
+      // 2. 2단계 화면에서 바코드 스캔 시 화면 7자리 표시창에 즉시 번호 표출!
+      const step2Sec = document.getElementById("step2Section");
+      if (step2Sec && !step2Sec.classList.contains("hidden")) {
+        const pureDigits = cleanBarcode.replace(/[^0-9]/g, "");
+        if (pureDigits.length > 0) {
+          currentChartNum = pureDigits.slice(0, 7).padStart(7, "0");
+          updateChartNumDisplay();
+        }
+      }
+
+      // 3. 실제 OCS 환자 조회 실행
+      lookupPatientReal({ keyword: cleanBarcode });
     }
 
     // 등록번호 7자리 입력 로직
