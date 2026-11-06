@@ -170,6 +170,42 @@
     .btn-register-pulse {
       animation: tossRegisterPulse 1.8s infinite ease-in-out;
     }
+
+    /* ⭐️ SweetAlert2 키오스크 시니어 친화형 대형 모달 오버라이드 */
+    .swal2-popup {
+      border-radius: 2rem !important;
+      padding: 1.75rem 1.25rem !important;
+      width: min(94vw, 560px) !important;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.45) !important;
+      border: 3px solid #cbd5e1 !important;
+    }
+    .swal2-icon {
+      transform: scale(0.68) !important;
+      margin: 0 auto 0.25rem auto !important;
+    }
+    .swal2-title {
+      font-size: clamp(1.6rem, 3.8vw, 2.2rem) !important;
+      font-weight: 900 !important;
+      color: #0f172a !important;
+      padding-top: 0 !important;
+      line-height: 1.3 !important;
+      word-break: keep-all !important;
+    }
+    .swal2-html-container {
+      font-size: 1.15rem !important;
+      margin: 0.75rem 0 0.5rem 0 !important;
+      line-height: 1.5 !important;
+    }
+    .swal2-actions {
+      margin-top: 1.25rem !important;
+      gap: 0.75rem !important;
+    }
+    .swal2-confirm, .swal2-cancel {
+      padding: 0.9rem 2.2rem !important;
+      font-size: clamp(1.2rem, 2.8vw, 1.5rem) !important;
+      font-weight: 900 !important;
+      border-radius: 1.25rem !important;
+    }
   </style>
 </head>
 <body class="flex flex-col w-screen h-screen overflow-hidden text-slate-900">
@@ -819,8 +855,18 @@
           Swal.fire({
             icon: "warning",
             title: "차량을 찾을 수 없습니다",
-            html: `뒷자리 [<b>${currentInput4}</b>]에 해당하는 입차 차량이 없습니다.<br><span class="text-xs text-slate-500 font-bold mt-2 block">입차 시각이나 차량번호를 다시 확인해 주세요.</span>`,
+            html: `
+              <div class="py-2 space-y-2">
+                <p class="text-xl sm:text-2xl font-black text-slate-800 break-keep">
+                  끝자리 [<b class="text-[#3182f6] font-num text-2xl sm:text-3xl">${currentInput4}</b>]번에 해당하는 입차 차량이 없습니다.
+                </p>
+                <p class="text-sm sm:text-base text-slate-500 font-bold mt-2">
+                  입차 시각이나 차량번호를 다시 확인해 주세요.
+                </p>
+              </div>
+            `,
             confirmButtonColor: "#3182f6",
+            confirmButtonText: "확인"
           });
           clearNum();
           return;
@@ -1145,7 +1191,16 @@
           Swal.fire({
             icon: "warning",
             title: "환자 정보를 찾을 수 없습니다",
-            html: `입력하신 정보와 일치하는 환자 등록 정보가 없습니다.<br><span class="text-xs text-slate-500 font-bold mt-2 block">바코드나 7자리 등록번호를 다시 확인해 주세요.</span>`,
+            html: `
+              <div class="py-2 space-y-2">
+                <p class="text-lg sm:text-2xl font-black text-slate-800 break-keep leading-snug">
+                  입력하신 정보와 일치하는 환자 등록 정보가 없습니다.
+                </p>
+                <p class="text-sm sm:text-base text-slate-500 font-bold">
+                  바코드나 7자리 등록번호를 다시 확인해 주세요.
+                </p>
+              </div>
+            `,
             confirmButtonColor: "#3182f6",
             confirmButtonText: "확인"
           });
@@ -1160,13 +1215,13 @@
             icon: "info",
             title: "입원 환자/보호자 차량 안내",
             html: `
-              <div class="text-left bg-slate-50 p-3.5 rounded-2xl border border-slate-200 text-sm space-y-2 mt-2">
-                <div class="flex items-center justify-between pb-1.5 border-b border-slate-200">
-                  <span class="text-xs font-bold text-slate-500">환자명</span>
-                  <span class="font-black text-slate-900">${patient.maskedName || patient.name} 님</span>
+              <div class="text-left bg-slate-50 p-4 sm:p-5 rounded-2xl border-2 border-slate-200 space-y-3 mt-2">
+                <div class="flex items-center justify-between pb-2 border-b-2 border-slate-200">
+                  <span class="text-sm sm:text-base font-bold text-slate-500">환자명</span>
+                  <span class="text-xl sm:text-2xl font-black text-slate-950">${patient.maskedName || patient.name} 님</span>
                 </div>
-                <p class="text-xs sm:text-sm text-slate-700 font-bold leading-relaxed pt-1">
-                  🏥 입원 환자 및 보호자 차량은 <b>1층 원무과 창구</b>에서 직접 지정 등록해 드립니다.
+                <p class="text-base sm:text-xl text-slate-800 font-black leading-relaxed pt-1 break-keep">
+                  🏥 입원 환자 및 보호자 차량은 <span class="text-[#3182f6] underline underline-offset-4 font-black">1층 원무과 창구</span>에서 직접 지정 등록해 드립니다.
                 </p>
               </div>
             `,
@@ -1179,16 +1234,22 @@
           return;
         }
 
-        // 2. 당일 외래 진료 내역이 없는 경우
+        // 2. 당일 외래 진료 내역이 없는 경우 (시니어 친화형 대형 블록 표기)
         if (!patient.hasTodayVisit || patient.benefit?.benefitType === "NONE" || (patient.benefit?.hours || 0) <= 0) {
           Swal.fire({
             icon: "warning",
             title: "당일 외래 접수 내역이 없습니다",
             html: `
-              <div class="text-left bg-slate-50 p-3.5 rounded-2xl border border-slate-200 text-sm space-y-1.5 mt-2">
-                <div>• <b>환자명</b>: <span class="font-bold text-slate-900">${patient.maskedName || patient.name} 님</span></div>
-                <div>• <b>등록번호</b>: <span class="font-bold text-slate-700">${patient.jubno}</span></div>
-                <div class="text-rose-600 font-bold pt-1.5 border-t border-slate-200 mt-2 text-xs sm:text-sm">
+              <div class="text-left bg-slate-50 p-4 sm:p-5 rounded-2xl border-2 border-slate-200 space-y-3 mt-2">
+                <div class="flex items-center justify-between pb-2 border-b-2 border-slate-200">
+                  <span class="text-sm sm:text-base font-bold text-slate-500">환자명</span>
+                  <span class="text-xl sm:text-2.5xl font-black text-slate-950">${patient.maskedName || patient.name} 님</span>
+                </div>
+                <div class="flex items-center justify-between pb-2 border-b-2 border-slate-200 font-num">
+                  <span class="text-sm sm:text-base font-bold text-slate-500">등록번호</span>
+                  <span class="text-xl sm:text-2.5xl font-black text-[#3182f6]">${patient.jubno}</span>
+                </div>
+                <div class="text-rose-600 font-black pt-1.5 text-base sm:text-xl leading-relaxed break-keep">
                   오늘 접수된 외래 진료 내역이 확인되지 않아 주차 감면을 등록할 수 없습니다.
                 </div>
               </div>
@@ -1207,22 +1268,22 @@
             icon: "question",
             title: "등록 차량 변경 확인",
             html: `
-              <div class="text-left bg-slate-50 p-3.5 rounded-2xl border border-slate-200 text-sm space-y-2.5 mt-2">
-                <div class="flex items-center justify-between pb-1.5 border-b border-slate-200">
-                  <span class="text-xs font-bold text-slate-500">환자명 / 등록번호</span>
-                  <span class="font-black text-slate-900">${patient.maskedName || patient.name} 님 (${patient.jubno})</span>
+              <div class="text-left bg-slate-50 p-4 sm:p-5 rounded-2xl border-2 border-slate-200 space-y-3 mt-2">
+                <div class="flex items-center justify-between pb-2 border-b-2 border-slate-200">
+                  <span class="text-sm sm:text-base font-bold text-slate-500">환자명 / 등록번호</span>
+                  <span class="text-base sm:text-xl font-black text-slate-900">${patient.maskedName || patient.name} 님 (${patient.jubno})</span>
                 </div>
-                <div class="bg-white p-2.5 rounded-xl border border-blue-200 space-y-1.5">
-                  <div class="flex items-center justify-between text-xs sm:text-sm">
+                <div class="bg-white p-3 rounded-xl border-2 border-blue-200 space-y-2">
+                  <div class="flex items-center justify-between text-sm sm:text-base">
                     <span class="text-slate-500 font-bold">기존 등록 차량</span>
-                    <span class="font-black text-slate-400 line-through font-num">${patient.carnoPure}</span>
+                    <span class="font-black text-slate-400 line-through font-num text-base sm:text-lg">${patient.carnoPure}</span>
                   </div>
-                  <div class="flex items-center justify-between text-sm sm:text-base text-[#3182f6] font-black pt-1 border-t border-dashed border-blue-100">
+                  <div class="flex items-center justify-between text-base sm:text-xl text-[#3182f6] font-black pt-1.5 border-t border-dashed border-blue-100">
                     <span><i class="fa-solid fa-arrow-right mr-1"></i> 새 입차 차량</span>
-                    <span class="text-base sm:text-lg font-black font-num">${selectedCar.carno}</span>
+                    <span class="text-xl sm:text-2.5xl font-black font-num">${selectedCar.carno}</span>
                   </div>
                 </div>
-                <p class="text-xs text-slate-600 font-bold">
+                <p class="text-sm sm:text-base text-slate-700 font-black break-keep pt-1">
                   환자분의 차량을 오늘 입차하신 새 차량(<b>${selectedCar.carno}</b>)으로 변경하시겠습니까?
                 </p>
               </div>
