@@ -765,10 +765,19 @@
       resetInactivityTimer();
     });
 
-    // 전역 USB 바코드 수신 엔진 (상시 대기 & Enter/Tab 포용)
+    // ⭐️ USB 바코드 수신 엔진 (철저한 단계 격리: 2단계 본인 확인 화면에서만 수신 허용)
     let barcodeBuffer = "";
     let lastBarcodeKeyTime = 0;
     window.addEventListener("keydown", (e) => {
+      // 🚨 [안전 가드] 오직 차량이 정상 선택된 2단계(본인 확인) 화면에서만 바코드 리더기 신호 수신!
+      // 1단계(차량번호 뒤 4자리 입력)나 1.5단계 등에서는 스쳐 지나가거나 먼저 찍혀도 100% 무시/차단!
+      const step2Sec = document.getElementById("step2Section");
+      const isStep2Active = step2Sec && !step2Sec.classList.contains("hidden");
+      if (!isStep2Active || !selectedCar) {
+        barcodeBuffer = "";
+        return;
+      }
+
       const now = Date.now();
       const isEnter = e.key === "Enter" || e.keyCode === 13 || e.which === 13;
       const isTab = e.key === "Tab" || e.keyCode === 9;
@@ -950,12 +959,21 @@
 
     function backToStep1Keypad() {
       if (autoCommitTimer) clearInterval(autoCommitTimer);
+      // 차량 및 환자 상태 완전 초기화 (오염 방지)
+      selectedCar = null;
+      currentPatient = null;
+      barcodeBuffer = "";
+
+      // 모든 섹션 명시적 격리
       document.getElementById("step1CarsSection").classList.add("hidden");
       document.getElementById("stepAlreadyRegisteredSection").classList.add("hidden");
       document.getElementById("step2Section").classList.add("hidden");
       document.getElementById("step3Section").classList.add("hidden");
       document.getElementById("step1Section").classList.remove("hidden");
+
       clearNum();
+      clearChartNum();
+      clearJmnoNum();
       updateStepIndicator(1);
     }
 
@@ -969,8 +987,11 @@
         return;
       }
 
-      // STEP 2 화면으로 전환
+      // STEP 2 화면으로 전환 (다른 모든 섹션 완전 격리 은폐)
+      document.getElementById("step1Section").classList.add("hidden");
       document.getElementById("step1CarsSection").classList.add("hidden");
+      document.getElementById("stepAlreadyRegisteredSection").classList.add("hidden");
+      document.getElementById("step3Section").classList.add("hidden");
       document.getElementById("step2Section").classList.remove("hidden");
       updateStepIndicator(2);
 
@@ -979,6 +1000,7 @@
 
       clearChartNum();
       clearJmnoNum();
+      barcodeBuffer = "";
       if (isHiddenJmnoMode) {
         toggleHiddenJmnoMode(false);
       }
@@ -986,6 +1008,7 @@
 
     // 기감면 차량 안내 화면 표시
     function showAlreadyRegisteredScreen(car, isJustCompleted = false) {
+      document.getElementById("step1Section").classList.add("hidden");
       document.getElementById("step1CarsSection").classList.add("hidden");
       document.getElementById("step2Section").classList.add("hidden");
       document.getElementById("step3Section").classList.add("hidden");
@@ -1067,43 +1090,26 @@
       }, 1000);
     }
 
-    // ⭐️ 바코드 수신 시 환자 조회 및 화면 7자리 표시창 즉시 시각화
+    // ⭐️ 바코드 수신 시 환자 조회 및 화면 7자리 표시창 즉시 시각화 (2단계 활성 시에만 동작)
     function handleBarcodeScanned(barcode) {
-      const cleanBarcode = (barcode || "").replace(/[^0-9a-zA-Z]/g, "").trim();
-      if (!cleanBarcode) return;
-
-      // 1. 차량이 아직 선택되지 않은 경우
-      if (!selectedCar) {
-        Swal.fire({
-          icon: "info",
-          title: "차량 번호 먼저 선택",
-          html: `
-            <div class="py-2 space-y-2">
-              <p class="text-xl sm:text-2xl font-black text-slate-800 break-keep">
-                병원에 입차하신 <b>차량번호 끝 4자리</b>를 먼저 터치해 주세요!
-              </p>
-              <p class="text-sm sm:text-base text-slate-500 font-bold mt-2">
-                차량 선택 후 2단계 화면에서 영수증 바코드를 찍어주시면 됩니다.
-              </p>
-            </div>
-          `,
-          confirmButtonColor: "#3182f6",
-          confirmButtonText: "확인"
-        });
+      // 🚨 [엄격한 안전 가드] 2단계 화면이 아니거나 차량이 선택되지 않은 상태에서는 바코드 신호를 100% 무시/폐기!
+      const step2Sec = document.getElementById("step2Section");
+      const isStep2Active = step2Sec && !step2Sec.classList.contains("hidden");
+      if (!isStep2Active || !selectedCar) {
         return;
       }
 
-      // 2. 2단계 화면에서 바코드 스캔 시 화면 7자리 표시창에 즉시 번호 표출!
-      const step2Sec = document.getElementById("step2Section");
-      if (step2Sec && !step2Sec.classList.contains("hidden")) {
-        const pureDigits = cleanBarcode.replace(/[^0-9]/g, "");
-        if (pureDigits.length > 0) {
-          currentChartNum = pureDigits.slice(0, 7).padStart(7, "0");
-          updateChartNumDisplay();
-        }
+      const cleanBarcode = (barcode || "").replace(/[^0-9a-zA-Z]/g, "").trim();
+      if (!cleanBarcode) return;
+
+      // 2단계 화면에서 바코드 스캔 시 화면 7자리 표시창에 즉시 번호 표출!
+      const pureDigits = cleanBarcode.replace(/[^0-9]/g, "");
+      if (pureDigits.length > 0) {
+        currentChartNum = pureDigits.slice(0, 7).padStart(7, "0");
+        updateChartNumDisplay();
       }
 
-      // 3. 실제 OCS 환자 조회 실행
+      // 실제 OCS 환자 조회 실행
       lookupPatientReal({ keyword: cleanBarcode });
     }
 
@@ -1351,6 +1357,10 @@
     function proceedToStep3(patient) {
       currentPatient = patient;
 
+      // ⭐️ 모든 다른 단계 섹션 완전 격리 은폐 (1단계, 1.5단계, 2단계, 기감면화면 모두 차단)
+      document.getElementById("step1Section").classList.add("hidden");
+      document.getElementById("step1CarsSection").classList.add("hidden");
+      document.getElementById("stepAlreadyRegisteredSection").classList.add("hidden");
       document.getElementById("step2Section").classList.add("hidden");
       document.getElementById("step3Section").classList.remove("hidden");
       updateStepIndicator(3);
