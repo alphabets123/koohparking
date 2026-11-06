@@ -293,85 +293,76 @@
     </section>
 
     <!-- ===================================================================== -->
-    <!-- 🟢 STEP 1.8: 기감면 내역 및 초과 시간/요금 안내 화면 (상단 기준 안착 & 스크롤 지원) -->
+    <!-- 🟢 STEP 1.8: 기감면 내역 및 출차 안내 화면 (노인 맞춤형 대형 블록 레이아웃) -->
     <!-- ===================================================================== -->
-    <section id="stepAlreadyRegisteredSection" class="kiosk-card hidden w-full max-w-2xl lg:max-w-3xl flex-1 rounded-3xl p-4 sm:p-7 flex flex-col justify-start gap-4 sm:gap-5 overflow-y-auto">
-      <!-- 헤더 안내 -->
-      <div class="text-center space-y-2 flex-shrink-0 pt-1">
-        <div id="alreadyBadgeWrap" class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-100 text-emerald-800 font-black text-sm sm:text-base border border-emerald-300">
-          <i class="fa-solid fa-circle-check text-emerald-600 text-base sm:text-lg"></i> <span id="alreadyBadgeText">주차 감면 완료</span>
+    <section id="stepAlreadyRegisteredSection" class="kiosk-card hidden w-full max-w-2xl lg:max-w-3xl flex-1 rounded-3xl p-4 sm:p-7 flex flex-col justify-start gap-3.5 sm:gap-4 overflow-y-auto">
+      
+      <!-- 1. 상단: 이미 주차 감면이 등록된 차량입니다 (대형 초록 뱃지 헤더) -->
+      <div class="w-full text-center flex-shrink-0 pt-0.5">
+        <div id="alreadyBadgeWrap" class="w-full py-3 sm:py-4 px-4 rounded-2xl bg-emerald-500 text-white font-black text-xl sm:text-2.5xl md:text-3xl shadow-md border-2 border-emerald-600 flex items-center justify-center gap-2.5">
+          <i class="fa-solid fa-circle-check text-2xl sm:text-3.5xl"></i>
+          <span id="alreadyTitle">이미 주차 감면이 등록된 차량입니다</span>
         </div>
-        <h2 id="alreadyTitle" class="text-2.5xl sm:text-3.5xl md:text-4xl font-black text-slate-950 break-keep leading-tight">
-          이미 주차 감면이 등록된 차량입니다
-        </h2>
       </div>
 
-      <!-- 메인 정보 카드 (상단 기준 정렬) -->
-      <div class="w-full bg-slate-50/90 border-2 border-slate-200 rounded-3xl p-4 sm:p-6 space-y-3.5 sm:space-y-4 flex-shrink-0">
-        <!-- 1. 핵심 차량 정보 (번호판 + LPR 사진 통합 블록) -->
-        <div class="p-4 sm:p-5 rounded-2xl bg-white border-2 border-slate-200 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
-          <!-- 좌측: 초대형 자동차 번호판 & 입차 시각 -->
-          <div class="flex items-center gap-4 sm:gap-6 min-w-0">
-            <div class="license-plate px-5 py-2.5 sm:px-7 sm:py-3.5 bg-white border-3 sm:border-4 border-slate-900 rounded-2xl flex-shrink-0 shadow-xs">
-              <span class="plate-font text-3xl sm:text-4.5xl md:text-5xl font-black text-[#3182f6] tracking-wider" id="alreadyCarNum">-</span>
-            </div>
-            <div>
-              <div class="text-xs sm:text-sm font-bold text-slate-400">입차 시각</div>
-              <div class="text-sm sm:text-lg font-black text-slate-800 font-num mt-0.5" id="alreadyInTime">입차: -</div>
-            </div>
+      <!-- 메인 정보 컨테이너 (위쪽 기준 정렬) -->
+      <div class="w-full space-y-3 sm:space-y-3.5 flex-shrink-0">
+        
+        <!-- 2. LPR 입차 사진 단독 윗칸 -->
+        <div class="w-full rounded-2xl overflow-hidden border-2 border-slate-300 bg-slate-900 relative shadow-xs h-32 sm:h-44 flex items-center justify-center">
+          <img id="alreadyCarImage" src="" alt="LPR 입차 사진" class="w-full h-full object-cover">
+          <div id="alreadyCarImagePlaceholder" class="hidden flex flex-col items-center justify-center text-slate-400 p-2 text-center">
+            <i class="fa-solid fa-car text-3xl mb-1 text-slate-500"></i>
+            <span class="text-xs sm:text-sm font-bold">LPR 입차 등록 사진</span>
           </div>
-          
-          <!-- 우측: LPR 입차 사진 -->
-          <div class="rounded-xl overflow-hidden border-2 border-slate-300 bg-slate-900 relative shadow-xs h-20 sm:h-28 aspect-[16/10] flex items-center justify-center flex-shrink-0">
-            <img id="alreadyCarImage" src="" alt="LPR 입차 사진" class="w-full h-full object-cover">
-            <div id="alreadyCarImagePlaceholder" class="hidden flex flex-col items-center justify-center text-slate-400 p-2 text-center">
-              <i class="fa-solid fa-car text-xl mb-0.5 text-slate-500"></i>
-              <span class="text-[11px] font-bold">LPR 사진</span>
-            </div>
-            <div class="absolute bottom-1 left-1 bg-black/80 text-white text-[10px] px-2 py-0.5 rounded-full font-bold">
-              입차 사진
-            </div>
+          <div class="absolute bottom-2 left-2 bg-black/80 text-white text-[11px] sm:text-xs px-2.5 py-1 rounded-lg font-bold">
+            입차 사진
           </div>
         </div>
 
-        <!-- 2. 감면 환자 정보 (한 줄로 넓고 큼직하게) -->
-        <div class="p-4 sm:p-5 rounded-2xl bg-white border-2 border-slate-200 shadow-sm flex items-center justify-between">
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-slate-100 text-[#3182f6] flex items-center justify-center font-black text-xl sm:text-2xl flex-shrink-0">
-              <i class="fa-solid fa-user-check"></i>
-            </div>
-            <div>
-              <span class="text-xs sm:text-sm text-slate-500 font-bold">감면 적용 환자</span>
-              <div class="text-xl sm:text-2.5xl font-black text-slate-900 leading-tight" id="alreadyPatientName">-</div>
-            </div>
+        <!-- 3. 차량번호 & 그 밑에 입차시간 단독 박스 -->
+        <div class="p-3.5 sm:p-4 rounded-2xl bg-white border-2 border-slate-200 shadow-sm flex flex-col items-center justify-center gap-1">
+          <div class="license-plate px-6 py-2 sm:px-9 sm:py-3 bg-white border-3 sm:border-4 border-slate-900 rounded-2xl shadow-xs">
+            <span class="plate-font text-3xl sm:text-4.5xl md:text-5xl font-black text-[#3182f6] tracking-wider" id="alreadyCarNum">-</span>
           </div>
-          <div class="text-right">
-            <span class="text-xs sm:text-sm text-slate-400 font-bold">병원 등록번호</span>
-            <div class="text-base sm:text-xl font-black font-num text-slate-700 bg-slate-100 px-3 py-1 rounded-xl mt-0.5" id="alreadyPatientJubno">-</div>
+          <div class="text-sm sm:text-lg font-black text-slate-700 font-num mt-1" id="alreadyInTime">
+            입차: -
           </div>
         </div>
 
-        <!-- 3. 적용 혜택 및 현재 출차 상태 그리드 -->
-        <div class="grid grid-cols-2 gap-3 sm:gap-4">
-          <div class="p-3.5 sm:p-5 rounded-2xl bg-white border-2 border-emerald-300 shadow-xs">
-            <div class="text-xs sm:text-sm text-slate-500 font-bold mb-1">적용 혜택</div>
-            <div class="text-xl sm:text-2.5xl font-black text-emerald-700 break-keep leading-tight" id="alreadyBenefitTitle">외래 6시간 무료</div>
+        <!-- 4. 감면적용환자 & 병원등록번호 각각 한 줄씩 단독 박스 -->
+        <div class="p-3.5 sm:p-4.5 rounded-2xl bg-white border-2 border-slate-200 shadow-sm space-y-1.5 sm:space-y-2">
+          <div class="text-lg sm:text-2xl font-black text-slate-900 flex items-center gap-2">
+            <span class="text-slate-500 font-bold whitespace-nowrap">감면적용환자 :</span>
+            <span id="alreadyPatientName" class="text-slate-950 font-black">-</span>
           </div>
-          <div class="p-3.5 sm:p-5 rounded-2xl bg-white border-2 border-slate-200 shadow-xs">
-            <div class="text-xs sm:text-sm text-slate-500 font-bold mb-1">현재 출차 상태</div>
-            <div class="text-xl sm:text-2.5xl font-black break-keep leading-tight" id="alreadyOverdueStatus">-</div>
+          <div class="text-base sm:text-xl font-black text-slate-700 flex items-center gap-2 font-num">
+            <span class="text-slate-500 font-bold whitespace-nowrap">병원등록번호 :</span>
+            <span id="alreadyPatientJubno" class="bg-slate-100 text-slate-800 px-2 py-0.5 rounded-lg">-</span>
           </div>
         </div>
 
-        <!-- 4. 출차 요금 안내 배너 -->
-        <div id="alreadyFeeBanner" class="p-3.5 sm:p-5 rounded-2xl shadow-sm"></div>
+        <!-- 5. 적용혜택 & 현재출차상태 한 박스로 통합 -->
+        <div class="p-3.5 sm:p-4.5 rounded-2xl bg-white border-2 border-emerald-300 shadow-sm space-y-1.5 sm:space-y-2">
+          <div class="text-lg sm:text-2xl font-black text-emerald-800 flex items-center gap-2">
+            <span class="text-slate-500 font-bold whitespace-nowrap">적용혜택 :</span>
+            <span id="alreadyBenefitTitle" class="text-emerald-700 font-black">외래 6시간 무료</span>
+          </div>
+          <div class="text-base sm:text-xl font-black text-emerald-900 flex items-center gap-2">
+            <span class="text-slate-500 font-bold whitespace-nowrap">현재출차상태 :</span>
+            <span id="alreadyOverdueStatus" class="font-black">-</span>
+          </div>
+        </div>
+
+        <!-- 6. 정산 요금 배너 (잡다한 문구 없이 오직 0원만 초대형 표시) -->
+        <div id="alreadyFeeBanner" class="p-3 sm:p-4 rounded-2xl shadow-xs"></div>
       </div>
 
-      <!-- 하단 확인 완료 버튼 (메인 카드 바로 아래 배치) -->
+      <!-- 7. 하단 버튼 (두껍고 시원하게: "xx초 후 처음으로") -->
       <div class="w-full flex items-center justify-center flex-shrink-0 pt-1 pb-6">
-        <button onclick="resetAllSteps()" class="w-full py-4.5 sm:py-5.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xl sm:text-2.5xl shadow-xl active:scale-98 transition flex items-center justify-center gap-3 whitespace-nowrap">
-          <i class="fa-solid fa-check text-2xl sm:text-3xl"></i>
-          <span>확인 완료 (<span id="alreadyCountdown" class="text-yellow-300 font-num">25</span>초 후 처음으로)</span>
+        <button onclick="resetAllSteps()" class="w-full py-5 sm:py-6 md:py-7 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xl sm:text-3xl shadow-xl active:scale-98 transition flex items-center justify-center gap-3 whitespace-nowrap">
+          <i class="fa-solid fa-arrow-rotate-left text-xl sm:text-2xl"></i>
+          <span><span id="alreadyCountdown" class="text-yellow-300 font-num">25</span>초 후 처음으로</span>
         </button>
       </div>
     </section>
@@ -850,7 +841,7 @@
       }
     }
 
-    // 차량 목록 렌더링 (번호판 아래 입차시각 배치로 줄바꿈 방지 & 초대형 선택 버튼)
+    // 차량 목록 렌더링 (번호판 아래 입차시각 배치 & 선택버튼 위 큼직한 감면완료 뱃지)
     function renderCarsList(cars) {
       document.getElementById("step1Section").classList.add("hidden");
       document.getElementById("step1CarsSection").classList.remove("hidden");
@@ -866,25 +857,35 @@
         card.onclick = () => selectCarAndProceed(car);
 
         card.innerHTML = `
-          <div class="flex flex-col gap-2 min-w-0 flex-1 pr-2">
-            <!-- 1. 차량번호 플레이트 -->
-            <div class="inline-flex self-start license-plate px-5 py-2.5 sm:px-7 sm:py-3.5 bg-white border-3 sm:border-4 border-slate-900 rounded-2xl shadow-xs">
+          <!-- 좌측: 번호판 + 바로 아래 입차시각 -->
+          <div class="flex flex-col gap-1.5 min-w-0 flex-1 pr-2">
+            <div class="inline-flex self-start license-plate px-5 py-2 sm:px-8 sm:py-3.5 bg-white border-3 sm:border-4 border-slate-900 rounded-2xl shadow-xs">
               <span class="plate-font text-3xl sm:text-4.5xl md:text-5xl font-black text-slate-950 tracking-wider">${car.carno}</span>
             </div>
-            
-            <!-- 2. 번호판 바로 아래: 입차시각 & 감면 뱃지 (가로 한 줄로 온전하게 표기) -->
-            <div class="flex flex-wrap items-center gap-2 sm:gap-3 pl-1 mt-0.5">
+            <div class="flex items-center gap-2 pl-1 mt-1">
               <span class="text-xs sm:text-base font-bold text-slate-400">입차 시각:</span>
               <span class="text-sm sm:text-xl md:text-2xl font-black text-slate-800 font-num whitespace-nowrap">${car.intime || '당일 입차'}</span>
-              ${car.alreadyRegistered ? '<span class="text-xs sm:text-sm font-black px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 whitespace-nowrap">✓ 감면 등록 완료</span>' : ''}
             </div>
           </div>
 
-          <!-- 3. 우측: 초대형 선택 버튼 -->
-          <div class="text-right flex-shrink-0 pl-2">
-            <span class="px-6 py-4 sm:px-9 sm:py-5.5 rounded-2xl bg-[#3182f6] hover:bg-[#1b64da] text-white font-black text-lg sm:text-2.5xl shadow-lg active:scale-95 inline-flex items-center gap-2.5 whitespace-nowrap">
-              <span>선택</span> <i class="fa-solid fa-chevron-right text-base sm:text-2xl"></i>
-            </span>
+          <!-- 우측: 큼직한 뱃지 (선택버튼 바로 위) + 액션 버튼 -->
+          <div class="flex flex-col items-end justify-center gap-2 flex-shrink-0 pl-2">
+            ${car.alreadyRegistered ? `
+              <!-- 감면등록완료 큼직한 뱃지 (선택버튼 바로 위) -->
+              <div class="px-3.5 py-1.5 sm:px-5 sm:py-2 rounded-xl bg-emerald-100 text-emerald-800 border-2 border-emerald-400 font-black text-xs sm:text-base shadow-xs whitespace-nowrap flex items-center gap-1.5">
+                <i class="fa-solid fa-circle-check text-emerald-600 text-sm sm:text-lg"></i>
+                <span>감면 등록 완료</span>
+              </div>
+              <!-- 이미 감면된 차량은 초록색 [내역 확인] 버튼 -->
+              <span class="px-5 py-3 sm:px-7 sm:py-4 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-base sm:text-xl shadow-md active:scale-95 inline-flex items-center gap-2 whitespace-nowrap">
+                <span>내역 확인</span> <i class="fa-solid fa-chevron-right text-xs sm:text-base"></i>
+              </span>
+            ` : `
+              <!-- 신규 등록 차량은 파란색 [선택] 버튼 -->
+              <span class="px-6 py-4 sm:px-9 sm:py-5.5 rounded-2xl bg-[#3182f6] hover:bg-[#1b64da] text-white font-black text-lg sm:text-2.5xl shadow-lg active:scale-95 inline-flex items-center gap-2.5 whitespace-nowrap">
+                <span>선택</span> <i class="fa-solid fa-chevron-right text-base sm:text-2xl"></i>
+              </span>
+            `}
           </div>
         `;
         container.appendChild(card);
@@ -941,18 +942,16 @@
 
       if (isJustCompleted) {
         titleEl.textContent = "주차 감면 등록이 완료되었습니다!";
-        badgeWrap.className = "inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#3182f6] text-white font-black text-sm sm:text-base shadow-sm";
-        badgeText.textContent = "방금 감면 완료";
+        badgeWrap.className = "w-full py-3 sm:py-4 px-4 rounded-2xl bg-[#3182f6] text-white font-black text-xl sm:text-2.5xl md:text-3xl shadow-md border-2 border-blue-600 flex items-center justify-center gap-2.5";
       } else {
         titleEl.textContent = "이미 주차 감면이 등록된 차량입니다";
-        badgeWrap.className = "inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-100 text-emerald-800 font-black text-sm sm:text-base border border-emerald-300";
-        badgeText.textContent = "주차 감면 완료";
+        badgeWrap.className = "w-full py-3 sm:py-4 px-4 rounded-2xl bg-emerald-500 text-white font-black text-xl sm:text-2.5xl md:text-3xl shadow-md border-2 border-emerald-600 flex items-center justify-center gap-2.5";
       }
 
       document.getElementById("alreadyCarNum").textContent = car.carno;
-      document.getElementById("alreadyInTime").textContent = `입차: ${car.intime || '당일'}`;
+      document.getElementById("alreadyInTime").textContent = `입차시각: ${car.intime || '당일'}`;
       document.getElementById("alreadyPatientName").textContent = `${car.maskedPatientName || '외래환자'} 님`;
-      document.getElementById("alreadyPatientJubno").textContent = car.maskedJubno ? `등록: ${car.maskedJubno}` : "";
+      document.getElementById("alreadyPatientJubno").textContent = car.maskedJubno ? car.maskedJubno : "-";
       document.getElementById("alreadyBenefitTitle").textContent = car.benefitTitle || "외래 6시간 무료";
 
       const carImg = document.getElementById("alreadyCarImage");
@@ -971,41 +970,29 @@
       const bannerEl = document.getElementById("alreadyFeeBanner");
 
       if (info.isOverdue) {
-        statusEl.className = "text-xl sm:text-2.5xl font-black text-rose-600 break-keep leading-tight";
+        statusEl.className = "font-black text-rose-600";
         statusEl.textContent = `초과 (${info.overText})`;
-        bannerEl.className = "p-4 sm:p-5 rounded-2xl bg-rose-50 border-2 border-rose-300 flex items-center justify-between gap-4 shadow-sm";
+        bannerEl.className = "p-3.5 sm:p-4.5 rounded-2xl bg-rose-50 border-2 border-rose-300 flex items-center justify-between gap-3 shadow-xs";
         bannerEl.innerHTML = `
-          <div class="flex items-center gap-3">
-            <div class="w-12 h-12 rounded-2xl bg-rose-600 text-white flex items-center justify-center text-2xl font-black flex-shrink-0">
-              <i class="fa-solid fa-triangle-exclamation"></i>
-            </div>
-            <div>
-              <div class="text-base sm:text-lg text-rose-950 font-black">무료 주차시간 초과 (정산 필요)</div>
-              <div class="text-xs sm:text-sm text-rose-800 font-bold">사전 무인정산기에서 결제 후 출차해 주세요.</div>
-            </div>
+          <div class="text-lg sm:text-2xl font-black text-rose-800 flex items-center gap-2">
+            <i class="fa-solid fa-triangle-exclamation text-rose-600"></i>
+            <span>시간 초과 (정산 필요)</span>
           </div>
-          <div class="text-right flex-shrink-0">
-            <div class="text-xs sm:text-sm text-rose-600 font-bold">정산 예상 요금</div>
-            <div class="text-2xl sm:text-3xl font-black text-rose-700 font-num">약 ${Number(info.estimatedFee).toLocaleString()}원</div>
+          <div class="text-2.5xl sm:text-4xl font-black text-rose-700 font-num">
+            ${Number(info.estimatedFee).toLocaleString()}원
           </div>
         `;
       } else {
-        statusEl.className = "text-xl sm:text-2.5xl font-black text-emerald-700 break-keep leading-tight";
-        statusEl.textContent = `무료 출차 가능 (${info.remainText})`;
-        bannerEl.className = "p-4 sm:p-5 rounded-2xl bg-emerald-50 border-2 border-emerald-300 flex items-center justify-between gap-4 shadow-sm";
+        statusEl.className = "font-black text-emerald-800";
+        statusEl.textContent = `무료출차가능 (${info.remainText})`;
+        bannerEl.className = "p-3.5 sm:p-4.5 rounded-2xl bg-emerald-50 border-2 border-emerald-300 flex items-center justify-between gap-3 shadow-xs";
         bannerEl.innerHTML = `
-          <div class="flex items-center gap-3">
-            <div class="w-12 h-12 rounded-2xl bg-emerald-600 text-white flex items-center justify-center text-2xl font-black flex-shrink-0">
-              <i class="fa-solid fa-circle-check"></i>
-            </div>
-            <div>
-              <div class="text-base sm:text-xl text-emerald-950 font-black">지금 바로 무료 출차 가능합니다</div>
-              <div class="text-xs sm:text-sm text-emerald-800 font-bold">정산기 방문 없이 출구 차단기로 바로 가세요.</div>
-            </div>
+          <div class="text-xl sm:text-2.5xl font-black text-emerald-800 flex items-center gap-2">
+            <i class="fa-solid fa-circle-check text-emerald-600"></i>
+            <span>무료 출차</span>
           </div>
-          <div class="text-right flex-shrink-0">
-            <div class="text-xs sm:text-sm text-emerald-600 font-bold">정산 요금</div>
-            <div class="text-2xl sm:text-3.5xl font-black text-emerald-700 font-num">0원 (무료)</div>
+          <div class="text-3.5xl sm:text-5xl font-black text-emerald-700 font-num">
+            0원
           </div>
         `;
       }
