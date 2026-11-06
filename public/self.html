@@ -446,6 +446,20 @@
           </div>
         </div>
 
+        <!-- ⭐️ 태블릿 전용 하드웨어 바코드 리더기 무결 수신용 숨김 인풋 (가상키보드 차단 inputmode="none") -->
+        <input
+          id="hiddenBarcodeInput"
+          type="text"
+          inputmode="none"
+          autocomplete="off"
+          autocorrect="off"
+          autocapitalize="off"
+          spellcheck="false"
+          tabindex="-1"
+          aria-hidden="true"
+          class="opacity-0 absolute pointer-events-none w-1 h-1 -top-10 -left-10"
+        />
+
         <!-- 등록번호(차트번호) 7자리 표시창 (상단 기준 정렬) -->
         <div class="w-full max-w-xl sm:max-w-2xl mx-auto flex-shrink-0">
           <div class="h-22 sm:h-28 md:h-32 bg-white rounded-3xl border-3 border-[#3182f6] flex items-center justify-center px-4 shadow-inner">
@@ -763,11 +777,104 @@
 
       // 초기화면 타이머 뱃지 가동
       resetInactivityTimer();
+
+      // ⭐️ 안드로이드 태블릿 전용 하드웨어 바코드 리더기 숨김 인풋 이벤트 바인딩
+      const hiddenInput = document.getElementById("hiddenBarcodeInput");
+      if (hiddenInput) {
+        let hiddenInputTimer = null;
+
+        hiddenInput.addEventListener("input", () => {
+          const step2Sec = document.getElementById("step2Section");
+          const isStep2Active = step2Sec && !step2Sec.classList.contains("hidden");
+          if (!isStep2Active || !selectedCar || isHiddenJmnoMode) {
+            hiddenInput.value = "";
+            return;
+          }
+
+          const raw = hiddenInput.value || "";
+          const pure = raw.replace(/[^0-9a-zA-Z]/g, "").trim();
+
+          // 실시간 화면 7자리 표시창 동기화
+          const pureDigits = pure.replace(/[^0-9]/g, "");
+          if (pureDigits.length > 0) {
+            currentChartNum = pureDigits.slice(0, 7).padStart(7, "0");
+            updateChartNumDisplay();
+          }
+
+          if (hiddenInputTimer) clearTimeout(hiddenInputTimer);
+
+          if (pure.length >= 7) {
+            hiddenInput.value = "";
+            handleBarcodeScanned(pure);
+          } else if (pure.length >= 4) {
+            hiddenInputTimer = setTimeout(() => {
+              const finalVal = (hiddenInput.value || "").replace(/[^0-9a-zA-Z]/g, "").trim();
+              hiddenInput.value = "";
+              if (finalVal.length >= 4) {
+                handleBarcodeScanned(finalVal);
+              }
+            }, 160);
+          }
+        });
+
+        hiddenInput.addEventListener("keydown", (e) => {
+          if (e.key === "Enter" || e.keyCode === 13) {
+            e.preventDefault();
+            const finalVal = (hiddenInput.value || "").replace(/[^0-9a-zA-Z]/g, "").trim();
+            hiddenInput.value = "";
+            if (finalVal.length >= 4) {
+              handleBarcodeScanned(finalVal);
+            }
+          }
+        });
+      }
+
+      // 2단계 화면 터치 시 숨김 인풋 포커스 항상 자동 유지
+      const step2SecEl = document.getElementById("step2Section");
+      if (step2SecEl) {
+        step2SecEl.addEventListener("click", () => {
+          focusHiddenBarcodeInput();
+        }, { passive: true });
+        step2SecEl.addEventListener("touchend", () => {
+          setTimeout(focusHiddenBarcodeInput, 80);
+        }, { passive: true });
+      }
+
+      window.addEventListener("focus", focusHiddenBarcodeInput);
     });
 
-    // ⭐️ USB 바코드 수신 엔진 (철저한 단계 격리: 2단계 본인 확인 화면에서만 수신 허용)
+    // ⭐️ 2단계 화면 전용 하드웨어 바코드 인풋 포커스 유지 함수
+    function focusHiddenBarcodeInput() {
+      const step2Sec = document.getElementById("step2Section");
+      const isStep2Active = step2Sec && !step2Sec.classList.contains("hidden");
+      if (!isStep2Active || !selectedCar || isHiddenJmnoMode) return;
+
+      const inputEl = document.getElementById("hiddenBarcodeInput");
+      if (inputEl && document.activeElement !== inputEl) {
+        try {
+          inputEl.focus({ preventScroll: true });
+        } catch (e) {}
+      }
+    }
+
+    // ⭐️ USB 바코드 수신 엔진 (듀얼 트랙: Window Keydown 캡처링 + 숨김 인풋)
     let barcodeBuffer = "";
     let lastBarcodeKeyTime = 0;
+    let barcodeAutoCommitTimer = null;
+
+    function flushBarcodeBuffer() {
+      if (barcodeAutoCommitTimer) {
+        clearTimeout(barcodeAutoCommitTimer);
+        barcodeAutoCommitTimer = null;
+      }
+      if (barcodeBuffer.length >= 4) {
+        const scanned = barcodeBuffer.trim();
+        barcodeBuffer = "";
+        handleBarcodeScanned(scanned);
+      }
+      barcodeBuffer = "";
+    }
+
     window.addEventListener("keydown", (e) => {
       // 🚨 [안전 가드] 오직 차량이 정상 선택된 2단계(본인 확인) 화면에서만 바코드 리더기 신호 수신!
       // 1단계(차량번호 뒤 4자리 입력)나 1.5단계 등에서는 스쳐 지나가거나 먼저 찍혀도 100% 무시/차단!
@@ -775,6 +882,7 @@
       const isStep2Active = step2Sec && !step2Sec.classList.contains("hidden");
       if (!isStep2Active || !selectedCar) {
         barcodeBuffer = "";
+        if (barcodeAutoCommitTimer) clearTimeout(barcodeAutoCommitTimer);
         return;
       }
 
@@ -783,22 +891,40 @@
       const isTab = e.key === "Tab" || e.keyCode === 9;
 
       if (isEnter || isTab) {
-        if (barcodeBuffer.length >= 3) {
-          const scanned = barcodeBuffer.trim();
-          barcodeBuffer = "";
-          handleBarcodeScanned(scanned);
-        }
-        barcodeBuffer = "";
+        e.preventDefault();
+        flushBarcodeBuffer();
         return;
       }
 
-      // 일반 단일 문자/숫자 수집
-      if (e.key && e.key.length === 1) {
-        if (now - lastBarcodeKeyTime > 350) barcodeBuffer = "";
-        barcodeBuffer += e.key;
-        lastBarcodeKeyTime = now;
+      // 문자/숫자 추출 (안드로이드 삼성 키보드 IME Process 상태 완벽 호환)
+      let char = "";
+      if (e.key && e.key.length === 1 && e.key !== "Process") {
+        char = e.key;
+      } else if (e.code && e.code.startsWith("Digit")) {
+        char = e.code.replace("Digit", "");
+      } else if (e.code && e.code.startsWith("Numpad") && e.code.length === 7) {
+        char = e.code.replace("Numpad", "");
+      } else if (e.code && e.code.startsWith("Key")) {
+        char = e.code.replace("Key", "");
       }
-    });
+
+      if (char) {
+        // 유입 간격이 500ms 이상이면 새로운 바코드 시작으로 버퍼 리셋
+        if (now - lastBarcodeKeyTime > 500) {
+          barcodeBuffer = "";
+        }
+        barcodeBuffer += char;
+        lastBarcodeKeyTime = now;
+
+        // ⭐️ Enter 키를 안 쏘는 바코드 리더기를 위한 자동완성 (180ms 무입력 시 자동 커밋)
+        if (barcodeAutoCommitTimer) clearTimeout(barcodeAutoCommitTimer);
+        barcodeAutoCommitTimer = setTimeout(() => {
+          if (barcodeBuffer.length >= 5) {
+            flushBarcodeBuffer();
+          }
+        }, 180);
+      }
+    }, true);
 
     // 1단계 키패드 로직 (고정 비율 밑줄 & 입력 칸 강조)
     function updateKeypadDisplay() {
@@ -1004,6 +1130,7 @@
       if (isHiddenJmnoMode) {
         toggleHiddenJmnoMode(false);
       }
+      setTimeout(focusHiddenBarcodeInput, 100);
     }
 
     // 기감면 차량 안내 화면 표시
@@ -1091,16 +1218,21 @@
     }
 
     // ⭐️ 바코드 수신 시 환자 조회 및 화면 7자리 표시창 즉시 시각화 (2단계 활성 시에만 동작)
+    let lastHandledBarcodeTime = 0;
     function handleBarcodeScanned(barcode) {
+      const now = Date.now();
+      if (now - lastHandledBarcodeTime < 400) return; // 듀얼 트랙 중복 격발 방지
+
       // 🚨 [엄격한 안전 가드] 2단계 화면이 아니거나 차량이 선택되지 않은 상태에서는 바코드 신호를 100% 무시/폐기!
       const step2Sec = document.getElementById("step2Section");
       const isStep2Active = step2Sec && !step2Sec.classList.contains("hidden");
-      if (!isStep2Active || !selectedCar) {
+      if (!isStep2Active || !selectedCar || isHiddenJmnoMode) {
         return;
       }
 
       const cleanBarcode = (barcode || "").replace(/[^0-9a-zA-Z]/g, "").trim();
       if (!cleanBarcode) return;
+      lastHandledBarcodeTime = now;
 
       // 2단계 화면에서 바코드 스캔 시 화면 7자리 표시창에 즉시 번호 표출!
       const pureDigits = cleanBarcode.replace(/[^0-9]/g, "");
@@ -1245,9 +1377,11 @@
             `,
             confirmButtonColor: "#3182f6",
             confirmButtonText: "확인"
+          }).then(() => {
+            clearChartNum();
+            clearJmnoNum();
+            focusHiddenBarcodeInput();
           });
-          clearChartNum();
-          clearJmnoNum();
           return;
         }
 
@@ -1298,9 +1432,11 @@
             `,
             confirmButtonText: "확인",
             confirmButtonColor: "#3182f6",
+          }).then(() => {
+            clearChartNum();
+            clearJmnoNum();
+            focusHiddenBarcodeInput();
           });
-          clearChartNum();
-          clearJmnoNum();
           return;
         }
 
