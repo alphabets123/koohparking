@@ -71,7 +71,7 @@
       border-radius: 2rem !important;
       padding: 2rem !important;
       max-width: 90vw !important;
-      width: 620px !important;
+      width: min(96vw, 860px) !important;
       box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.75) !important;
       border: 2px solid #cbd5e1 !important;
     }
@@ -216,7 +216,7 @@
     .swal2-popup {
       border-radius: 2.5rem !important;
       padding: 2.2rem 1.8rem !important;
-      width: min(94vw, 680px) !important;
+      width: min(96vw, 860px) !important;
       box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.5) !important;
       border: 3.5px solid #cbd5e1 !important;
     }
@@ -318,11 +318,14 @@
     <!-- ===================================================================== -->
     <!-- 🚗 STEP 1: 차량번호 뒤 4자리 입력 화면 (헤드 뱃지화 & 키패드 묶음 박스) -->
     <!-- ===================================================================== -->
-    <section id="step1Section" class="kiosk-card w-full max-w-2xl lg:max-w-3xl flex-1 rounded-3xl p-4 sm:p-6 flex flex-col justify-between overflow-y-auto">
+    <section id="step1Section" class="kiosk-card w-full max-w-2xl lg:max-w-3xl flex-1 rounded-3xl p-4 sm:p-6 flex flex-col justify-end overflow-y-auto">
       
-      <!-- ⭐️ 상단 안내 헤드: 뱃지 패널 박스 안에 표기 & 위치 적정 안착 -->
-      <div class="w-full pt-2 sm:pt-4 flex-shrink-0">
-        <div class="w-full max-w-xl sm:max-w-2xl mx-auto rounded-3xl bg-gradient-to-b from-blue-50/90 via-slate-50 to-white border-2 border-blue-200/90 p-4 sm:p-6 text-center shadow-xs">
+      <!-- 상단 탄력 공간 (뱃지와 키패드를 묶어서 최하단 버튼 2개 높이 위에 안착) -->
+      <div class="flex-1 min-h-[15px] sm:min-h-[25px]"></div>
+
+      <!-- ⭐️ 상단 안내 헤드: 키패드 박스 바로 위에 밀착 -->
+      <div class="w-full max-w-xl sm:max-w-2xl mx-auto mb-3.5 sm:mb-5 flex-shrink-0">
+        <div class="w-full rounded-3xl bg-gradient-to-b from-blue-50/90 via-slate-50 to-white border-2 border-blue-200/90 p-4 sm:p-6 text-center shadow-xs">
           <h2 class="text-3xl sm:text-4.5xl md:text-5xl font-black text-slate-950 tracking-tight break-keep">
             차량번호 <span class="text-[#3182f6] underline underline-offset-8 decoration-4">뒤 4자리</span>를 누르세요
           </h2>
@@ -332,10 +335,7 @@
         </div>
       </div>
 
-      <!-- 중간 공백 영역 (자연스러운 탄력 여백) -->
-      <div class="flex-1 min-h-[15px] sm:min-h-[25px]"></div>
-
-      <!-- ⭐️ 통합 키패드 뱃지 박스: 최하단에서 버튼 2개 높이만큼 띄움 (pb-36 sm:pb-48 md:pb-52) -->
+      <!-- ⭐️ 통합 키패드 뱃지 박스: 헤드 바로 아래 & 최하단에서 버튼 2개 높이만큼 띄움 (pb-36 sm:pb-48 md:pb-52) -->
       <div class="w-full max-w-xl sm:max-w-2xl mx-auto pb-36 sm:pb-48 md:pb-52 flex-shrink-0">
         <div class="w-full rounded-3xl bg-slate-100/95 border-2 border-slate-300 p-4 sm:p-6 shadow-sm flex flex-col gap-6 sm:gap-9">
           <!-- 4자리 번호 표시창 -->
@@ -348,7 +348,7 @@
             </div>
           </div>
 
-          <!-- 터치 숫자 키패드: 4번째 줄 [정정] [0] [확인] -->
+          <!-- 터치 숫자 키패드: [⌫ 아이콘] [0] [확인 아이콘+대형글자] -->
           <div class="w-full grid grid-cols-3 gap-3 sm:gap-4 md:gap-4.5">
             <button onclick="pressNum('1')" class="keypad-btn shadow-md bg-white border-2 border-slate-300 text-slate-900 hover:border-[#3182f6]">1</button>
             <button onclick="pressNum('2')" class="keypad-btn shadow-md bg-white border-2 border-slate-300 text-slate-900 hover:border-[#3182f6]">2</button>
@@ -362,14 +362,19 @@
             <button onclick="pressNum('8')" class="keypad-btn shadow-md bg-white border-2 border-slate-300 text-slate-900 hover:border-[#3182f6]">8</button>
             <button onclick="pressNum('9')" class="keypad-btn shadow-md bg-white border-2 border-slate-300 text-slate-900 hover:border-[#3182f6]">9</button>
 
-            <!-- 좌: 정정(백스페이스) | 중: 0 | 우: 확인(엔터) -->
-            <button onclick="backspaceNum()" class="keypad-btn !text-xl sm:!text-2.8xl !font-black text-slate-800 bg-slate-200/95 hover:bg-slate-300 border-2 border-slate-300 whitespace-nowrap shadow-md">정정</button>
+            <!-- 좌: 직관적인 백스페이스 아이콘 | 중: 0 | 우: 확인 아이콘 + 초대형 폰트 -->
+            <button onclick="backspaceNum()" class="keypad-btn text-slate-800 bg-slate-200/95 hover:bg-slate-300 border-2 border-slate-300 shadow-md flex items-center justify-center">
+              <i class="fa-solid fa-delete-left text-2.5xl sm:text-4xl"></i>
+            </button>
             <button onclick="pressNum('0')" class="keypad-btn shadow-md bg-white border-2 border-slate-300 text-slate-900 hover:border-[#3182f6]">0</button>
-            <button onclick="searchCarsBy4Digits()" class="keypad-btn !text-xl sm:!text-2.8xl !font-black text-white bg-[#3182f6] hover:bg-blue-600 border-2 border-blue-400 whitespace-nowrap shadow-md">확인</button>
+            <button onclick="searchCarsBy4Digits()" class="keypad-btn !text-2.5xl sm:!text-3.5xl md:!text-4xl !font-black text-white bg-[#3182f6] hover:bg-blue-600 border-2 border-blue-400 whitespace-nowrap shadow-md flex items-center justify-center gap-1.5 sm:gap-2">
+              <i class="fa-solid fa-check text-2xl sm:text-3.5xl"></i>
+              <span>확인</span>
+            </button>
           </div>
         </div>
       </div>
-    </section>
+    </section></section>
 
     <!-- ===================================================================== -->
     <!-- 🚘 STEP 1.5: 4자리 검색 결과 차량 선택 목록 화면 (상단 기준 정렬 & 스크롤 지원) -->
@@ -579,10 +584,15 @@
             <button onclick="pressChartNum('8')" class="keypad-btn shadow-md bg-white border-2 border-slate-300 text-slate-900 hover:border-[#3182f6]">8</button>
             <button onclick="pressChartNum('9')" class="keypad-btn shadow-md bg-white border-2 border-slate-300 text-slate-900 hover:border-[#3182f6]">9</button>
 
-            <!-- 좌: 정정 | 중: 0 | 우: 확인 -->
-            <button onclick="backspaceChartNum()" class="keypad-btn !text-xl sm:!text-2.8xl !font-black text-slate-800 bg-slate-200/95 hover:bg-slate-300 border-2 border-slate-300 whitespace-nowrap shadow-md">정정</button>
+            <!-- 좌: 직관적인 백스페이스 아이콘 | 중: 0 | 우: 확인 아이콘 + 초대형 폰트 -->
+            <button onclick="backspaceChartNum()" class="keypad-btn text-slate-800 bg-slate-200/95 hover:bg-slate-300 border-2 border-slate-300 shadow-md flex items-center justify-center">
+              <i class="fa-solid fa-delete-left text-2.5xl sm:text-4xl"></i>
+            </button>
             <button onclick="pressChartNum('0')" class="keypad-btn shadow-md bg-white border-2 border-slate-300 text-slate-900 hover:border-[#3182f6]">0</button>
-            <button onclick="submitChartNumDirect()" class="keypad-btn !text-xl sm:!text-2.8xl !font-black text-white bg-[#3182f6] hover:bg-blue-600 border-2 border-blue-400 whitespace-nowrap shadow-md">확인</button>
+            <button onclick="submitChartNumDirect()" class="keypad-btn !text-2.5xl sm:!text-3.5xl md:!text-4xl !font-black text-white bg-[#3182f6] hover:bg-blue-600 border-2 border-blue-400 whitespace-nowrap shadow-md flex items-center justify-center gap-1.5 sm:gap-2">
+              <i class="fa-solid fa-check text-2xl sm:text-3.5xl"></i>
+              <span>확인</span>
+            </button>
           </div>
         </div>
       </div>
@@ -613,10 +623,15 @@
             <button onclick="pressJmnoNum('8')" class="keypad-btn shadow-md bg-white border-2 border-slate-300 text-slate-900 hover:border-[#3182f6]">8</button>
             <button onclick="pressJmnoNum('9')" class="keypad-btn shadow-md bg-white border-2 border-slate-300 text-slate-900 hover:border-[#3182f6]">9</button>
 
-            <!-- 좌: 정정 | 중: 0 | 우: 등록 -->
-            <button onclick="backspaceJmnoNum()" class="keypad-btn !text-xl sm:!text-2.8xl !font-black text-slate-800 bg-slate-200/95 hover:bg-slate-300 border-2 border-slate-300 whitespace-nowrap shadow-md">정정</button>
+            <!-- 좌: 직관적인 백스페이스 아이콘 | 중: 0 | 우: 등록 아이콘 + 초대형 폰트 -->
+            <button onclick="backspaceJmnoNum()" class="keypad-btn text-slate-800 bg-slate-200/95 hover:bg-slate-300 border-2 border-slate-300 shadow-md flex items-center justify-center">
+              <i class="fa-solid fa-delete-left text-2.5xl sm:text-4xl"></i>
+            </button>
             <button onclick="pressJmnoNum('0')" class="keypad-btn shadow-md bg-white border-2 border-slate-300 text-slate-900 hover:border-[#3182f6]">0</button>
-            <button onclick="submitJmnoDirect()" class="keypad-btn !text-xl sm:!text-2.8xl !font-black text-white bg-[#3182f6] hover:bg-blue-600 border-2 border-blue-400 whitespace-nowrap shadow-md">등록</button>
+            <button onclick="submitJmnoDirect()" class="keypad-btn !text-2.5xl sm:!text-3.5xl md:!text-4xl !font-black text-white bg-[#3182f6] hover:bg-blue-600 border-2 border-blue-400 whitespace-nowrap shadow-md flex items-center justify-center gap-1.5 sm:gap-2">
+              <i class="fa-solid fa-check text-2xl sm:text-3.5xl"></i>
+              <span>등록</span>
+            </button>
           </div>
         </div>
       </div>
@@ -700,7 +715,7 @@
     let autoCommitTimer = null;
     let inactivityTimer = null;
     const INACTIVITY_TIMEOUT_SEC = 40;
-    const DISABLE_TIMERS = true; // ⭐️ 테스트 기간 타이머 완전 중지 플래그 (자동 되돌아가기 차단)
+    const DISABLE_TIMERS = false; // ⭐️ 테스트 기간 타이머 완전 중지 플래그 (자동 되돌아가기 차단)
 
     // ⭐️ 6회 연속 탭 트리거 헬퍼 (더블탭 줌 방지 & 터치 정확도)
     function setup6TapTrigger(element, onSuccess) {
@@ -1660,27 +1675,29 @@
         Swal.fire({
           icon: "question",
           title: "등록 차량 변경 확인",
-          width: "min(96vw, 760px)",
+          width: "min(96vw, 860px)",
           html: `
-            <div class="text-left bg-slate-50 p-5 sm:p-7 rounded-3xl border-2 border-slate-200 space-y-4 mt-2">
-              <div class="flex items-center justify-between pb-3 border-b-2 border-slate-200">
-                <span class="text-xl sm:text-2.5xl font-bold text-slate-500 whitespace-nowrap">환자명 / 등록번호</span>
-                <span class="text-2xl sm:text-3xl md:text-3.5xl font-black text-slate-900">${patient.maskedName || patient.name} 님 (${patient.jubno})</span>
+            <div class="text-left bg-slate-50 p-6 sm:p-8 rounded-3xl border-2 border-slate-200 space-y-5 mt-2">
+              <div class="flex items-center justify-between pb-3.5 border-b-2 border-slate-200">
+                <span class="text-xl sm:text-2.8xl font-bold text-slate-500 whitespace-nowrap">환자명 / 등록번호</span>
+                <span class="text-2xl sm:text-3.5xl font-black text-slate-900">${patient.maskedName || patient.name} 님 (${patient.jubno})</span>
               </div>
-              <div class="bg-white p-4 sm:p-6 rounded-2xl border-2 border-blue-200 space-y-3 shadow-xs">
+              
+              <div class="bg-white p-5 sm:p-7 rounded-2xl border-2 border-blue-200 space-y-4 shadow-xs">
                 <div class="flex items-center justify-between">
-                  <span class="text-xl sm:text-2.5xl text-slate-500 font-bold whitespace-nowrap">기존 등록 차량</span>
-                  <span class="font-black text-slate-400 line-through font-num text-2.5xl sm:text-3.5xl">${patient.carnoPure}</span>
+                  <span class="text-xl sm:text-2.8xl text-slate-500 font-bold whitespace-nowrap">기존 등록 차량</span>
+                  <span class="font-black text-slate-700 font-num text-3xl sm:text-4.5xl md:text-5xl">${patient.carnoPure}</span>
                 </div>
-                <div class="flex items-center justify-between pt-3 border-t-2 border-dashed border-blue-100">
-                  <span class="text-2xl sm:text-3xl text-[#3182f6] font-black whitespace-nowrap">
-                    <i class="fa-solid fa-arrow-right mr-1.5"></i> 새 입차 차량
+                <div class="flex items-center justify-between pt-4 border-t-2 border-dashed border-blue-100">
+                  <span class="text-2xl sm:text-3.5xl text-[#3182f6] font-black whitespace-nowrap flex items-center gap-2">
+                    <i class="fa-solid fa-arrow-right"></i> 새 입차 차량
                   </span>
-                  <span class="text-3.5xl sm:text-5xl font-black font-num text-[#3182f6]">${selectedCar.carno}</span>
+                  <span class="text-3.5xl sm:text-5xl md:text-5.5xl font-black font-num text-[#3182f6]">${selectedCar.carno}</span>
                 </div>
               </div>
-              <p class="text-xl sm:text-2.8xl md:text-3xl text-slate-800 font-black break-keep pt-2 leading-relaxed">
-                환자분의 차량을 오늘 입차하신 새 차량(<b>${selectedCar.carno}</b>)으로 변경하시겠습니까?
+
+              <p class="text-2xl sm:text-3.5xl md:text-4xl text-slate-900 font-black break-keep pt-3 text-center leading-snug">
+                환자분의 차량을 <span class="text-[#3182f6] underline underline-offset-8 decoration-4">${selectedCar.carno}</span>(으)로 변경하시겠습니까?
               </p>
             </div>
           `,
