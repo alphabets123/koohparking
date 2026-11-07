@@ -633,6 +633,7 @@
     let autoCommitTimer = null;
     let inactivityTimer = null;
     const INACTIVITY_TIMEOUT_SEC = 40;
+    const DISABLE_TIMERS = true; // ⭐️ 테스트 기간 타이머 완전 중지 플래그 (자동 되돌아가기 차단)
 
     // ⭐️ 6회 연속 탭 트리거 헬퍼 (더블탭 줌 방지 & 터치 정확도)
     function setup6TapTrigger(element, onSuccess) {
@@ -706,7 +707,17 @@
     function updateInactivityBadgeUI() {
       const badgeEl = document.getElementById("inactivityBadge");
       const secEl = document.getElementById("inactivitySecRemaining");
-      if (!badgeEl || !secEl) return;
+      if (!badgeEl) return;
+
+      // ⭐️ 테스트 모드일 때: 시간 무제한 정지 표기
+      if (DISABLE_TIMERS) {
+        badgeEl.classList.remove("hidden");
+        badgeEl.className = "flex items-center gap-1.5 px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-xl bg-slate-800/90 border border-slate-700 text-yellow-300 shadow-xs whitespace-nowrap";
+        badgeEl.innerHTML = `<i class="fa-solid fa-pause text-yellow-400 text-xs sm:text-sm"></i><span class="font-bold text-xs sm:text-sm text-yellow-300">테스트 중 (시간 무제한)</span>`;
+        return;
+      }
+
+      if (!secEl) return;
 
       // 이미 감면완료 화면(stepAlreadyRegisteredSection)에 자체 카운트다운이 있으면 상단 뱃지는 일시 숨김
       const alreadySec = document.getElementById("stepAlreadyRegisteredSection");
@@ -732,6 +743,11 @@
       updateInactivityBadgeUI();
 
       if (inactivityInterval) clearInterval(inactivityInterval);
+
+      // ⭐️ 테스트 모드에서는 무조작 자동 되돌아가기 완전 정지!
+      if (DISABLE_TIMERS) {
+        return;
+      }
 
       inactivityInterval = setInterval(() => {
         // 이미 감면완료 화면은 전용 타이머(alreadyCountdown)가 작동하므로 제외
@@ -1208,6 +1224,13 @@
       }
 
       if (returnCountdownTimer) clearInterval(returnCountdownTimer);
+      if (DISABLE_TIMERS) {
+        const btnReturn = document.querySelector("#stepAlreadyRegisteredSection button");
+        if (btnReturn) {
+          btnReturn.innerHTML = `<i class="fa-solid fa-arrow-rotate-left text-xl sm:text-2xl mr-2"></i><span>처음으로 (테스트 모드 - 자동 복귀 정지)</span>`;
+        }
+        return;
+      }
       let count = 25;
       const countdownEl = document.getElementById("alreadyCountdown");
       if (countdownEl) countdownEl.textContent = count;
@@ -1513,6 +1536,13 @@
 
       // ⭐️ 15초 자동 등록 타이머
       if (autoCommitTimer) clearInterval(autoCommitTimer);
+      if (DISABLE_TIMERS) {
+        const btnSubmit = document.getElementById("btnSubmitRegister");
+        if (btnSubmit) {
+          btnSubmit.innerHTML = `<i class="fa-solid fa-circle-check text-2xl sm:text-3xl"></i><span>네, 등록합니다 (테스트 모드)</span>`;
+        }
+        return;
+      }
       let remain = 15;
       const countEl = document.getElementById("autoCommitCountdown");
       if (countEl) countEl.textContent = remain;
@@ -1597,6 +1627,18 @@
       currentPatient = null;
       if (returnCountdownTimer) clearInterval(returnCountdownTimer);
       if (autoCommitTimer) clearInterval(autoCommitTimer);
+
+      // 테스트 모드 해제 시 카운트다운 버튼 텍스트 원복
+      if (!DISABLE_TIMERS) {
+        const alreadyBtn = document.querySelector("#stepAlreadyRegisteredSection button");
+        if (alreadyBtn) {
+          alreadyBtn.innerHTML = `<i class="fa-solid fa-arrow-rotate-left text-xl sm:text-2xl mr-2"></i><span><span id="alreadyCountdown" class="text-yellow-300 font-num">25</span>초 후 처음으로</span>`;
+        }
+        const submitBtn = document.getElementById("btnSubmitRegister");
+        if (submitBtn) {
+          submitBtn.innerHTML = `<i class="fa-solid fa-circle-check text-2xl sm:text-3xl"></i><span>네, 등록합니다 (<span id="autoCommitCountdown" class="text-yellow-300 font-num">15</span>초)</span>`;
+        }
+      }
 
       updateKeypadDisplay();
       updateChartNumDisplay();
