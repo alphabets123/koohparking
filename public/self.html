@@ -722,23 +722,162 @@
 
       if (mode === "jmno") {
         isHiddenJmnoMode = true;
-        btnChart.className = "py-4 sm:py-5.5 px-3 rounded-xl font-black text-xl sm:text-2.5xl transition-all flex items-center justify-center gap-2.5 text-slate-600 hover:text-slate-950 hover:bg-white/80 active:scale-98";
-        btnJmno.className = "py-4 sm:py-5.5 px-3 rounded-xl font-black text-xl sm:text-2.5xl transition-all flex items-center justify-center gap-2.5 shadow-md bg-[#3182f6] text-white active:scale-98";
-        boxChart.classList.add("hidden");
-        boxJmno.classList.remove("hidden");
+        if (btnChart) btnChart.className = "py-4 sm:py-5.5 px-3 rounded-xl font-black text-xl sm:text-2.5xl transition-all flex items-center justify-center gap-2.5 text-slate-600 hover:text-slate-950 hover:bg-white/80 active:scale-98";
+        if (btnJmno) btnJmno.className = "py-4 sm:py-5.5 px-3 rounded-xl font-black text-xl sm:text-2.5xl transition-all flex items-center justify-center gap-2.5 shadow-md bg-[#3182f6] text-white active:scale-98";
+        if (boxChart) boxChart.classList.add("hidden");
+        if (boxJmno) boxJmno.classList.remove("hidden");
         if (titleChart) titleChart.classList.add("hidden");
         if (titleJmno) titleJmno.classList.remove("hidden");
+        clearJmnoNum();
       } else {
         isHiddenJmnoMode = false;
-        btnChart.className = "py-4 sm:py-5.5 px-3 rounded-xl font-black text-xl sm:text-2.5xl transition-all flex items-center justify-center gap-2.5 shadow-md bg-[#3182f6] text-white active:scale-98";
-        btnJmno.className = "py-4 sm:py-5.5 px-3 rounded-xl font-black text-xl sm:text-2.5xl transition-all flex items-center justify-center gap-2.5 text-slate-600 hover:text-slate-950 hover:bg-white/80 active:scale-98";
-        boxChart.classList.remove("hidden");
-        boxJmno.classList.add("hidden");
+        if (btnChart) btnChart.className = "py-4 sm:py-5.5 px-3 rounded-xl font-black text-xl sm:text-2.5xl transition-all flex items-center justify-center gap-2.5 shadow-md bg-[#3182f6] text-white active:scale-98";
+        if (btnJmno) btnJmno.className = "py-4 sm:py-5.5 px-3 rounded-xl font-black text-xl sm:text-2.5xl transition-all flex items-center justify-center gap-2.5 text-slate-600 hover:text-slate-950 hover:bg-white/80 active:scale-98";
+        if (boxChart) boxChart.classList.remove("hidden");
+        if (boxJmno) boxJmno.classList.add("hidden");
         if (titleChart) titleChart.classList.remove("hidden");
         if (titleJmno) titleJmno.classList.add("hidden");
+        clearChartNum();
+        setTimeout(focusHiddenBarcodeInput, 80);
       }
       focusHiddenBarcodeInput();
-    }, { passive: true });
+    }
+
+    let inactivityRemaining = INACTIVITY_TIMEOUT_SEC;
+    let inactivityInterval = null;
+
+    function updateInactivityBadgeUI() {
+      const badgeEl = document.getElementById("inactivityBadge");
+      const secEl = document.getElementById("inactivitySecRemaining");
+      if (!badgeEl) return;
+
+      // ⭐️ 테스트 모드일 때: 시간 무제한 정지 표기
+      if (DISABLE_TIMERS) {
+        badgeEl.classList.remove("hidden");
+        badgeEl.className = "flex items-center gap-2.5 px-4 py-2 sm:px-6 sm:py-3.5 rounded-2xl bg-slate-800/90 border-2 border-slate-700 text-yellow-300 shadow-md whitespace-nowrap";
+        badgeEl.innerHTML = `<i class="fa-solid fa-pause text-yellow-400 text-lg sm:text-xl"></i><span class="font-bold text-base sm:text-xl text-yellow-300">테스트 중 (시간 무제한)</span>`;
+        return;
+      }
+
+      if (!secEl) return;
+
+      const alreadySec = document.getElementById("stepAlreadyRegisteredSection");
+      if (alreadySec && !alreadySec.classList.contains("hidden")) {
+        badgeEl.classList.add("hidden");
+        return;
+      }
+
+      badgeEl.classList.remove("hidden");
+      secEl.textContent = inactivityRemaining;
+
+      if (inactivityRemaining <= 10) {
+        badgeEl.className = "flex items-center gap-2.5 px-4 py-2 sm:px-6 sm:py-3.5 rounded-2xl bg-rose-900/90 border-2 border-rose-500 text-rose-200 shadow-md whitespace-nowrap animate-pulse";
+      } else {
+        badgeEl.className = "flex items-center gap-2.5 px-4 py-2 sm:px-6 sm:py-3.5 rounded-2xl bg-slate-800/90 border-2 border-slate-700 text-amber-300 shadow-md whitespace-nowrap";
+      }
+    }
+
+    function resetInactivityTimer() {
+      inactivityRemaining = INACTIVITY_TIMEOUT_SEC;
+      updateInactivityBadgeUI();
+
+      if (inactivityInterval) clearInterval(inactivityInterval);
+
+      if (DISABLE_TIMERS) {
+        return;
+      }
+
+      inactivityInterval = setInterval(() => {
+        const alreadySec = document.getElementById("stepAlreadyRegisteredSection");
+        if (alreadySec && !alreadySec.classList.contains("hidden")) return;
+
+        const step1Sec = document.getElementById("step1Section");
+        const isStep1Clean = step1Sec && !step1Sec.classList.contains("hidden") && !currentInput4;
+        if (isStep1Clean) {
+          inactivityRemaining = INACTIVITY_TIMEOUT_SEC;
+          updateInactivityBadgeUI();
+          return;
+        }
+
+        inactivityRemaining--;
+        updateInactivityBadgeUI();
+
+        if (inactivityRemaining <= 0) {
+          clearInterval(inactivityInterval);
+          console.log("⏰ 40초 무조작 자동 복귀 실행");
+          resetAllSteps();
+        }
+      }, 1000);
+    }
+
+    ["click", "touchstart", "keydown"].forEach((evt) => {
+      window.addEventListener(evt, resetInactivityTimer, { passive: true });
+    });
+
+    document.addEventListener("DOMContentLoaded", () => {
+      // ⭐️ 구병원 로고 6회 연속 탭 트리거 등록 (전체화면 전환)
+      const logoEl = document.getElementById("koohHeaderLogo");
+      setup6TapTrigger(logoEl, toggleFullscreenDirect);
+
+      // 타이머 초기 UI 렌더
+      resetInactivityTimer();
+
+      // 바코드 전용 숨김 인풋 초기화
+      const hiddenInput = document.getElementById("hiddenBarcodeInput");
+      if (hiddenInput) {
+        let hiddenInputTimer = null;
+
+        hiddenInput.addEventListener("input", () => {
+          const step2Sec = document.getElementById("step2Section");
+          const isStep2Active = step2Sec && !step2Sec.classList.contains("hidden");
+          if (!isStep2Active || !selectedCar || isHiddenJmnoMode) {
+            hiddenInput.value = "";
+            return;
+          }
+
+          const raw = hiddenInput.value || "";
+          const pure = raw.replace(/[^0-9a-zA-Z]/g, "").trim();
+
+          const pureDigits = pure.replace(/[^0-9]/g, "");
+          if (pureDigits.length > 0) {
+            currentChartNum = pureDigits.slice(0, 7).padStart(7, "0");
+            updateChartNumDisplay();
+          }
+
+          if (hiddenInputTimer) clearTimeout(hiddenInputTimer);
+
+          if (pure.length >= 7) {
+            hiddenInput.value = "";
+            handleBarcodeScanned(pure);
+          } else if (pure.length >= 4) {
+            hiddenInputTimer = setTimeout(() => {
+              const finalVal = (hiddenInput.value || "").replace(/[^0-9a-zA-Z]/g, "").trim();
+              hiddenInput.value = "";
+              if (finalVal.length >= 4) {
+                handleBarcodeScanned(finalVal);
+              }
+            }, 160);
+          }
+        });
+
+        hiddenInput.addEventListener("keydown", (e) => {
+          if (e.key === "Enter" || e.keyCode === 13) {
+            e.preventDefault();
+            const finalVal = (hiddenInput.value || "").replace(/[^0-9a-zA-Z]/g, "").trim();
+            hiddenInput.value = "";
+            if (finalVal.length >= 4) {
+              handleBarcodeScanned(finalVal);
+            }
+          }
+        });
+      }
+
+      // 2단계 영역 클릭/터치 시 포커스 유지
+      const step2SecEl = document.getElementById("step2Section");
+      if (step2SecEl) {
+        step2SecEl.addEventListener("click", () => {
+          focusHiddenBarcodeInput();
+        }, { passive: true });
         step2SecEl.addEventListener("touchend", () => {
           setTimeout(focusHiddenBarcodeInput, 80);
         }, { passive: true });
