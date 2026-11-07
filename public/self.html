@@ -63,18 +63,7 @@
         radial-gradient(circle at 80% 80%, rgba(15, 23, 42, 0.5) 0%, transparent 60%);
     }
 
-    body::after {
-      content: "";
-      position: fixed;
-      inset: -25%;
-      pointer-events: none;
-      z-index: 0;
-      opacity: 0.045;
-      background-image: url('/kooh_logo.png');
-      background-repeat: repeat;
-      background-size: 320px;
-      transform: rotate(-18deg);
-    }
+    /* 구병원 로고 워터마크는 JS 캔버스 패턴 레이어(#kioskLogoPatternLayer)로 대체하여 1/4 크기 & 넓은 등간격 타일링 적용 */
 
     /* SweetAlert2 팝업 오픈 시 높이 쪼그라듦 완벽 방지 및 대형화 */
     .swal2-popup {
@@ -263,6 +252,8 @@
   </style>
 </head>
 <body class="flex flex-col w-screen h-screen overflow-hidden text-slate-900">
+  <!-- ⭐️ 구병원 로고 1/4 크기(80px) & 넓직넓직한 동일 간격(240px 타일) 사선 워터마크 레이어 -->
+  <div id="kioskLogoPatternLayer" class="fixed inset-[-40%] pointer-events-none z-0 opacity-[0.035] -rotate-12 bg-repeat transition-opacity"></div>
 
   <!-- ===================================================================== -->
   <!-- 🧭 상단 헤더 바 (고시인성 딥 네이비 & 토스 블루 악센트) -->
@@ -297,26 +288,30 @@
   <!-- ===================================================================== -->
   <main class="flex-1 w-full flex flex-col items-center justify-start gap-2 sm:gap-3 p-2 sm:p-4 overflow-hidden min-h-0 relative z-10">
 
-    <!-- ⭐️ 1, 2, 3 단계 진행 바 (다크 차콜 배경 최적화 & 가로폭 대형 확장 & 여백 강화) -->
-    <div class="w-full max-w-3xl lg:max-w-4xl mx-auto flex items-center justify-between my-2.5 sm:my-4 px-6 sm:px-10 py-3 sm:py-4 rounded-3xl bg-[#0f172a]/95 border-2 border-slate-700 shadow-xl flex-shrink-0">
+    <!-- ⭐️ 1, 2, 3 단계 진행 바 (구분선 축소 & 텍스트 대형화) -->
+    <div class="w-full max-w-3xl lg:max-w-4xl mx-auto flex items-center justify-between my-2 sm:my-3.5 px-4 sm:px-8 py-3 sm:py-4 rounded-3xl bg-[#0f172a]/95 border-2 border-slate-700 shadow-xl flex-shrink-0">
       <!-- 1단계: 차량 선택 -->
-      <div class="flex items-center gap-2.5 sm:gap-3.5 flex-1 justify-center">
-        <div id="stepCircle1" class="step-circle w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-[#3182f6] text-white flex items-center justify-center text-xl sm:text-3xl font-black shadow-md">1</div>
-        <span id="stepLabel1" class="text-lg sm:text-2.5xl font-black text-white whitespace-nowrap">차량 선택</span>
+      <div id="stepTab1" class="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+        <div id="stepCircle1" class="step-circle w-11 h-11 sm:w-15 sm:h-15 rounded-full bg-[#3182f6] text-white flex items-center justify-center text-lg sm:text-2.5xl font-black shadow-md flex-shrink-0">1</div>
+        <span id="stepLabel1" class="text-xl sm:text-3xl lg:text-3.5xl font-black text-white whitespace-nowrap">차량 선택</span>
       </div>
-      <div id="stepLine1" class="h-2 flex-1 bg-slate-700 rounded-full mx-3 sm:mx-6"></div>
+
+      <!-- 구분선 (짧고 굵게 축소하여 글자 공간 확보) -->
+      <div id="stepLine1" class="h-1.5 w-6 sm:w-12 bg-slate-700 rounded-full mx-1.5 sm:mx-3 flex-shrink-0"></div>
 
       <!-- 2단계: 본인 확인 -->
-      <div class="flex items-center gap-2.5 sm:gap-3.5 flex-1 justify-center">
-        <div id="stepCircle2" class="step-circle w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-slate-800 border-2 border-slate-700 text-slate-400 flex items-center justify-center text-xl sm:text-3xl font-black">2</div>
-        <span id="stepLabel2" class="text-lg sm:text-2.5xl font-bold text-slate-400 whitespace-nowrap">본인 확인</span>
+      <div id="stepTab2" class="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+        <div id="stepCircle2" class="step-circle w-11 h-11 sm:w-15 sm:h-15 rounded-full bg-slate-800 border-2 border-slate-700 text-slate-400 flex items-center justify-center text-lg sm:text-2.5xl font-black flex-shrink-0">2</div>
+        <span id="stepLabel2" class="text-xl sm:text-3xl lg:text-3.5xl font-bold text-slate-400 whitespace-nowrap">본인 확인</span>
       </div>
-      <div id="stepLine2" class="h-2 flex-1 bg-slate-700 rounded-full mx-3 sm:mx-6"></div>
+
+      <!-- 구분선 (짧고 굵게 축소하여 글자 공간 확보) -->
+      <div id="stepLine2" class="h-1.5 w-6 sm:w-12 bg-slate-700 rounded-full mx-1.5 sm:mx-3 flex-shrink-0"></div>
 
       <!-- 3단계: 등록 완료 -->
-      <div class="flex items-center gap-2.5 sm:gap-3.5 flex-1 justify-center">
-        <div id="stepCircle3" class="step-circle w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-slate-800 border-2 border-slate-700 text-slate-400 flex items-center justify-center text-xl sm:text-3xl font-black">3</div>
-        <span id="stepLabel3" class="text-lg sm:text-2.5xl font-bold text-slate-400 whitespace-nowrap">등록 완료</span>
+      <div id="stepTab3" class="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+        <div id="stepCircle3" class="step-circle w-11 h-11 sm:w-15 sm:h-15 rounded-full bg-slate-800 border-2 border-slate-700 text-slate-400 flex items-center justify-center text-lg sm:text-2.5xl font-black flex-shrink-0">3</div>
+        <span id="stepLabel3" class="text-xl sm:text-3xl lg:text-3.5xl font-bold text-slate-400 whitespace-nowrap">등록 완료</span>
       </div>
     </div>
 
@@ -463,11 +458,18 @@
         <div id="alreadyFeeBanner" class="p-4 sm:p-6 rounded-2xl shadow-xs"></div>
       </div>
 
-      <!-- 7. 하단 버튼: 테스트 문구 일체 제거 및 시원한 '처음으로' -->
+      <!-- 7. 하단 버튼: 회색 계열 & 남은 시간에 맞춰 빠지는 프로그레스 타이밍 바 & 카운트다운 복원 -->
       <div class="w-full flex items-center justify-center flex-shrink-0 pt-2 pb-6">
-        <button id="alreadyReturnBtn" onclick="resetAllSteps()" class="w-full py-5 sm:py-6 md:py-7 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-2xl sm:text-3.5xl shadow-xl active:scale-98 transition flex items-center justify-center gap-3 whitespace-nowrap">
-          <i class="fa-solid fa-arrow-rotate-left text-2xl sm:text-3xl"></i>
-          <span>처음으로</span>
+        <button id="alreadyReturnBtn" onclick="resetAllSteps()" class="relative w-full overflow-hidden rounded-3xl bg-slate-800 hover:bg-slate-700 text-white font-black text-2.5xl sm:text-3.5xl md:text-4xl shadow-xl active:scale-98 transition border-2 border-slate-600 flex items-center justify-center py-5 sm:py-6 md:py-7">
+          <!-- 남은 시간에 맞춰 왼쪽에서 오른쪽으로 빠지는 프로그레스 바 -->
+          <div id="alreadyTimerBar" class="absolute inset-y-0 left-0 bg-slate-600/60 transition-all duration-1000 ease-linear pointer-events-none" style="width: 100%;"></div>
+          
+          <!-- 버튼 전면 콘텐츠 -->
+          <div class="relative z-10 flex items-center justify-center gap-3.5 whitespace-nowrap">
+            <i class="fa-solid fa-arrow-rotate-left text-2.5xl sm:text-3.5xl text-slate-300"></i>
+            <span>처음으로</span>
+            <span class="text-amber-400 font-num font-black text-xl sm:text-3xl">(<span id="alreadySecRemaining">20</span>초)</span>
+          </div>
         </button>
       </div>
     </section>
@@ -685,9 +687,10 @@
           다시 입력
         </button>
         
-        <button id="btnSubmitRegister" onclick="submitCarRegistration()" class="w-full py-5 sm:py-6 md:py-7 rounded-2xl bg-[#3182f6] hover:bg-blue-600 text-white font-black text-2xl sm:text-3.5xl shadow-xl active:scale-98 transition flex items-center justify-center gap-3 whitespace-nowrap">
-          <i class="fa-solid fa-circle-check text-2.5xl sm:text-3.5xl"></i>
+        <button id="btnSubmitRegister" onclick="submitCarRegistration()" class="btn-register-pulse w-full py-6 sm:py-7 md:py-8 rounded-3xl bg-[#3182f6] hover:bg-blue-600 text-white font-black text-2.5xl sm:text-4xl md:text-4.5xl shadow-2xl active:scale-98 transition flex items-center justify-center gap-3.5 sm:gap-5 whitespace-nowrap border-3 border-blue-400">
+          <i class="fa-solid fa-circle-check text-3xl sm:text-5xl"></i>
           <span>네, 등록합니다</span>
+          <i class="fa-solid fa-hand-pointer text-2.5xl sm:text-4xl animate-bounce ml-2 text-yellow-300"></i>
         </button>
       </div>
     </section>
@@ -861,6 +864,29 @@
 
       // 타이머 초기 UI 렌더
       resetInactivityTimer();
+
+      // ⭐️ 구병원 로고 1/4 크기(80px) & 넓직넓직한 동일 간격(240px 타일) 사선 워터마크 생성
+      try {
+        const logoImg = new Image();
+        logoImg.src = '/kooh_logo.png';
+        logoImg.onload = function() {
+          const tileCanvas = document.createElement('canvas');
+          tileCanvas.width = 240;
+          tileCanvas.height = 240;
+          const ctx = tileCanvas.getContext('2d');
+          // 240x240 타일 중앙에 가로세로 80px로 정밀 렌더링 (간격 160px 확보)
+          ctx.drawImage(logoImg, (240 - 80) / 2, (240 - 80) / 2, 80, 80);
+          const dataUrl = tileCanvas.toDataURL('image/png');
+          const layer = document.getElementById('kioskLogoPatternLayer');
+          if (layer) {
+            layer.style.backgroundImage = 'url(' + dataUrl + ')';
+            layer.style.backgroundSize = '240px 240px';
+          }
+        };
+      } catch (e) {
+        console.warn('Logo pattern error:', e);
+      }
+
       // 초기 1단계 화면 확실한 노출 보장
       const s1 = document.getElementById("step1Section");
       if (s1) s1.classList.remove("hidden");
@@ -1232,6 +1258,9 @@
     }
 
     // 기감면 차량 안내 화면 표시
+    let alreadyAutoReturnTimer = null;
+
+    // 기감면 차량 안내 화면 표시
     function showAlreadyRegisteredScreen(car, isJustCompleted = false) {
       document.getElementById("step1Section").classList.add("hidden");
       document.getElementById("step1CarsSection").classList.add("hidden");
@@ -1239,6 +1268,28 @@
       document.getElementById("step3Section").classList.add("hidden");
       document.getElementById("stepAlreadyRegisteredSection").classList.remove("hidden");
       updateStepIndicator(3, true);
+
+      // ⭐️ 기감면 화면 20초 타이머 복원 및 프로그레스 바 게이지 연동
+      if (alreadyAutoReturnTimer) clearInterval(alreadyAutoReturnTimer);
+      const TOTAL_ALREADY_SEC = 20;
+      let remainSec = TOTAL_ALREADY_SEC;
+      const countEl = document.getElementById("alreadySecRemaining");
+      const barEl = document.getElementById("alreadyTimerBar");
+      if (countEl) countEl.textContent = remainSec;
+      if (barEl) barEl.style.width = "100%";
+
+      alreadyAutoReturnTimer = setInterval(() => {
+        remainSec--;
+        if (countEl) countEl.textContent = remainSec;
+        if (barEl) {
+          const pct = Math.max(0, (remainSec / TOTAL_ALREADY_SEC) * 100);
+          barEl.style.width = pct + "%";
+        }
+        if (remainSec <= 0) {
+          clearInterval(alreadyAutoReturnTimer);
+          resetAllSteps();
+        }
+      }, 1000);
 
       const titleEl = document.getElementById("alreadyTitle");
       const badgeWrap = document.getElementById("alreadyBadgeWrap");
@@ -1253,7 +1304,7 @@
       }
 
       document.getElementById("alreadyCarNum").textContent = car.carno;
-      document.getElementById("alreadyInTime").textContent = `입차시각: ${car.intime || '당일'}`;
+      document.getElementById("alreadyInTime").textContent = car.intime || '당일';
       document.getElementById("alreadyPatientName").textContent = `${car.maskedPatientName || '외래환자'} 님`;
       document.getElementById("alreadyPatientJubno").textContent = car.maskedJubno ? car.maskedJubno : "-";
       document.getElementById("alreadyBenefitTitle").textContent = car.benefitTitle || "외래 6시간 무료";
@@ -1620,23 +1671,26 @@
         Swal.fire({
           icon: "question",
           title: "등록 차량 변경 확인",
+          width: "min(96vw, 760px)",
           html: `
-            <div class="text-left bg-slate-50 p-4 sm:p-6 rounded-2xl border-2 border-slate-200 space-y-3.5 mt-2">
-              <div class="flex items-center justify-between pb-2.5 border-b-2 border-slate-200">
-                <span class="text-base sm:text-lg font-bold text-slate-500">환자명 / 등록번호</span>
-                <span class="text-lg sm:text-2.5xl font-black text-slate-900">${patient.maskedName || patient.name} 님 (${patient.jubno})</span>
+            <div class="text-left bg-slate-50 p-5 sm:p-7 rounded-3xl border-2 border-slate-200 space-y-4 mt-2">
+              <div class="flex items-center justify-between pb-3 border-b-2 border-slate-200">
+                <span class="text-xl sm:text-2.5xl font-bold text-slate-500 whitespace-nowrap">환자명 / 등록번호</span>
+                <span class="text-2xl sm:text-3xl md:text-3.5xl font-black text-slate-900">${patient.maskedName || patient.name} 님 (${patient.jubno})</span>
               </div>
-              <div class="bg-white p-3.5 sm:p-4 rounded-xl border-2 border-blue-200 space-y-2.5">
-                <div class="flex items-center justify-between text-base sm:text-lg">
-                  <span class="text-slate-500 font-bold">기존 등록 차량</span>
-                  <span class="font-black text-slate-400 line-through font-num text-lg sm:text-2xl">${patient.carnoPure}</span>
+              <div class="bg-white p-4 sm:p-6 rounded-2xl border-2 border-blue-200 space-y-3 shadow-xs">
+                <div class="flex items-center justify-between">
+                  <span class="text-xl sm:text-2.5xl text-slate-500 font-bold whitespace-nowrap">기존 등록 차량</span>
+                  <span class="font-black text-slate-400 line-through font-num text-2.5xl sm:text-3.5xl">${patient.carnoPure}</span>
                 </div>
-                <div class="flex items-center justify-between text-lg sm:text-2xl text-[#3182f6] font-black pt-2 border-t border-dashed border-blue-100">
-                  <span><i class="fa-solid fa-arrow-right mr-1.5"></i> 새 입차 차량</span>
-                  <span class="text-2.5xl sm:text-3.5xl font-black font-num">${selectedCar.carno}</span>
+                <div class="flex items-center justify-between pt-3 border-t-2 border-dashed border-blue-100">
+                  <span class="text-2xl sm:text-3xl text-[#3182f6] font-black whitespace-nowrap">
+                    <i class="fa-solid fa-arrow-right mr-1.5"></i> 새 입차 차량
+                  </span>
+                  <span class="text-3.5xl sm:text-5xl font-black font-num text-[#3182f6]">${selectedCar.carno}</span>
                 </div>
               </div>
-              <p class="text-base sm:text-xl text-slate-700 font-black break-keep pt-1.5 leading-relaxed">
+              <p class="text-xl sm:text-2.8xl md:text-3xl text-slate-800 font-black break-keep pt-2 leading-relaxed">
                 환자분의 차량을 오늘 입차하신 새 차량(<b>${selectedCar.carno}</b>)으로 변경하시겠습니까?
               </p>
             </div>
@@ -1803,44 +1857,43 @@
     // 1, 2, 3 단계 인디케이터 업데이트
     function updateStepIndicator(step, isFinalDone = false) {
       for (let i = 1; i <= 3; i++) {
-        const tab = document.getElementById(`stepTab${i}`);
-        if (!tab) continue;
-        const circle = tab.querySelector(".step-circle");
-        const label = tab.querySelector("span:last-child");
+        const circle = document.getElementById("stepCircle" + i);
+        const label = document.getElementById("stepLabel" + i);
+        if (!circle || !label) continue;
 
         if (i === 1) {
           if (step > 1) {
-            circle.className = "step-circle w-11 h-11 sm:w-14 sm:h-14 rounded-full bg-emerald-600 text-white flex items-center justify-center text-lg sm:text-2xl font-black shadow-md";
+            circle.className = "step-circle w-11 h-11 sm:w-15 sm:h-15 rounded-full bg-emerald-600 text-white flex items-center justify-center text-lg sm:text-2.5xl font-black shadow-md flex-shrink-0";
             circle.innerHTML = `<i class="fa-solid fa-check"></i>`;
-            label.className = "text-base sm:text-2xl font-black text-emerald-400 whitespace-nowrap";
+            label.className = "text-xl sm:text-3xl lg:text-3.5xl font-black text-emerald-400 whitespace-nowrap";
           } else {
-            circle.className = "step-circle w-11 h-11 sm:w-14 sm:h-14 rounded-full bg-[#3182f6] text-white flex items-center justify-center text-lg sm:text-2xl font-black shadow-md";
+            circle.className = "step-circle w-11 h-11 sm:w-15 sm:h-15 rounded-full bg-[#3182f6] text-white flex items-center justify-center text-lg sm:text-2.5xl font-black shadow-md flex-shrink-0";
             circle.innerHTML = `1`;
-            label.className = "text-base sm:text-2xl font-black text-white whitespace-nowrap";
+            label.className = "text-xl sm:text-3xl lg:text-3.5xl font-black text-white whitespace-nowrap";
           }
         } else if (i === 2) {
           if (step > 2) {
-            circle.className = "step-circle w-11 h-11 sm:w-14 sm:h-14 rounded-full bg-emerald-600 text-white flex items-center justify-center text-lg sm:text-2xl font-black shadow-md";
+            circle.className = "step-circle w-11 h-11 sm:w-15 sm:h-15 rounded-full bg-emerald-600 text-white flex items-center justify-center text-lg sm:text-2.5xl font-black shadow-md flex-shrink-0";
             circle.innerHTML = `<i class="fa-solid fa-check"></i>`;
-            label.className = "text-base sm:text-2xl font-black text-emerald-400 whitespace-nowrap";
+            label.className = "text-xl sm:text-3xl lg:text-3.5xl font-black text-emerald-400 whitespace-nowrap";
           } else if (step === 2) {
-            circle.className = "step-circle w-11 h-11 sm:w-14 sm:h-14 rounded-full bg-[#3182f6] text-white flex items-center justify-center text-lg sm:text-2xl font-black shadow-md";
+            circle.className = "step-circle w-11 h-11 sm:w-15 sm:h-15 rounded-full bg-[#3182f6] text-white flex items-center justify-center text-lg sm:text-2.5xl font-black shadow-md flex-shrink-0";
             circle.innerHTML = `2`;
-            label.className = "text-base sm:text-2xl font-black text-white whitespace-nowrap";
+            label.className = "text-xl sm:text-3xl lg:text-3.5xl font-black text-white whitespace-nowrap";
           } else {
-            circle.className = "step-circle w-11 h-11 sm:w-14 sm:h-14 rounded-full bg-slate-800 border border-slate-700 text-slate-400 flex items-center justify-center text-lg sm:text-2xl font-black";
+            circle.className = "step-circle w-11 h-11 sm:w-15 sm:h-15 rounded-full bg-slate-800 border-2 border-slate-700 text-slate-400 flex items-center justify-center text-lg sm:text-2.5xl font-black flex-shrink-0";
             circle.innerHTML = `2`;
-            label.className = "text-base sm:text-2xl font-bold text-slate-400 whitespace-nowrap";
+            label.className = "text-xl sm:text-3xl lg:text-3.5xl font-bold text-slate-400 whitespace-nowrap";
           }
         } else if (i === 3) {
           if (isFinalDone || step === 3) {
-            circle.className = "step-circle w-11 h-11 sm:w-14 sm:h-14 rounded-full bg-[#3182f6] text-white flex items-center justify-center text-lg sm:text-2xl font-black shadow-md";
+            circle.className = "step-circle w-11 h-11 sm:w-15 sm:h-15 rounded-full bg-[#3182f6] text-white flex items-center justify-center text-lg sm:text-2.5xl font-black shadow-md flex-shrink-0";
             circle.innerHTML = `3`;
-            label.className = "text-base sm:text-2xl font-black text-white whitespace-nowrap";
+            label.className = "text-xl sm:text-3xl lg:text-3.5xl font-black text-white whitespace-nowrap";
           } else {
-            circle.className = "step-circle w-11 h-11 sm:w-14 sm:h-14 rounded-full bg-slate-800 border border-slate-700 text-slate-400 flex items-center justify-center text-lg sm:text-2xl font-black";
+            circle.className = "step-circle w-11 h-11 sm:w-15 sm:h-15 rounded-full bg-slate-800 border-2 border-slate-700 text-slate-400 flex items-center justify-center text-lg sm:text-2.5xl font-black flex-shrink-0";
             circle.innerHTML = `3`;
-            label.className = "text-base sm:text-2xl font-bold text-slate-400 whitespace-nowrap";
+            label.className = "text-xl sm:text-3xl lg:text-3.5xl font-bold text-slate-400 whitespace-nowrap";
           }
         }
       }
