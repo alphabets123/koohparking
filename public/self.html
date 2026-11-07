@@ -335,8 +335,8 @@
       <!-- 중간 공백 영역 (자연스러운 탄력 여백) -->
       <div class="flex-1 min-h-[15px] sm:min-h-[25px]"></div>
 
-      <!-- ⭐️ 통합 키패드 뱃지 박스: 키입력란과 키패드를 한 박스에 묶음 + 간격 3배 확대 -->
-      <div class="w-full max-w-xl sm:max-w-2xl mx-auto mb-2 sm:mb-4 flex-shrink-0">
+      <!-- ⭐️ 통합 키패드 뱃지 박스: 최하단에서 버튼 2개 높이만큼 띄움 (pb-36 sm:pb-48 md:pb-52) -->
+      <div class="w-full max-w-xl sm:max-w-2xl mx-auto pb-36 sm:pb-48 md:pb-52 flex-shrink-0">
         <div class="w-full rounded-3xl bg-slate-100/95 border-2 border-slate-300 p-4 sm:p-6 shadow-sm flex flex-col gap-6 sm:gap-9">
           <!-- 4자리 번호 표시창 -->
           <div class="w-full">
@@ -348,7 +348,7 @@
             </div>
           </div>
 
-          <!-- 터치 숫자 키패드 (표시창과 3배 거리 gap-6 sm:gap-9 유지) -->
+          <!-- 터치 숫자 키패드: 4번째 줄 [정정] [0] [확인] -->
           <div class="w-full grid grid-cols-3 gap-3 sm:gap-4 md:gap-4.5">
             <button onclick="pressNum('1')" class="keypad-btn shadow-md bg-white border-2 border-slate-300 text-slate-900 hover:border-[#3182f6]">1</button>
             <button onclick="pressNum('2')" class="keypad-btn shadow-md bg-white border-2 border-slate-300 text-slate-900 hover:border-[#3182f6]">2</button>
@@ -362,11 +362,10 @@
             <button onclick="pressNum('8')" class="keypad-btn shadow-md bg-white border-2 border-slate-300 text-slate-900 hover:border-[#3182f6]">8</button>
             <button onclick="pressNum('9')" class="keypad-btn shadow-md bg-white border-2 border-slate-300 text-slate-900 hover:border-[#3182f6]">9</button>
 
-            <button onclick="clearNum()" class="keypad-btn !text-lg sm:!text-2.2xl !font-black text-rose-700 bg-rose-100/90 hover:bg-rose-200 border-2 border-rose-300 whitespace-nowrap shadow-md">전체삭제</button>
+            <!-- 좌: 정정(백스페이스) | 중: 0 | 우: 확인(엔터) -->
+            <button onclick="backspaceNum()" class="keypad-btn !text-xl sm:!text-2.8xl !font-black text-slate-800 bg-slate-200/95 hover:bg-slate-300 border-2 border-slate-300 whitespace-nowrap shadow-md">정정</button>
             <button onclick="pressNum('0')" class="keypad-btn shadow-md bg-white border-2 border-slate-300 text-slate-900 hover:border-[#3182f6]">0</button>
-            <button onclick="backspaceNum()" class="keypad-btn text-slate-700 hover:text-slate-950 bg-slate-200/90 hover:bg-slate-300 border-2 border-slate-300 shadow-md">
-              <i class="fa-solid fa-delete-left text-2xl sm:text-3xl"></i>
-            </button>
+            <button onclick="searchCarsBy4Digits()" class="keypad-btn !text-xl sm:!text-2.8xl !font-black text-white bg-[#3182f6] hover:bg-blue-600 border-2 border-blue-400 whitespace-nowrap shadow-md">확인</button>
           </div>
         </div>
       </div>
@@ -480,20 +479,20 @@
     <section id="step2Section" class="kiosk-card hidden w-full max-w-2xl lg:max-w-3xl flex-1 rounded-3xl p-4 sm:p-7 flex flex-col justify-between overflow-y-auto">
       
       <div class="w-full space-y-3.5 sm:space-y-4 flex-shrink-0 pt-1">
-        <!-- 선택된 차량 요약 상단 바 (토스 톤) -->
-        <div class="bg-slate-100 border-2 border-slate-300 rounded-2xl p-3 sm:p-4 flex items-center justify-between shadow-xs">
-          <div class="flex items-center gap-3 sm:gap-4">
-            <div class="w-11 h-11 sm:w-14 sm:h-14 rounded-2xl bg-[#3182f6] text-white flex items-center justify-center font-black text-2xl sm:text-3xl shadow-xs flex-shrink-0">
+        <!-- 선택된 차량 요약 상단 바 (대형화 & 폰트 확대) -->
+        <div class="bg-slate-100 border-3 border-slate-300 rounded-3xl p-4 sm:p-6 md:p-7 flex items-center justify-between shadow-sm">
+          <div class="flex items-center gap-3.5 sm:gap-6 min-w-0 flex-1 mr-2">
+            <div class="w-14 h-14 sm:w-20 sm:h-20 rounded-2xl bg-[#3182f6] text-white flex items-center justify-center font-black text-2.5xl sm:text-4xl shadow-xs flex-shrink-0">
               <i class="fa-solid fa-car"></i>
             </div>
-            <div>
-              <div class="text-xs sm:text-base text-slate-500 font-bold" id="step2SelectedCarInTime">선택 차량</div>
-              <div class="text-2.5xl sm:text-3.5xl font-black text-slate-900 font-num tracking-wide whitespace-nowrap" id="step2SelectedCarNum">-</div>
+            <div class="min-w-0 flex-1">
+              <div class="text-base sm:text-2xl font-bold text-slate-500 font-num truncate" id="step2SelectedCarInTime">선택 차량</div>
+              <div class="text-3.5xl sm:text-5xl md:text-5.5xl font-black text-slate-950 font-num tracking-wider truncate" id="step2SelectedCarNum">-</div>
             </div>
           </div>
 
-          <button onclick="backToStep1Keypad()" class="px-4 py-2 sm:px-6 sm:py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-black text-xs sm:text-base shadow-xs active:scale-95 transition flex items-center gap-2 whitespace-nowrap">
-            <i class="fa-solid fa-rotate-right"></i>
+          <button onclick="backToStep1Keypad()" class="px-5 py-3 sm:px-8 sm:py-4.5 rounded-2xl bg-slate-800 hover:bg-slate-700 text-white font-black text-base sm:text-2xl shadow-md active:scale-95 transition flex items-center gap-2.5 whitespace-nowrap flex-shrink-0">
+            <i class="fa-solid fa-rotate-right text-base sm:text-2xl"></i>
             <span>차량 변경</span>
           </button>
         </div>
@@ -554,8 +553,8 @@
       <!-- 중간 공백 영역 -->
       <div class="flex-1 min-h-[15px] sm:min-h-[25px]"></div>
 
-      <!-- ⭐️ [1] 등록번호 (바코드) 키패드 묶음 박스 (최하단에서 버튼 2개 높이 띄움 pb-28 sm:pb-36) -->
-      <div id="unifiedStep2Box" class="w-full max-w-xl sm:max-w-2xl mx-auto pb-28 sm:pb-36 flex-shrink-0">
+      <!-- ⭐️ [1] 등록번호 (바코드) 키패드 묶음 박스: 최하단에서 버튼 2개 높이 띄움 -->
+      <div id="unifiedStep2Box" class="w-full max-w-xl sm:max-w-2xl mx-auto pb-36 sm:pb-48 md:pb-52 flex-shrink-0">
         <div class="w-full rounded-3xl bg-slate-100/95 border-2 border-slate-300 p-4 sm:p-6 md:p-7 shadow-sm flex flex-col gap-6 sm:gap-10">
           <!-- 등록번호 7자리 표시창 -->
           <div class="w-full">
@@ -566,7 +565,7 @@
             </div>
           </div>
 
-          <!-- 7자리 넘버패드 그리드 (간격 3배 & 컬러감) -->
+          <!-- 7자리 넘버패드 그리드: [정정] [0] [확인] -->
           <div class="w-full grid grid-cols-3 gap-3.5 sm:gap-4.5 md:gap-5">
             <button onclick="pressChartNum('1')" class="keypad-btn shadow-md bg-white border-2 border-slate-300 text-slate-900 hover:border-[#3182f6]">1</button>
             <button onclick="pressChartNum('2')" class="keypad-btn shadow-md bg-white border-2 border-slate-300 text-slate-900 hover:border-[#3182f6]">2</button>
@@ -580,28 +579,27 @@
             <button onclick="pressChartNum('8')" class="keypad-btn shadow-md bg-white border-2 border-slate-300 text-slate-900 hover:border-[#3182f6]">8</button>
             <button onclick="pressChartNum('9')" class="keypad-btn shadow-md bg-white border-2 border-slate-300 text-slate-900 hover:border-[#3182f6]">9</button>
 
-            <button onclick="clearChartNum()" class="keypad-btn !text-xl sm:!text-2.5xl !font-black text-rose-700 bg-rose-100/90 hover:bg-rose-200 border-2 border-rose-300 whitespace-nowrap shadow-md">전체삭제</button>
+            <!-- 좌: 정정 | 중: 0 | 우: 확인 -->
+            <button onclick="backspaceChartNum()" class="keypad-btn !text-xl sm:!text-2.8xl !font-black text-slate-800 bg-slate-200/95 hover:bg-slate-300 border-2 border-slate-300 whitespace-nowrap shadow-md">정정</button>
             <button onclick="pressChartNum('0')" class="keypad-btn shadow-md bg-white border-2 border-slate-300 text-slate-900 hover:border-[#3182f6]">0</button>
-            <button onclick="backspaceChartNum()" class="keypad-btn text-slate-700 hover:text-slate-950 bg-slate-200/90 hover:bg-slate-300 border-2 border-slate-300 shadow-md">
-              <i class="fa-solid fa-delete-left text-2.5xl sm:text-3.5xl"></i>
-            </button>
+            <button onclick="submitChartNumDirect()" class="keypad-btn !text-xl sm:!text-2.8xl !font-black text-white bg-[#3182f6] hover:bg-blue-600 border-2 border-blue-400 whitespace-nowrap shadow-md">확인</button>
           </div>
         </div>
       </div>
 
-      <!-- ⭐️ [2] 주민등록번호 13자리 키패드 묶음 박스 (최하단에서 버튼 2개 높이 띄움 pb-28 sm:pb-36) -->
-      <div id="hiddenJmnoBox" class="hidden w-full max-w-xl sm:max-w-2xl mx-auto pb-28 sm:pb-36 flex-shrink-0">
-        <div class="w-full rounded-3xl bg-slate-100/95 border-2 border-slate-300 p-4 sm:p-6 md:p-7 shadow-sm flex flex-col gap-5 sm:gap-8">
-          <!-- 주민번호 표시창 -->
+      <!-- ⭐️ [2] 주민등록번호 13자리 키패드 묶음 박스: 하단 별도버튼 제거 & 최하단 버튼 2개 높이 띄움 -->
+      <div id="hiddenJmnoBox" class="hidden w-full max-w-xl sm:max-w-2xl mx-auto pb-36 sm:pb-48 md:pb-52 flex-shrink-0">
+        <div class="w-full rounded-3xl bg-slate-100/95 border-2 border-slate-300 p-4 sm:p-6 md:p-7 shadow-sm flex flex-col gap-6 sm:gap-9">
+          <!-- 13자리 주민번호 표시창 -->
           <div class="w-full">
-            <div class="h-22 sm:h-28 md:h-32 bg-white rounded-2xl border-3 border-slate-700 flex items-center justify-center gap-3 sm:gap-4 px-4 shadow-xs">
-              <div id="jmnoFront" class="num-display font-black text-slate-900 tracking-wider whitespace-nowrap" style="font-size: clamp(2rem, 4.5vh, 3.2rem) !important; line-height: 1;">______</div>
-              <span class="font-black text-slate-400" style="font-size: clamp(2rem, 4.5vh, 3.2rem) !important; line-height: 1;">-</span>
-              <div id="jmnoBack" class="num-display font-black text-[#3182f6] tracking-wider whitespace-nowrap" style="font-size: clamp(2rem, 4.5vh, 3.2rem) !important; line-height: 1;">_______</div>
+            <div class="h-22 sm:h-28 md:h-32 bg-white rounded-2xl border-3 border-[#3182f6] flex items-center justify-center px-2 sm:px-4 shadow-xs">
+              <div id="jmnoDisplay" class="font-black text-[#3182f6] font-num tracking-wider whitespace-nowrap" style="font-size: clamp(2rem, 4.5vh, 3.8rem) !important; line-height: 1;">
+                ______ - _______
+              </div>
             </div>
           </div>
 
-          <!-- 넘버패드 그리드 -->
+          <!-- 13자리 넘버패드 그리드: [정정] [0] [등록] (타사 키오스크 표준 엔터형) -->
           <div class="w-full grid grid-cols-3 gap-3.5 sm:gap-4.5 md:gap-5">
             <button onclick="pressJmnoNum('1')" class="keypad-btn shadow-md bg-white border-2 border-slate-300 text-slate-900 hover:border-[#3182f6]">1</button>
             <button onclick="pressJmnoNum('2')" class="keypad-btn shadow-md bg-white border-2 border-slate-300 text-slate-900 hover:border-[#3182f6]">2</button>
@@ -615,19 +613,10 @@
             <button onclick="pressJmnoNum('8')" class="keypad-btn shadow-md bg-white border-2 border-slate-300 text-slate-900 hover:border-[#3182f6]">8</button>
             <button onclick="pressJmnoNum('9')" class="keypad-btn shadow-md bg-white border-2 border-slate-300 text-slate-900 hover:border-[#3182f6]">9</button>
 
-            <button onclick="clearJmnoNum()" class="keypad-btn !text-xl sm:!text-2.5xl !font-black text-rose-700 bg-rose-100/90 hover:bg-rose-200 border-2 border-rose-300 whitespace-nowrap shadow-md">전체삭제</button>
+            <!-- 좌: 정정 | 중: 0 | 우: 등록 -->
+            <button onclick="backspaceJmnoNum()" class="keypad-btn !text-xl sm:!text-2.8xl !font-black text-slate-800 bg-slate-200/95 hover:bg-slate-300 border-2 border-slate-300 whitespace-nowrap shadow-md">정정</button>
             <button onclick="pressJmnoNum('0')" class="keypad-btn shadow-md bg-white border-2 border-slate-300 text-slate-900 hover:border-[#3182f6]">0</button>
-            <button onclick="backspaceJmnoNum()" class="keypad-btn text-slate-700 hover:text-slate-950 bg-slate-200/90 hover:bg-slate-300 border-2 border-slate-300 shadow-md">
-              <i class="fa-solid fa-delete-left text-2.5xl sm:text-3.5xl"></i>
-            </button>
-          </div>
-
-          <!-- 하단 등록 버튼 -->
-          <div class="w-full pt-1">
-            <button id="btnUnifiedJmnoSubmit" onclick="submitJmnoDirect()" class="w-full py-4 sm:py-5 md:py-5.5 rounded-2xl bg-[#3182f6] hover:bg-[#1b64da] text-white font-black text-xl sm:text-2.5xl shadow-lg active:scale-98 transition flex items-center justify-center gap-2">
-              <i class="fa-solid fa-square-check text-xl sm:text-2xl"></i>
-              <span>주민등록번호로 등록</span>
-            </button>
+            <button onclick="submitJmnoDirect()" class="keypad-btn !text-xl sm:!text-2.8xl !font-black text-white bg-[#3182f6] hover:bg-blue-600 border-2 border-blue-400 whitespace-nowrap shadow-md">등록</button>
           </div>
         </div>
       </div>
@@ -1856,6 +1845,9 @@
 
     // 1, 2, 3 단계 인디케이터 업데이트
     function updateStepIndicator(step, isFinalDone = false) {
+      const line1 = document.getElementById("stepLine1");
+      const line2 = document.getElementById("stepLine2");
+
       for (let i = 1; i <= 3; i++) {
         const circle = document.getElementById("stepCircle" + i);
         const label = document.getElementById("stepLabel" + i);
@@ -1896,6 +1888,18 @@
             label.className = "text-xl sm:text-3xl lg:text-3.5xl font-bold text-slate-400 whitespace-nowrap";
           }
         }
+      }
+
+      // 연결선 색상 활성화 동기화
+      if (line1) {
+        line1.className = step > 1 
+          ? "h-2 w-6 sm:w-12 bg-emerald-500 rounded-full mx-1.5 sm:mx-3 flex-shrink-0 shadow-xs" 
+          : "h-2 w-6 sm:w-12 bg-slate-700 rounded-full mx-1.5 sm:mx-3 flex-shrink-0";
+      }
+      if (line2) {
+        line2.className = step > 2 
+          ? "h-2 w-6 sm:w-12 bg-emerald-500 rounded-full mx-1.5 sm:mx-3 flex-shrink-0 shadow-xs" 
+          : "h-2 w-6 sm:w-12 bg-slate-700 rounded-full mx-1.5 sm:mx-3 flex-shrink-0";
       }
     }
   </script>
