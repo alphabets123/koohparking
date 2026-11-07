@@ -1279,6 +1279,8 @@ const server = http.createServer(async (req, res) => {
     targetFile = "check.html";
   } else if (targetFile === "self") {
     targetFile = "self.html";
+  } else if (targetFile === "self-tablet") {
+    targetFile = "self-tablet.html";
   } else if (targetFile === "self-test") {
     targetFile = "self-test.html";
   }

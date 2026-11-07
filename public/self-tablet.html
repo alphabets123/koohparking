@@ -1,0 +1,1667 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>구병원 환자 주차등록 키오스크</title>
+  <link rel="icon" href="/kooh_logo.png" type="image/png">
+  
+  <!-- Tailwind CSS & FontAwesome 6 & SweetAlert2 -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <!-- Pretendard (한글) + Outfit (숫자) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* ⭐️ 반응형 폰트 기본 스케일링 */
+    html {
+      font-size: 15.5px;
+    }
+    @media (min-width: 600px) {
+      html { font-size: 16.5px; }
+    }
+    @media (min-width: 900px) {
+      html { font-size: 17.5px; }
+    }
+
+    /* ⭐️ 토스 블루(Toss Blue) 소프트 쿨 그레이 & 프리미엄 배경 */
+    html, body {
+      width: 100vw;
+      height: 100vh;
+      margin: 0;
+      padding: 0;
+      overflow: hidden !important;
+      font-family: "Pretendard", -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+      letter-spacing: -0.02em;
+      touch-action: manipulation;
+      user-select: none;
+      -webkit-user-select: none;
+      background-color: #f2f4f8 !important;
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(49, 130, 246, 0.12) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(27, 100, 218, 0.08) 0px, transparent 50%),
+        radial-gradient(at 50% 50%, rgba(248, 250, 252, 0.95) 0px, #eef2f8 100%) !important;
+      background-attachment: fixed;
+    }
+
+    /* SweetAlert2 팝업 오픈 시 높이 쪼그라듦 완벽 방지 */
+    html.swal2-shown, body.swal2-shown {
+      width: 100vw !important;
+      height: 100vh !important;
+      overflow: hidden !important;
+      padding-right: 0 !important;
+    }
+    .swal2-container {
+      position: fixed !important;
+      z-index: 9999 !important;
+    }
+
+    /* ⭐️ 토스 스타일 메인 카드 (뷰포트 핏 & 잘림 없는 반응형 & 내용 넘침 시 세련된 스크롤바) */
+    .kiosk-card {
+      flex: 1 1 0% !important;
+      min-height: 0 !important;
+      height: 100% !important;
+      background: #ffffff !important;
+      border: 1.5px solid #e2e8f0 !important;
+      box-shadow: 0 20px 35px -5px rgba(49, 130, 246, 0.07), 0 8px 16px -4px rgba(15, 23, 42, 0.04) !important;
+      overflow-y: auto !important;
+      scrollbar-width: thin !important;
+      scrollbar-color: #94a3b8 transparent !important;
+    }
+    .kiosk-card::-webkit-scrollbar,
+    #carCardsContainer::-webkit-scrollbar {
+      display: block !important;
+      width: 7px !important;
+    }
+    .kiosk-card::-webkit-scrollbar-thumb,
+    #carCardsContainer::-webkit-scrollbar-thumb {
+      background-color: #94a3b8 !important;
+      border-radius: 9999px !important;
+    }
+    .kiosk-card::-webkit-scrollbar-track,
+    #carCardsContainer::-webkit-scrollbar-track {
+      background: transparent !important;
+    }
+
+    .font-num, .keypad-btn, .num-display, .plate-font {
+      font-family: 'Outfit', 'Pretendard', sans-serif !important;
+      font-feature-settings: 'tnum' 1, 'lnum' 1;
+    }
+
+    /* ⭐️ 1단계 차량번호 4자리 번호판 초대형 폰트 (고정 비율 균등 분할 & 밑줄 붕괴 방지) */
+    .plate-num-digit {
+      font-size: clamp(3.8rem, 8.5vh, 6rem) !important;
+      font-weight: 900 !important;
+      line-height: 1 !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      flex: 1 1 0% !important;
+      min-width: 0 !important;
+      height: 100% !important;
+      border-bottom: 6px solid #cbd5e1 !important;
+      color: #94a3b8 !important;
+      transition: border-color 0.15s ease, color 0.15s ease !important;
+      padding-bottom: 4px !important;
+    }
+    .plate-num-digit.digit-filled {
+      border-color: #3182f6 !important;
+      color: #3182f6 !important;
+    }
+
+    /* ⭐️ 토스 스타일 키패드 버튼 (태블릿 세로 모드에서 빈 여백 없이 묵직하고 시원하게 꽉 참) */
+    .keypad-btn {
+      height: clamp(68px, 11vh, 135px);
+      font-size: clamp(2.3rem, 4.6vh, 3.6rem);
+      font-weight: 900;
+      transition: all 0.08s ease;
+      touch-action: manipulation;
+      background-color: #ffffff;
+      border: 3px solid #e2e8f0;
+      border-radius: clamp(1.1rem, 2vh, 1.6rem);
+      color: #191f28;
+      box-shadow: 0 5px 12px -2px rgba(0, 0, 0, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .keypad-btn:hover {
+      background-color: #f8faff;
+      border-color: #3182f6;
+      color: #1b64da;
+    }
+    .keypad-btn:active {
+      transform: scale(0.96);
+      background-color: #3182f6 !important;
+      border-color: #1b64da !important;
+      color: #ffffff !important;
+    }
+
+    /* 실제 자동차 번호판 스타일 플레이트 */
+    .license-plate {
+      background: #ffffff;
+      border: 3.5px solid #1e293b;
+      border-radius: 1rem;
+      box-shadow: 0 6px 10px -2px rgba(0, 0, 0, 0.12);
+      position: relative;
+    }
+
+    /* 토스 블루 등록완료 버튼 강력 펄스(Glow + Scale) 애니메이션 */
+    @keyframes tossRegisterPulse {
+      0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(49, 130, 246, 0.7), 0 8px 18px -2px rgba(49, 130, 246, 0.45);
+      }
+      50% {
+        transform: scale(1.02);
+        box-shadow: 0 0 0 14px rgba(49, 130, 246, 0), 0 12px 24px -2px rgba(49, 130, 246, 0.65);
+      }
+    }
+    .btn-register-pulse {
+      animation: tossRegisterPulse 1.8s infinite ease-in-out;
+    }
+
+    /* ⭐️ SweetAlert2 키오스크 시니어 친화형 대형 모달 오버라이드 */
+    .swal2-popup {
+      border-radius: 2rem !important;
+      padding: 1.75rem 1.25rem !important;
+      width: min(94vw, 560px) !important;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.45) !important;
+      border: 3px solid #cbd5e1 !important;
+    }
+    .swal2-icon {
+      transform: scale(0.68) !important;
+      margin: 0 auto 0.25rem auto !important;
+    }
+    .swal2-title {
+      font-size: clamp(1.6rem, 3.8vw, 2.2rem) !important;
+      font-weight: 900 !important;
+      color: #0f172a !important;
+      padding-top: 0 !important;
+      line-height: 1.3 !important;
+      word-break: keep-all !important;
+    }
+    .swal2-html-container {
+      font-size: 1.15rem !important;
+      margin: 0.75rem 0 0.5rem 0 !important;
+      line-height: 1.5 !important;
+    }
+    .swal2-actions {
+      margin-top: 1.25rem !important;
+      gap: 0.75rem !important;
+    }
+    .swal2-confirm, .swal2-cancel {
+      padding: 0.9rem 2.2rem !important;
+      font-size: clamp(1.2rem, 2.8vw, 1.5rem) !important;
+      font-weight: 900 !important;
+      border-radius: 1.25rem !important;
+    }
+  </style>
+</head>
+<body class="flex flex-col w-screen h-screen overflow-hidden text-slate-900">
+
+  <!-- ===================================================================== -->
+  <!-- 🧭 상단 헤더 바 (고시인성 딥 네이비 & 토스 블루 악센트) -->
+  <!-- ===================================================================== -->
+  <header class="w-full bg-[#0f172a] text-white flex-shrink-0 px-3 sm:px-6 py-2.5 sm:py-3 flex items-center justify-between shadow-md z-30 relative border-b border-slate-800">
+    <div class="flex items-center gap-3 min-w-0 flex-1 mr-2">
+      <!-- 구병원 공식 로고: 6회 터치 시 전체화면 토글 -->
+      <img id="koohHeaderLogo" src="/kooh_logo.png" alt="구병원" class="h-9 sm:h-11 w-auto object-contain bg-white rounded-xl p-1 cursor-pointer active:scale-95 transition-transform flex-shrink-0" title="구병원 로고를 6번 터치하면 전체화면이 전환됩니다.">
+      <div class="min-w-0 flex-1">
+        <h1 class="text-base sm:text-2xl font-black tracking-tight flex items-center gap-2 whitespace-nowrap">
+          <span>구병원 주차 등록</span>
+          <span class="px-2.5 py-0.5 rounded-full bg-[#3182f6] text-white text-[11px] sm:text-xs font-black shadow-xs whitespace-nowrap">외래만 가능</span>
+        </h1>
+      </div>
+    </div>
+
+    <!-- 헤더 우측: 무조작 타이머 뱃지 + 처음으로 버튼 -->
+    <div class="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+      <div id="inactivityBadge" class="flex items-center gap-1.5 px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-xl bg-slate-800/90 border border-slate-700 text-amber-300 shadow-xs whitespace-nowrap">
+        <i class="fa-regular fa-clock text-amber-400 text-sm sm:text-base"></i>
+        <span class="font-num text-sm sm:text-lg font-black text-amber-300"><span id="inactivitySecRemaining">40</span>초</span>
+      </div>
+      <button onclick="resetAllSteps()" class="px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-black text-xs sm:text-sm flex items-center gap-1.5 transition active:scale-95 whitespace-nowrap border border-slate-700 shadow-xs">
+        <i class="fa-solid fa-rotate-right text-[#3182f6]"></i>
+        <span>처음으로</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ===================================================================== -->
+  <!-- 🖥️ 메인 키오스크 뷰포트 (세로 모드 풀핏: 어떤 화면비에서도 넘침/잘림 없는 반응형) -->
+  <!-- ===================================================================== -->
+  <main class="flex-1 w-full h-full flex flex-col items-center justify-between p-2 sm:p-3 overflow-hidden">
+
+    <!-- ⭐️ 1, 2, 3 단계 진행 바 (컴팩트 & 잘림 방지) -->
+    <div class="w-full max-w-2xl lg:max-w-3xl mx-auto flex items-center justify-between mb-1.5 sm:mb-2 px-2 sm:px-4 flex-shrink-0">
+      <div id="stepTab1" class="flex items-center gap-1.5 sm:gap-2">
+        <div class="step-circle w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-[#3182f6] text-white flex items-center justify-center text-sm sm:text-lg font-black shadow-sm">1</div>
+        <span class="text-xs sm:text-base font-black text-slate-900 whitespace-nowrap">차량 선택</span>
+      </div>
+      <div class="step-line h-1 flex-1 bg-slate-300 mx-2 sm:mx-4 rounded-full"></div>
+
+      <div id="stepTab2" class="flex items-center gap-1.5 sm:gap-2">
+        <div class="step-circle w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-slate-300 text-slate-600 flex items-center justify-center text-sm sm:text-lg font-black">2</div>
+        <span class="text-xs sm:text-base font-bold text-slate-400 whitespace-nowrap">본인 확인</span>
+      </div>
+      <div class="step-line h-1 flex-1 bg-slate-300 mx-2 sm:mx-4 rounded-full"></div>
+
+      <div id="stepTab3" class="flex items-center gap-1.5 sm:gap-2">
+        <div class="step-circle w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-slate-300 text-slate-600 flex items-center justify-center text-sm sm:text-lg font-black">3</div>
+        <span class="text-xs sm:text-base font-bold text-slate-400 whitespace-nowrap">등록 완료</span>
+      </div>
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- 🚗 STEP 1: 차량번호 뒷 4자리 키패드 입력 화면 (상단 기준 안착 & 키패드 직결) -->
+    <!-- ===================================================================== -->
+    <section id="step1Section" class="kiosk-card w-full max-w-2xl lg:max-w-3xl flex-1 rounded-3xl p-4 sm:p-7 flex flex-col justify-start gap-3.5 sm:gap-5 overflow-y-auto">
+      <!-- 상단 제목 & 입원환자 안내 문구 -->
+      <div class="text-center flex-shrink-0 pt-3 sm:pt-6 pb-1 sm:pb-2">
+        <h2 class="text-3xl sm:text-4xl md:text-5xl font-black text-slate-950 tracking-tight break-keep">
+          차량번호 <span class="text-[#3182f6] underline underline-offset-8 decoration-4">뒤 4자리</span>를 누르세요
+        </h2>
+        <p class="text-base sm:text-xl md:text-2xl font-bold text-slate-600 mt-2 sm:mt-3 break-keep">
+          <span class="text-amber-600 underline underline-offset-4 decoration-2 font-black">입원환자</span>는 <span class="text-[#3182f6] underline underline-offset-4 decoration-2 font-black">원무과 창구</span>에 문의하세요
+        </p>
+      </div>
+
+      <!-- 4자리 번호 표시창 (상단 기준 정렬, 키패드와 바로 이어짐) -->
+      <div class="w-full max-w-xl sm:max-w-2xl mx-auto flex-shrink-0 my-3 sm:my-6 mb-2 sm:mb-4">
+        <div class="h-24 sm:h-32 md:h-36 bg-slate-50/90 rounded-3xl border-3 border-[#3182f6] flex items-center justify-center gap-4 sm:gap-8 px-6 sm:px-10 shadow-inner">
+          <div id="digit0" class="num-display plate-num-digit">&nbsp;</div>
+          <div id="digit1" class="num-display plate-num-digit">&nbsp;</div>
+          <div id="digit2" class="num-display plate-num-digit">&nbsp;</div>
+          <div id="digit3" class="num-display plate-num-digit">&nbsp;</div>
+        </div>
+      </div>
+
+      <!-- 터치 숫자 키패드 (입력창 바로 아래 적정 간격으로 배치, 아래 여백 자연 방치) -->
+      <div class="w-full max-w-xl sm:max-w-2xl mx-auto grid grid-cols-3 gap-3.5 sm:gap-4.5 md:gap-5 flex-shrink-0 pb-6">
+        <button onclick="pressNum('1')" class="keypad-btn">1</button>
+        <button onclick="pressNum('2')" class="keypad-btn">2</button>
+        <button onclick="pressNum('3')" class="keypad-btn">3</button>
+
+        <button onclick="pressNum('4')" class="keypad-btn">4</button>
+        <button onclick="pressNum('5')" class="keypad-btn">5</button>
+        <button onclick="pressNum('6')" class="keypad-btn">6</button>
+
+        <button onclick="pressNum('7')" class="keypad-btn">7</button>
+        <button onclick="pressNum('8')" class="keypad-btn">8</button>
+        <button onclick="pressNum('9')" class="keypad-btn">9</button>
+
+        <button onclick="clearNum()" class="keypad-btn !text-xl sm:!text-2.5xl !font-black text-rose-600 bg-rose-50/80 hover:bg-rose-100 border-rose-300 whitespace-nowrap">전체삭제</button>
+        <button onclick="pressNum('0')" class="keypad-btn">0</button>
+        <button onclick="backspaceNum()" class="keypad-btn text-slate-700 hover:text-slate-950">
+          <i class="fa-solid fa-delete-left text-2.5xl sm:text-3.5xl"></i>
+        </button>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- 🚘 STEP 1.5: 4자리 검색 결과 차량 선택 목록 화면 (상단 기준 정렬 & 스크롤 지원) -->
+    <!-- ===================================================================== -->
+    <section id="step1CarsSection" class="kiosk-card hidden w-full max-w-2xl lg:max-w-3xl flex-1 rounded-3xl p-4 sm:p-7 flex flex-col justify-start gap-3 sm:gap-4 overflow-y-auto">
+      <div class="flex items-center justify-between pb-3 sm:pb-5 border-b-2 border-slate-200 flex-shrink-0">
+        <div>
+          <h3 class="text-2.5xl sm:text-4xl font-black text-slate-950 whitespace-nowrap">
+            내 차량을 <span class="text-[#3182f6] underline underline-offset-6 decoration-4">선택</span>해 주세요
+          </h3>
+          <p class="text-sm sm:text-lg text-slate-600 font-bold mt-1">끝자리 <b id="lblSearchedNum" class="text-[#3182f6] font-num text-base sm:text-2xl"></b> 번 검색 결과 (해당 차량을 터치하세요)</p>
+        </div>
+        <button onclick="backToStep1Keypad()" class="px-4 py-2.5 sm:px-7 sm:py-3.5 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-black text-sm sm:text-lg flex items-center gap-2 transition active:scale-95 whitespace-nowrap border-2 border-slate-300 shadow-xs flex-shrink-0">
+          <i class="fa-solid fa-arrow-left"></i> 번호 다시 입력
+        </button>
+      </div>
+
+      <div id="carCardsContainer" class="flex-1 overflow-y-auto space-y-3.5 sm:space-y-5 py-2 pr-1.5 pb-6"></div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- 🟢 STEP 1.8: 기감면 내역 및 출차 안내 화면 (노인 맞춤형 대형 블록 레이아웃) -->
+    <!-- ===================================================================== -->
+    <section id="stepAlreadyRegisteredSection" class="kiosk-card hidden w-full max-w-2xl lg:max-w-3xl flex-1 rounded-3xl p-4 sm:p-7 flex flex-col justify-start gap-3.5 sm:gap-4 overflow-y-auto">
+      
+      <!-- 1. 상단: 이미 주차 감면이 등록된 차량입니다 (대형 초록 뱃지 헤더) -->
+      <div class="w-full text-center flex-shrink-0 pt-0.5">
+        <div id="alreadyBadgeWrap" class="w-full py-3 sm:py-4 px-4 rounded-2xl bg-emerald-500 text-white font-black text-xl sm:text-2.5xl md:text-3xl shadow-md border-2 border-emerald-600 flex items-center justify-center gap-2.5">
+          <i class="fa-solid fa-circle-check text-2xl sm:text-3.5xl"></i>
+          <span id="alreadyTitle">이미 주차 감면이 등록된 차량입니다</span>
+        </div>
+      </div>
+
+      <!-- 메인 정보 컨테이너 (위쪽 기준 정렬) -->
+      <div class="w-full space-y-3 sm:space-y-3.5 flex-shrink-0">
+        
+        <!-- 2. LPR 입차 사진 단독 윗칸 -->
+        <div class="w-full rounded-2xl overflow-hidden border-2 border-slate-300 bg-slate-900 relative shadow-xs h-32 sm:h-44 flex items-center justify-center">
+          <img id="alreadyCarImage" src="" alt="LPR 입차 사진" class="w-full h-full object-cover">
+          <div id="alreadyCarImagePlaceholder" class="hidden flex flex-col items-center justify-center text-slate-400 p-2 text-center">
+            <i class="fa-solid fa-car text-3xl mb-1 text-slate-500"></i>
+            <span class="text-xs sm:text-sm font-bold">LPR 입차 등록 사진</span>
+          </div>
+          <div class="absolute bottom-2 left-2 bg-black/80 text-white text-[11px] sm:text-xs px-2.5 py-1 rounded-lg font-bold">
+            입차 사진
+          </div>
+        </div>
+
+        <!-- 3. 차량번호 & 그 밑에 입차시간 단독 박스 -->
+        <div class="p-3.5 sm:p-4 rounded-2xl bg-white border-2 border-slate-200 shadow-sm flex flex-col items-center justify-center gap-1">
+          <div class="license-plate px-6 py-2 sm:px-9 sm:py-3 bg-white border-3 sm:border-4 border-slate-900 rounded-2xl shadow-xs">
+            <span class="plate-font text-3xl sm:text-4.5xl md:text-5xl font-black text-[#3182f6] tracking-wider" id="alreadyCarNum">-</span>
+          </div>
+          <div class="text-sm sm:text-lg font-black text-slate-700 font-num mt-1" id="alreadyInTime">
+            입차: -
+          </div>
+        </div>
+
+        <!-- 4. 감면적용환자 & 병원등록번호 각각 한 줄씩 단독 박스 -->
+        <div class="p-3.5 sm:p-4.5 rounded-2xl bg-white border-2 border-slate-200 shadow-sm space-y-1.5 sm:space-y-2">
+          <div class="text-lg sm:text-2xl font-black text-slate-900 flex items-center gap-2">
+            <span class="text-slate-500 font-bold whitespace-nowrap">감면적용환자 :</span>
+            <span id="alreadyPatientName" class="text-slate-950 font-black">-</span>
+          </div>
+          <div class="text-base sm:text-xl font-black text-slate-700 flex items-center gap-2 font-num">
+            <span class="text-slate-500 font-bold whitespace-nowrap">병원등록번호 :</span>
+            <span id="alreadyPatientJubno" class="bg-slate-100 text-slate-800 px-2 py-0.5 rounded-lg">-</span>
+          </div>
+        </div>
+
+        <!-- 5. 적용혜택 & 현재출차상태 한 박스로 통합 -->
+        <div class="p-3.5 sm:p-4.5 rounded-2xl bg-white border-2 border-emerald-300 shadow-sm space-y-1.5 sm:space-y-2">
+          <div class="text-lg sm:text-2xl font-black text-emerald-800 flex items-center gap-2">
+            <span class="text-slate-500 font-bold whitespace-nowrap">적용혜택 :</span>
+            <span id="alreadyBenefitTitle" class="text-emerald-700 font-black">외래 6시간 무료</span>
+          </div>
+          <div class="text-base sm:text-xl font-black text-emerald-900 flex items-center gap-2">
+            <span class="text-slate-500 font-bold whitespace-nowrap">현재출차상태 :</span>
+            <span id="alreadyOverdueStatus" class="font-black">-</span>
+          </div>
+        </div>
+
+        <!-- 6. 정산 요금 배너 (잡다한 문구 없이 오직 0원만 초대형 표시) -->
+        <div id="alreadyFeeBanner" class="p-3 sm:p-4 rounded-2xl shadow-xs"></div>
+      </div>
+
+      <!-- 7. 하단 버튼 (두껍고 시원하게: "xx초 후 처음으로") -->
+      <div class="w-full flex items-center justify-center flex-shrink-0 pt-1 pb-6">
+        <button onclick="resetAllSteps()" class="w-full py-5 sm:py-6 md:py-7 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xl sm:text-3xl shadow-xl active:scale-98 transition flex items-center justify-center gap-3 whitespace-nowrap">
+          <i class="fa-solid fa-arrow-rotate-left text-xl sm:text-2xl"></i>
+          <span><span id="alreadyCountdown" class="text-yellow-300 font-num">25</span>초 후 처음으로</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- 🏥 STEP 2: 본인 확인 화면 (상단 기준 정렬 & 키패드 직결 & 스크롤 지원) -->
+    <!-- ===================================================================== -->
+    <section id="step2Section" class="kiosk-card hidden w-full max-w-2xl lg:max-w-3xl flex-1 rounded-3xl p-4 sm:p-7 flex flex-col justify-start gap-3.5 sm:gap-4 overflow-y-auto">
+      
+      <!-- 선택된 차량 요약 상단 바 (토스 톤) -->
+      <div class="bg-slate-100 border border-slate-300 rounded-2xl p-3 sm:p-3.5 flex items-center justify-between shadow-xs flex-shrink-0">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-[#3182f6] text-white flex items-center justify-center font-black text-xl sm:text-2xl shadow-xs flex-shrink-0">
+            <i class="fa-solid fa-car"></i>
+          </div>
+          <div>
+            <div class="text-xs sm:text-sm text-slate-500 font-bold" id="step2SelectedCarInTime">선택 차량</div>
+            <div class="text-2xl sm:text-3xl font-black text-slate-900 font-num tracking-wide whitespace-nowrap" id="step2SelectedCarNum">-</div>
+          </div>
+        </div>
+
+        <button onclick="backToStep1Keypad()" class="px-4 py-2 sm:px-5 sm:py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-black text-xs sm:text-base shadow-xs active:scale-95 transition flex items-center gap-1.5 whitespace-nowrap">
+          <i class="fa-solid fa-rotate-right"></i>
+          <span>차량 변경</span>
+        </button>
+      </div>
+
+      <!-- ⭐️ 통합 화면 컨텐츠 (위쪽 기준 연속 배치) -->
+      <div id="unifiedStep2Box" class="flex flex-col justify-start gap-3 sm:gap-4 flex-shrink-0">
+        
+        <!-- 핵심 통합 안내 헤더 -->
+        <div class="text-center flex-shrink-0 space-y-1 pt-1">
+          <h3 class="text-2xl sm:text-3xl lg:text-3.5xl font-black text-slate-950 leading-snug tracking-tight break-keep px-1">
+            <span class="text-[#3182f6] underline underline-offset-6 decoration-3">등록번호</span>를 누르거나, 
+            <span class="text-emerald-700 underline underline-offset-6 decoration-3 inline-flex items-center gap-1.5">
+              <i class="fa-solid fa-barcode text-emerald-600"></i> 영수증 바코드
+            </span>를 찍어주세요
+          </h3>
+
+          <!-- 바코드 리더기 대기 안내 (6회 터치 시 주민등록번호 모드 전환) -->
+          <div id="barcodeGuideBanner" class="cursor-pointer select-none flex items-center justify-center gap-2 text-slate-500 font-bold text-xs sm:text-base py-1 active:opacity-60 transition" title="이 영역을 빠르게 6번 터치하면 주민등록번호 모드가 열립니다.">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
+            <i class="fa-solid fa-barcode text-slate-600 text-sm sm:text-lg"></i>
+            <span class="text-slate-700 font-extrabold break-keep">바코드 리더기 대기 중 (영수증을 대면 즉시 인식됩니다)</span>
+          </div>
+        </div>
+
+        <!-- ⭐️ 태블릿 전용 하드웨어 바코드 리더기 무결 수신용 숨김 인풋 (가상키보드 차단 inputmode="none") -->
+        <input
+          id="hiddenBarcodeInput"
+          type="text"
+          inputmode="none"
+          autocomplete="off"
+          autocorrect="off"
+          autocapitalize="off"
+          spellcheck="false"
+          tabindex="-1"
+          aria-hidden="true"
+          class="opacity-0 absolute pointer-events-none w-1 h-1 -top-10 -left-10"
+        />
+
+        <!-- 등록번호(차트번호) 7자리 표시창 (상단 기준 정렬) -->
+        <div class="w-full max-w-xl sm:max-w-2xl mx-auto flex-shrink-0">
+          <div class="h-22 sm:h-28 md:h-32 bg-white rounded-3xl border-3 border-[#3182f6] flex items-center justify-center px-4 shadow-inner">
+            <div id="chartNumDisplay" class="num-display font-black text-[#3182f6] tracking-widest whitespace-nowrap" style="font-size: clamp(2.8rem, 6vh, 4.5rem) !important; line-height: 1;">
+              _______
+            </div>
+          </div>
+        </div>
+
+        <!-- 7자리 넘버패드 그리드 (표시창 바로 아래 안착 & 여백) -->
+        <div class="w-full max-w-xl sm:max-w-2xl mx-auto grid grid-cols-3 gap-3.5 sm:gap-4.5 md:gap-5 flex-shrink-0 pb-6 sm:pb-8">
+          <button onclick="pressChartNum('1')" class="keypad-btn">1</button>
+          <button onclick="pressChartNum('2')" class="keypad-btn">2</button>
+          <button onclick="pressChartNum('3')" class="keypad-btn">3</button>
+
+          <button onclick="pressChartNum('4')" class="keypad-btn">4</button>
+          <button onclick="pressChartNum('5')" class="keypad-btn">5</button>
+          <button onclick="pressChartNum('6')" class="keypad-btn">6</button>
+
+          <button onclick="pressChartNum('7')" class="keypad-btn">7</button>
+          <button onclick="pressChartNum('8')" class="keypad-btn">8</button>
+          <button onclick="pressChartNum('9')" class="keypad-btn">9</button>
+
+          <button onclick="clearChartNum()" class="keypad-btn !text-xl sm:!text-2.5xl !font-black text-rose-600 bg-rose-50 hover:bg-rose-100 border-rose-300 whitespace-nowrap">전체삭제</button>
+          <button onclick="pressChartNum('0')" class="keypad-btn">0</button>
+          <button onclick="backspaceChartNum()" class="keypad-btn text-slate-700 hover:text-slate-950">
+            <i class="fa-solid fa-delete-left text-2.5xl sm:text-3.5xl"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- ⭐️ [히든 기능] 주민등록번호 13자리 입력 모드 (위쪽 기준 정렬) -->
+      <div id="hiddenJmnoBox" class="hidden flex flex-col justify-start gap-3 sm:gap-4 flex-shrink-0">
+        <!-- ⭐️ 헤더 6회 터치 시 일반 모드로 복귀 -->
+        <div id="jmnoHeaderTitle" class="cursor-pointer select-none text-center flex-shrink-0 space-y-1 pt-1 active:opacity-75 transition" title="이 영역을 빠르게 6번 터치하면 일반 모드로 복귀합니다.">
+          <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-800 text-amber-300 font-black text-xs sm:text-sm">
+            <i class="fa-solid fa-lock-open text-amber-400"></i>
+            <span>[직원 전용] 주민등록번호 13자리 입력 모드</span>
+          </div>
+          <h4 class="text-2xl sm:text-3xl lg:text-3.5xl font-black text-slate-950 leading-snug break-keep px-1">
+            주민등록번호 <span class="text-[#3182f6] underline underline-offset-6 decoration-3">13자리</span>를 누르세요
+          </h4>
+        </div>
+
+        <!-- 주민번호 표시창 -->
+        <div class="w-full max-w-xl sm:max-w-2xl mx-auto flex-shrink-0">
+          <div class="h-22 sm:h-28 md:h-32 bg-white rounded-3xl border-3 border-slate-700 flex items-center justify-center gap-3 sm:gap-4 px-4 shadow-inner">
+            <div id="jmnoFront" class="num-display font-black text-slate-900 tracking-wider whitespace-nowrap" style="font-size: clamp(2rem, 4.5vh, 3.2rem) !important; line-height: 1;">______</div>
+            <span class="font-black text-slate-400" style="font-size: clamp(2rem, 4.5vh, 3.2rem) !important; line-height: 1;">-</span>
+            <div id="jmnoBack" class="num-display font-black text-[#3182f6] tracking-wider whitespace-nowrap" style="font-size: clamp(2rem, 4.5vh, 3.2rem) !important; line-height: 1;">_______</div>
+          </div>
+        </div>
+
+        <!-- 넘버패드 그리드 -->
+        <div class="w-full max-w-xl sm:max-w-2xl mx-auto grid grid-cols-3 gap-3.5 sm:gap-4.5 md:gap-5 flex-shrink-0">
+          <button onclick="pressJmnoNum('1')" class="keypad-btn">1</button>
+          <button onclick="pressJmnoNum('2')" class="keypad-btn">2</button>
+          <button onclick="pressJmnoNum('3')" class="keypad-btn">3</button>
+
+          <button onclick="pressJmnoNum('4')" class="keypad-btn">4</button>
+          <button onclick="pressJmnoNum('5')" class="keypad-btn">5</button>
+          <button onclick="pressJmnoNum('6')" class="keypad-btn">6</button>
+
+          <button onclick="pressJmnoNum('7')" class="keypad-btn">7</button>
+          <button onclick="pressJmnoNum('8')" class="keypad-btn">8</button>
+          <button onclick="pressJmnoNum('9')" class="keypad-btn">9</button>
+
+          <button onclick="clearJmnoNum()" class="keypad-btn !text-xl sm:!text-2.5xl !font-black text-rose-600 bg-rose-50 hover:bg-rose-100 border-rose-300 whitespace-nowrap">전체삭제</button>
+          <button onclick="pressJmnoNum('0')" class="keypad-btn">0</button>
+          <button onclick="backspaceJmnoNum()" class="keypad-btn text-slate-700 hover:text-slate-950">
+            <i class="fa-solid fa-delete-left text-2.5xl sm:text-3.5xl"></i>
+          </button>
+        </div>
+
+        <!-- 하단 등록 버튼 -->
+        <div class="w-full max-w-xl sm:max-w-2xl mx-auto flex-shrink-0 pb-6">
+          <button id="btnUnifiedJmnoSubmit" onclick="submitJmnoDirect()" class="w-full py-4 sm:py-5 md:py-5.5 rounded-2xl bg-[#3182f6] hover:bg-[#1b64da] text-white font-black text-xl sm:text-2.5xl shadow-lg active:scale-98 transition flex items-center justify-center gap-2">
+            <i class="fa-solid fa-square-check text-xl sm:text-2xl"></i>
+            <span>주민등록번호로 등록</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- ⚠️ STEP 3: 최종 확인 및 감면 등록 화면 (상단 기준 정렬 & 스크롤 지원) -->
+    <!-- ===================================================================== -->
+    <section id="step3Section" class="kiosk-card hidden w-full max-w-2xl lg:max-w-3xl flex-1 rounded-3xl p-4 sm:p-7 flex flex-col justify-start gap-4 sm:gap-6 overflow-y-auto">
+      
+      <!-- 직관적인 단 한 문장 질문 헤더 -->
+      <div class="text-center flex-shrink-0 pt-1">
+        <h2 class="text-3xl sm:text-4.5xl font-black text-slate-950 tracking-tight">
+          이대로 <span class="text-[#3182f6] underline underline-offset-8 decoration-4">등록</span>하시겠습니까?
+        </h2>
+      </div>
+
+      <!-- 환자 및 감면 상세 카드 (상단 기준 정렬) -->
+      <div class="w-full bg-slate-50/90 border-2 border-slate-200 rounded-3xl p-4 sm:p-6 shadow-xs space-y-4 flex-shrink-0">
+        <div class="grid grid-cols-2 gap-3 pb-3 border-b-2 border-slate-200">
+          <div>
+            <span class="text-xs sm:text-base font-bold text-slate-500">감면 환자</span>
+            <div class="text-2xl sm:text-3.5xl font-black text-slate-900 whitespace-nowrap mt-0.5" id="step3PatientName">-</div>
+            <div class="text-sm sm:text-base text-slate-500 font-bold font-num whitespace-nowrap mt-0.5" id="step3PatientJubno">-</div>
+          </div>
+          <div class="text-right">
+            <span class="text-xs sm:text-base font-bold text-slate-500">등록할 내 차량</span>
+            <div class="text-3xl sm:text-4.5xl font-black text-[#3182f6] font-num whitespace-nowrap mt-0.5" id="step3CarNum">-</div>
+            <div class="text-xs sm:text-base text-slate-400 font-bold font-num whitespace-nowrap mt-0.5" id="step3CarInTime">입차: -</div>
+          </div>
+        </div>
+
+        <div class="p-4 sm:p-5 rounded-2xl bg-white border-2 border-emerald-300 flex items-center justify-between shadow-2xs">
+          <div class="flex items-center gap-3 sm:gap-4">
+            <div class="w-12 h-12 sm:w-16 sm:h-16 rounded-2xl bg-emerald-600 text-white flex items-center justify-center font-black text-2xl sm:text-3xl shadow-sm flex-shrink-0">
+              <i class="fa-solid fa-gift"></i>
+            </div>
+            <div>
+              <div class="text-xl sm:text-3xl font-black text-emerald-800 whitespace-nowrap" id="step3BenefitHours">
+                6시간 무료 주차
+              </div>
+              <div class="text-xs sm:text-base text-emerald-700 font-bold mt-1" id="step3BenefitDesc">
+                당일 외래진료 환자 6시간 무료
+              </div>
+            </div>
+          </div>
+          <div class="text-right flex-shrink-0">
+            <div class="text-xs sm:text-sm text-slate-400 font-bold">출차 혜택</div>
+            <div class="text-sm sm:text-lg font-black text-emerald-800 whitespace-nowrap">당일 무료 출차</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 하단 직관적인 행동 버튼 영역 (상세 카드 바로 아래에 안착) -->
+      <div class="w-full flex items-center justify-center gap-3 sm:gap-5 flex-shrink-0 pt-1 pb-6">
+        <button onclick="backToStep1Keypad()" class="px-6 sm:px-9 py-4 sm:py-5.5 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-black text-lg sm:text-2xl transition active:scale-95 border-2 border-slate-300 whitespace-nowrap flex-shrink-0">
+          다시 입력
+        </button>
+        
+        <button id="btnSubmitRegister" onclick="submitCarRegistration()" class="btn-register-pulse flex-1 py-4 sm:py-5.5 rounded-2xl bg-[#3182f6] hover:bg-[#1b64da] text-white font-black text-xl sm:text-3xl shadow-xl active:scale-95 transition flex items-center justify-center gap-3 whitespace-nowrap">
+          <i class="fa-solid fa-circle-check text-2xl sm:text-3xl"></i>
+          <span>네, 등록합니다 (<span id="autoCommitCountdown" class="text-yellow-300 font-num">15</span>초)</span>
+        </button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ===================================================================== -->
+  <!-- ⚙️ 프론트엔드 실시간 API 연동 스크립트 -->
+  <!-- ===================================================================== -->
+  <script>
+    let currentInput4 = "";
+    let currentChartNum = "";
+    let currentJmno = "";
+    let isHiddenJmnoMode = false;
+    let selectedCar = null;
+    let currentPatient = null;
+    let returnCountdownTimer = null;
+    let autoCommitTimer = null;
+    let inactivityTimer = null;
+    const INACTIVITY_TIMEOUT_SEC = 40;
+
+    // ⭐️ 6회 연속 탭 트리거 헬퍼 (더블탭 줌 방지 & 터치 정확도)
+    function setup6TapTrigger(element, onSuccess) {
+      if (!element) return;
+      let tapCount = 0;
+      let tapTimer = null;
+      let lastTouchTime = 0;
+
+      const handleTap = (e) => {
+        const now = Date.now();
+        if (e.type === "click" && now - lastTouchTime < 400) return;
+        if (e.type === "touchend") lastTouchTime = now;
+
+        tapCount++;
+        if (tapTimer) clearTimeout(tapTimer);
+
+        if (tapCount >= 6) {
+          tapCount = 0;
+          if (e.cancelable) e.preventDefault();
+          onSuccess();
+          return;
+        }
+
+        tapTimer = setTimeout(() => { tapCount = 0; }, 2500);
+      };
+
+      element.addEventListener("click", handleTap);
+      element.addEventListener("touchend", handleTap);
+    }
+
+    function toggleFullscreenDirect() {
+      if (!document.fullscreenElement) {
+        if (document.documentElement.requestFullscreen) {
+          document.documentElement.requestFullscreen().catch(() => {});
+        }
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen().catch(() => {});
+        }
+      }
+    }
+
+    // [히든 기능] 주민등록번호 13자리 모드 전환/복귀
+    function toggleHiddenJmnoMode(enable) {
+      isHiddenJmnoMode = (enable !== undefined) ? enable : !isHiddenJmnoMode;
+      const boxUnified = document.getElementById("unifiedStep2Box");
+      const boxHidden = document.getElementById("hiddenJmnoBox");
+
+      if (isHiddenJmnoMode) {
+        boxUnified.classList.add("hidden");
+        boxHidden.classList.remove("hidden");
+        clearJmnoNum();
+        Swal.fire({
+          toast: true,
+          position: "top-end",
+          icon: "info",
+          title: "직원 모드 전환",
+          text: "주민등록번호 13자리 입력 화면으로 전환되었습니다.",
+          showConfirmButton: false,
+          timer: 2000
+        });
+      } else {
+        boxHidden.classList.add("hidden");
+        boxUnified.classList.remove("hidden");
+        clearChartNum();
+        Swal.fire({
+          toast: true,
+          position: "top-end",
+          icon: "success",
+          title: "일반 모드 복귀",
+          text: "바코드 / 등록번호 입력 화면으로 복귀했습니다.",
+          showConfirmButton: false,
+          timer: 1500
+        });
+      }
+    }
+
+    let inactivityRemaining = INACTIVITY_TIMEOUT_SEC;
+    let inactivityInterval = null;
+
+    function updateInactivityBadgeUI() {
+      const badgeEl = document.getElementById("inactivityBadge");
+      const secEl = document.getElementById("inactivitySecRemaining");
+      if (!badgeEl || !secEl) return;
+
+      // 이미 감면완료 화면(stepAlreadyRegisteredSection)에 자체 카운트다운이 있으면 상단 뱃지는 일시 숨김
+      const alreadySec = document.getElementById("stepAlreadyRegisteredSection");
+      if (alreadySec && !alreadySec.classList.contains("hidden")) {
+        badgeEl.classList.add("hidden");
+        return;
+      }
+
+      badgeEl.classList.remove("hidden");
+      secEl.textContent = inactivityRemaining;
+
+      // 10초 이하일 때 붉은색 펄스로 경고 강조
+      if (inactivityRemaining <= 10) {
+        badgeEl.className = "flex items-center gap-1.5 px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-xl bg-rose-900/90 border border-rose-500 text-rose-200 shadow-xs whitespace-nowrap animate-pulse";
+      } else {
+        badgeEl.className = "flex items-center gap-1.5 px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-xl bg-slate-800/90 border border-slate-700 text-amber-300 shadow-xs whitespace-nowrap";
+      }
+    }
+
+    // 40초 무조작 자동 리셋 엔진 (실시간 초 단위 카운트다운 & 상단 헤더 뱃지 표기)
+    function resetInactivityTimer() {
+      inactivityRemaining = INACTIVITY_TIMEOUT_SEC;
+      updateInactivityBadgeUI();
+
+      if (inactivityInterval) clearInterval(inactivityInterval);
+
+      inactivityInterval = setInterval(() => {
+        // 이미 감면완료 화면은 전용 타이머(alreadyCountdown)가 작동하므로 제외
+        const alreadySec = document.getElementById("stepAlreadyRegisteredSection");
+        if (alreadySec && !alreadySec.classList.contains("hidden")) return;
+
+        // 1단계 첫 화면(입력값 없음)일 때는 40초로 대기하다가 첫 조작 시 카운트다운 작동
+        const step1Sec = document.getElementById("step1Section");
+        const isStep1Clean = step1Sec && !step1Sec.classList.contains("hidden") && !currentInput4;
+        if (isStep1Clean) {
+          inactivityRemaining = INACTIVITY_TIMEOUT_SEC;
+          updateInactivityBadgeUI();
+          return;
+        }
+
+        inactivityRemaining--;
+        updateInactivityBadgeUI();
+
+        if (inactivityRemaining <= 0) {
+          clearInterval(inactivityInterval);
+          console.log("⏱️ 40초간 무조작으로 처음 화면 복귀");
+          resetAllSteps();
+        }
+      }, 1000);
+    }
+
+    ["click", "touchstart", "keydown"].forEach((evt) => {
+      window.addEventListener(evt, resetInactivityTimer, { passive: true });
+    });
+
+    document.addEventListener("DOMContentLoaded", () => {
+      // 로고 6회 터치 ➔ 전체화면 토글
+      const logoEl = document.getElementById("koohHeaderLogo");
+      setup6TapTrigger(logoEl, toggleFullscreenDirect);
+
+      // 바코드 배너 영역 6회 터치 ➔ 히든 주민등록번호 13자리 모드 전환
+      const bannerEl = document.getElementById("barcodeGuideBanner");
+      setup6TapTrigger(bannerEl, () => toggleHiddenJmnoMode(true));
+
+      // 주민번호 헤더 영역 6회 터치 ➔ 일반 모드로 복귀
+      const jmnoTitleEl = document.getElementById("jmnoHeaderTitle");
+      if (jmnoTitleEl) {
+        setup6TapTrigger(jmnoTitleEl, () => toggleHiddenJmnoMode(false));
+      }
+
+      // 초기화면 타이머 뱃지 가동
+      resetInactivityTimer();
+
+      // ⭐️ 안드로이드 태블릿 전용 하드웨어 바코드 리더기 숨김 인풋 이벤트 바인딩
+      const hiddenInput = document.getElementById("hiddenBarcodeInput");
+      if (hiddenInput) {
+        let hiddenInputTimer = null;
+
+        hiddenInput.addEventListener("input", () => {
+          const step2Sec = document.getElementById("step2Section");
+          const isStep2Active = step2Sec && !step2Sec.classList.contains("hidden");
+          if (!isStep2Active || !selectedCar || isHiddenJmnoMode) {
+            hiddenInput.value = "";
+            return;
+          }
+
+          const raw = hiddenInput.value || "";
+          const pure = raw.replace(/[^0-9a-zA-Z]/g, "").trim();
+
+          // 실시간 화면 7자리 표시창 동기화
+          const pureDigits = pure.replace(/[^0-9]/g, "");
+          if (pureDigits.length > 0) {
+            currentChartNum = pureDigits.slice(0, 7).padStart(7, "0");
+            updateChartNumDisplay();
+          }
+
+          if (hiddenInputTimer) clearTimeout(hiddenInputTimer);
+
+          if (pure.length >= 7) {
+            hiddenInput.value = "";
+            handleBarcodeScanned(pure);
+          } else if (pure.length >= 4) {
+            hiddenInputTimer = setTimeout(() => {
+              const finalVal = (hiddenInput.value || "").replace(/[^0-9a-zA-Z]/g, "").trim();
+              hiddenInput.value = "";
+              if (finalVal.length >= 4) {
+                handleBarcodeScanned(finalVal);
+              }
+            }, 160);
+          }
+        });
+
+        hiddenInput.addEventListener("keydown", (e) => {
+          if (e.key === "Enter" || e.keyCode === 13) {
+            e.preventDefault();
+            const finalVal = (hiddenInput.value || "").replace(/[^0-9a-zA-Z]/g, "").trim();
+            hiddenInput.value = "";
+            if (finalVal.length >= 4) {
+              handleBarcodeScanned(finalVal);
+            }
+          }
+        });
+      }
+
+      // 2단계 화면 터치 시 숨김 인풋 포커스 항상 자동 유지
+      const step2SecEl = document.getElementById("step2Section");
+      if (step2SecEl) {
+        step2SecEl.addEventListener("click", () => {
+          focusHiddenBarcodeInput();
+        }, { passive: true });
+        step2SecEl.addEventListener("touchend", () => {
+          setTimeout(focusHiddenBarcodeInput, 80);
+        }, { passive: true });
+      }
+
+      window.addEventListener("focus", focusHiddenBarcodeInput);
+    });
+
+    // ⭐️ 2단계 화면 전용 하드웨어 바코드 인풋 포커스 유지 함수
+    function focusHiddenBarcodeInput() {
+      const step2Sec = document.getElementById("step2Section");
+      const isStep2Active = step2Sec && !step2Sec.classList.contains("hidden");
+      if (!isStep2Active || !selectedCar || isHiddenJmnoMode) return;
+
+      const inputEl = document.getElementById("hiddenBarcodeInput");
+      if (inputEl && document.activeElement !== inputEl) {
+        try {
+          inputEl.focus({ preventScroll: true });
+        } catch (e) {}
+      }
+    }
+
+    // ⭐️ USB 바코드 수신 엔진 (듀얼 트랙: Window Keydown 캡처링 + 숨김 인풋)
+    let barcodeBuffer = "";
+    let lastBarcodeKeyTime = 0;
+    let barcodeAutoCommitTimer = null;
+
+    function flushBarcodeBuffer() {
+      if (barcodeAutoCommitTimer) {
+        clearTimeout(barcodeAutoCommitTimer);
+        barcodeAutoCommitTimer = null;
+      }
+      if (barcodeBuffer.length >= 4) {
+        const scanned = barcodeBuffer.trim();
+        barcodeBuffer = "";
+        handleBarcodeScanned(scanned);
+      }
+      barcodeBuffer = "";
+    }
+
+    window.addEventListener("keydown", (e) => {
+      // 🚨 [안전 가드] 오직 차량이 정상 선택된 2단계(본인 확인) 화면에서만 바코드 리더기 신호 수신!
+      // 1단계(차량번호 뒤 4자리 입력)나 1.5단계 등에서는 스쳐 지나가거나 먼저 찍혀도 100% 무시/차단!
+      const step2Sec = document.getElementById("step2Section");
+      const isStep2Active = step2Sec && !step2Sec.classList.contains("hidden");
+      if (!isStep2Active || !selectedCar) {
+        barcodeBuffer = "";
+        if (barcodeAutoCommitTimer) clearTimeout(barcodeAutoCommitTimer);
+        return;
+      }
+
+      const now = Date.now();
+      const isEnter = e.key === "Enter" || e.keyCode === 13 || e.which === 13;
+      const isTab = e.key === "Tab" || e.keyCode === 9;
+
+      if (isEnter || isTab) {
+        e.preventDefault();
+        flushBarcodeBuffer();
+        return;
+      }
+
+      // 문자/숫자 추출 (안드로이드 삼성 키보드 IME Process 상태 완벽 호환)
+      let char = "";
+      if (e.key && e.key.length === 1 && e.key !== "Process") {
+        char = e.key;
+      } else if (e.code && e.code.startsWith("Digit")) {
+        char = e.code.replace("Digit", "");
+      } else if (e.code && e.code.startsWith("Numpad") && e.code.length === 7) {
+        char = e.code.replace("Numpad", "");
+      } else if (e.code && e.code.startsWith("Key")) {
+        char = e.code.replace("Key", "");
+      }
+
+      if (char) {
+        // 유입 간격이 500ms 이상이면 새로운 바코드 시작으로 버퍼 리셋
+        if (now - lastBarcodeKeyTime > 500) {
+          barcodeBuffer = "";
+        }
+        barcodeBuffer += char;
+        lastBarcodeKeyTime = now;
+
+        // ⭐️ Enter 키를 안 쏘는 바코드 리더기를 위한 자동완성 (180ms 무입력 시 자동 커밋)
+        if (barcodeAutoCommitTimer) clearTimeout(barcodeAutoCommitTimer);
+        barcodeAutoCommitTimer = setTimeout(() => {
+          if (barcodeBuffer.length >= 5) {
+            flushBarcodeBuffer();
+          }
+        }, 180);
+      }
+    }, true);
+
+    // 1단계 키패드 로직 (고정 비율 밑줄 & 입력 칸 강조)
+    function updateKeypadDisplay() {
+      for (let i = 0; i < 4; i++) {
+        const el = document.getElementById(`digit${i}`);
+        if (!el) continue;
+        if (i < currentInput4.length) {
+          el.textContent = currentInput4[i];
+          el.classList.add("digit-filled");
+        } else {
+          el.innerHTML = "&nbsp;";
+          el.classList.remove("digit-filled");
+        }
+      }
+    }
+
+    function pressNum(n) {
+      if (currentInput4.length < 4) {
+        currentInput4 += n;
+        updateKeypadDisplay();
+        if (currentInput4.length === 4) {
+          setTimeout(searchCarsBy4Digits, 150);
+        }
+      }
+    }
+
+    function backspaceNum() {
+      if (currentInput4.length > 0) {
+        currentInput4 = currentInput4.slice(0, -1);
+        updateKeypadDisplay();
+      }
+    }
+
+    function clearNum() {
+      currentInput4 = "";
+      updateKeypadDisplay();
+    }
+
+    // =========================================================================
+    // 🔍 1단계: 차량 뒷 4자리 실제 주차 관제 서버 DB 검색
+    // =========================================================================
+    async function searchCarsBy4Digits() {
+      if (currentInput4.length < 4) return;
+
+      Swal.fire({
+        title: "차량 검색 중...",
+        text: `뒷자리 [${currentInput4}] 차량을 조회하고 있습니다.`,
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading(),
+      });
+
+      try {
+        const res = await fetch("/api/self/searchcar", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ carnum: currentInput4 }),
+        });
+        const data = await res.json();
+        Swal.close();
+
+        if (!data.ok) {
+          Swal.fire("조회 오류", data.msg || "차량 조회에 실패했습니다.", "error");
+          return;
+        }
+
+        const cars = data.cars || [];
+        if (cars.length === 0) {
+          Swal.fire({
+            icon: "warning",
+            title: "차량을 찾을 수 없습니다",
+            html: `
+              <div class="py-2 space-y-2">
+                <p class="text-xl sm:text-2xl font-black text-slate-800 break-keep">
+                  끝자리 [<b class="text-[#3182f6] font-num text-2xl sm:text-3xl">${currentInput4}</b>]번에 해당하는 입차 차량이 없습니다.
+                </p>
+                <p class="text-sm sm:text-base text-slate-500 font-bold mt-2">
+                  입차 시각이나 차량번호를 다시 확인해 주세요.
+                </p>
+              </div>
+            `,
+            confirmButtonColor: "#3182f6",
+            confirmButtonText: "확인"
+          });
+          clearNum();
+          return;
+        }
+
+        renderCarsList(cars);
+      } catch (err) {
+        Swal.close();
+        Swal.fire("통신 오류", "주차 관제 서버와 통신 중 오류가 발생했습니다.", "error");
+      }
+    }
+
+    // 차량 목록 렌더링 (카드 전체가 대형 터치 버튼으로 동작: 개별 선택 버튼 제거 & 색상형 블록)
+    function renderCarsList(cars) {
+      document.getElementById("step1Section").classList.add("hidden");
+      document.getElementById("step1CarsSection").classList.remove("hidden");
+      document.getElementById("lblSearchedNum").textContent = currentInput4;
+      updateStepIndicator(1);
+
+      const container = document.getElementById("carCardsContainer");
+      container.innerHTML = "";
+
+      cars.forEach((car) => {
+        const card = document.createElement("div");
+        card.onclick = () => selectCarAndProceed(car);
+
+        if (car.alreadyRegistered) {
+          // 🟢 이미 감면 등록된 차량 카드 (에메랄드 톤 대형 버튼형 블록)
+          card.className = "group w-full p-5 sm:p-7 md:p-8 rounded-3xl border-3 sm:border-4 border-emerald-500 bg-gradient-to-r from-emerald-50/90 via-white to-emerald-50/50 hover:from-emerald-100 hover:to-emerald-50 shadow-md hover:shadow-xl transition-all active:scale-[0.99] cursor-pointer flex items-center justify-between gap-4 select-none";
+          card.innerHTML = `
+            <!-- 좌측: 번호판 + 입차시각 + 감면완료 뱃지 -->
+            <div class="flex flex-col gap-2 min-w-0 flex-1">
+              <div class="inline-flex self-start license-plate px-5 py-2.5 sm:px-8 sm:py-3.5 bg-white border-3 sm:border-4 border-slate-900 rounded-2xl shadow-sm">
+                <span class="plate-font text-3xl sm:text-4.5xl md:text-5xl font-black text-slate-950 tracking-wider">${car.carno}</span>
+              </div>
+              <div class="flex items-center gap-2 pl-1">
+                <span class="text-xs sm:text-base font-bold text-slate-500">입차 시각:</span>
+                <span class="text-base sm:text-xl md:text-2xl font-black text-slate-800 font-num whitespace-nowrap">${car.intime || '당일 입차'}</span>
+              </div>
+              <div class="self-start mt-1 px-3.5 py-1.5 sm:px-4.5 sm:py-2 rounded-xl bg-emerald-600 text-white font-black text-xs sm:text-base shadow-xs flex items-center gap-1.5">
+                <i class="fa-solid fa-circle-check text-xs sm:text-lg"></i>
+                <span>감면 등록 완료</span>
+              </div>
+            </div>
+
+            <!-- 우측: 대형 터치 인디케이터 화살표 (카드 전체가 버튼임을 유도) -->
+            <div class="w-14 h-14 sm:w-18 sm:h-18 rounded-2xl bg-emerald-600 group-hover:bg-emerald-700 text-white flex items-center justify-center font-black text-2xl sm:text-3.5xl shadow-md transition-all flex-shrink-0">
+              <i class="fa-solid fa-chevron-right"></i>
+            </div>
+          `;
+        } else {
+          // 🔵 신규 등록 가능 차량 카드 (토스 블루 톤 대형 버튼형 블록)
+          card.className = "group w-full p-5 sm:p-7 md:p-8 rounded-3xl border-3 sm:border-4 border-[#3182f6] bg-gradient-to-r from-blue-50/90 via-white to-blue-50/50 hover:from-blue-100 hover:to-blue-50 shadow-md hover:shadow-xl transition-all active:scale-[0.99] cursor-pointer flex items-center justify-between gap-4 select-none";
+          card.innerHTML = `
+            <!-- 좌측: 번호판 + 입차시각 -->
+            <div class="flex flex-col gap-2 min-w-0 flex-1">
+              <div class="inline-flex self-start license-plate px-5 py-2.5 sm:px-8 sm:py-3.5 bg-white border-3 sm:border-4 border-slate-900 rounded-2xl shadow-sm">
+                <span class="plate-font text-3xl sm:text-4.5xl md:text-5xl font-black text-slate-950 tracking-wider">${car.carno}</span>
+              </div>
+              <div class="flex items-center gap-2 pl-1">
+                <span class="text-xs sm:text-base font-bold text-slate-500">입차 시각:</span>
+                <span class="text-base sm:text-xl md:text-2xl font-black text-slate-800 font-num whitespace-nowrap">${car.intime || '당일 입차'}</span>
+              </div>
+            </div>
+
+            <!-- 우측: 대형 토스 블루 터치 인디케이터 화살표 (카드 전체가 버튼임을 유도) -->
+            <div class="w-14 h-14 sm:w-18 sm:h-18 rounded-2xl bg-[#3182f6] group-hover:bg-[#1b64da] text-white flex items-center justify-center font-black text-2xl sm:text-3.5xl shadow-md transition-all flex-shrink-0">
+              <i class="fa-solid fa-chevron-right"></i>
+            </div>
+          `;
+        }
+
+        container.appendChild(card);
+      });
+    }
+
+    function backToStep1Keypad() {
+      if (autoCommitTimer) clearInterval(autoCommitTimer);
+      // 차량 및 환자 상태 완전 초기화 (오염 방지)
+      selectedCar = null;
+      currentPatient = null;
+      barcodeBuffer = "";
+
+      // 모든 섹션 명시적 격리
+      document.getElementById("step1CarsSection").classList.add("hidden");
+      document.getElementById("stepAlreadyRegisteredSection").classList.add("hidden");
+      document.getElementById("step2Section").classList.add("hidden");
+      document.getElementById("step3Section").classList.add("hidden");
+      document.getElementById("step1Section").classList.remove("hidden");
+
+      clearNum();
+      clearChartNum();
+      clearJmnoNum();
+      updateStepIndicator(1);
+    }
+
+    // 차량 선택 시 다음 단계 진행
+    function selectCarAndProceed(car) {
+      selectedCar = car;
+
+      // ⭐️ 기감면 완료 차량인 경우 안내 화면으로 직행
+      if (car.alreadyRegistered) {
+        showAlreadyRegisteredScreen(car);
+        return;
+      }
+
+      // STEP 2 화면으로 전환 (다른 모든 섹션 완전 격리 은폐)
+      document.getElementById("step1Section").classList.add("hidden");
+      document.getElementById("step1CarsSection").classList.add("hidden");
+      document.getElementById("stepAlreadyRegisteredSection").classList.add("hidden");
+      document.getElementById("step3Section").classList.add("hidden");
+      document.getElementById("step2Section").classList.remove("hidden");
+      updateStepIndicator(2);
+
+      document.getElementById("step2SelectedCarNum").textContent = car.carno;
+      document.getElementById("step2SelectedCarInTime").textContent = `입차: ${car.intime || '당일'}`;
+
+      clearChartNum();
+      clearJmnoNum();
+      barcodeBuffer = "";
+      if (isHiddenJmnoMode) {
+        toggleHiddenJmnoMode(false);
+      }
+      setTimeout(focusHiddenBarcodeInput, 100);
+    }
+
+    // 기감면 차량 안내 화면 표시
+    function showAlreadyRegisteredScreen(car, isJustCompleted = false) {
+      document.getElementById("step1Section").classList.add("hidden");
+      document.getElementById("step1CarsSection").classList.add("hidden");
+      document.getElementById("step2Section").classList.add("hidden");
+      document.getElementById("step3Section").classList.add("hidden");
+      document.getElementById("stepAlreadyRegisteredSection").classList.remove("hidden");
+      updateStepIndicator(3, true);
+
+      const titleEl = document.getElementById("alreadyTitle");
+      const badgeWrap = document.getElementById("alreadyBadgeWrap");
+      const badgeText = document.getElementById("alreadyBadgeText");
+
+      if (isJustCompleted) {
+        titleEl.textContent = "주차 감면 등록이 완료되었습니다!";
+        badgeWrap.className = "w-full py-3 sm:py-4 px-4 rounded-2xl bg-[#3182f6] text-white font-black text-xl sm:text-2.5xl md:text-3xl shadow-md border-2 border-blue-600 flex items-center justify-center gap-2.5";
+      } else {
+        titleEl.textContent = "이미 주차 감면이 등록된 차량입니다";
+        badgeWrap.className = "w-full py-3 sm:py-4 px-4 rounded-2xl bg-emerald-500 text-white font-black text-xl sm:text-2.5xl md:text-3xl shadow-md border-2 border-emerald-600 flex items-center justify-center gap-2.5";
+      }
+
+      document.getElementById("alreadyCarNum").textContent = car.carno;
+      document.getElementById("alreadyInTime").textContent = `입차시각: ${car.intime || '당일'}`;
+      document.getElementById("alreadyPatientName").textContent = `${car.maskedPatientName || '외래환자'} 님`;
+      document.getElementById("alreadyPatientJubno").textContent = car.maskedJubno ? car.maskedJubno : "-";
+      document.getElementById("alreadyBenefitTitle").textContent = car.benefitTitle || "외래 6시간 무료";
+
+      const carImg = document.getElementById("alreadyCarImage");
+      const imgPlaceholder = document.getElementById("alreadyCarImagePlaceholder");
+      if (car.imgUrl) {
+        carImg.src = car.imgUrl;
+        carImg.classList.remove("hidden");
+        imgPlaceholder.classList.add("hidden");
+      } else {
+        carImg.classList.add("hidden");
+        imgPlaceholder.classList.remove("hidden");
+      }
+
+      const info = car.overdueInfo || { isOverdue: false, remainText: "여유 출차 가능", estimatedFee: 0 };
+      const statusEl = document.getElementById("alreadyOverdueStatus");
+      const bannerEl = document.getElementById("alreadyFeeBanner");
+
+      if (info.isOverdue) {
+        statusEl.className = "font-black text-rose-600";
+        statusEl.textContent = `초과 (${info.overText})`;
+        bannerEl.className = "p-3.5 sm:p-4.5 rounded-2xl bg-rose-50 border-2 border-rose-300 flex items-center justify-between gap-3 shadow-xs";
+        bannerEl.innerHTML = `
+          <div class="text-lg sm:text-2xl font-black text-rose-800 flex items-center gap-2">
+            <i class="fa-solid fa-triangle-exclamation text-rose-600"></i>
+            <span>시간 초과 (정산 필요)</span>
+          </div>
+          <div class="text-2.5xl sm:text-4xl font-black text-rose-700 font-num">
+            ${Number(info.estimatedFee).toLocaleString()}원
+          </div>
+        `;
+      } else {
+        statusEl.className = "font-black text-emerald-800";
+        statusEl.textContent = `무료출차가능 (${info.remainText})`;
+        bannerEl.className = "p-3.5 sm:p-4.5 rounded-2xl bg-emerald-50 border-2 border-emerald-300 flex items-center justify-between gap-3 shadow-xs";
+        bannerEl.innerHTML = `
+          <div class="text-xl sm:text-2.5xl font-black text-emerald-800 flex items-center gap-2">
+            <i class="fa-solid fa-circle-check text-emerald-600"></i>
+            <span>무료 출차</span>
+          </div>
+          <div class="text-3.5xl sm:text-5xl font-black text-emerald-700 font-num">
+            0원
+          </div>
+        `;
+      }
+
+      if (returnCountdownTimer) clearInterval(returnCountdownTimer);
+      let count = 25;
+      const countdownEl = document.getElementById("alreadyCountdown");
+      if (countdownEl) countdownEl.textContent = count;
+      returnCountdownTimer = setInterval(() => {
+        count--;
+        if (countdownEl) countdownEl.textContent = count;
+        if (count <= 0) {
+          clearInterval(returnCountdownTimer);
+          resetAllSteps();
+        }
+      }, 1000);
+    }
+
+    // ⭐️ 바코드 수신 시 환자 조회 및 화면 7자리 표시창 즉시 시각화 (2단계 활성 시에만 동작)
+    let lastHandledBarcodeTime = 0;
+    function handleBarcodeScanned(barcode) {
+      const now = Date.now();
+      if (now - lastHandledBarcodeTime < 400) return; // 듀얼 트랙 중복 격발 방지
+
+      // 🚨 [엄격한 안전 가드] 2단계 화면이 아니거나 차량이 선택되지 않은 상태에서는 바코드 신호를 100% 무시/폐기!
+      const step2Sec = document.getElementById("step2Section");
+      const isStep2Active = step2Sec && !step2Sec.classList.contains("hidden");
+      if (!isStep2Active || !selectedCar || isHiddenJmnoMode) {
+        return;
+      }
+
+      const cleanBarcode = (barcode || "").replace(/[^0-9a-zA-Z]/g, "").trim();
+      if (!cleanBarcode) return;
+      lastHandledBarcodeTime = now;
+
+      // 2단계 화면에서 바코드 스캔 시 화면 7자리 표시창에 즉시 번호 표출!
+      const pureDigits = cleanBarcode.replace(/[^0-9]/g, "");
+      if (pureDigits.length > 0) {
+        currentChartNum = pureDigits.slice(0, 7).padStart(7, "0");
+        updateChartNumDisplay();
+      }
+
+      // 실제 OCS 환자 조회 실행
+      lookupPatientReal({ keyword: cleanBarcode });
+    }
+
+    // 등록번호 7자리 입력 로직
+    function updateChartNumDisplay() {
+      const displayEl = document.getElementById("chartNumDisplay");
+      if (currentChartNum.length === 0) {
+        displayEl.textContent = "_______";
+        displayEl.classList.add("text-slate-300");
+        displayEl.classList.remove("text-[#3182f6]");
+      } else {
+        displayEl.textContent = currentChartNum.padEnd(7, "_");
+        displayEl.classList.remove("text-slate-300");
+        displayEl.classList.add("text-[#3182f6]");
+      }
+    }
+
+    function pressChartNum(n) {
+      if (currentChartNum.length < 7) {
+        currentChartNum += n;
+        updateChartNumDisplay();
+        if (currentChartNum.length === 7) {
+          setTimeout(submitChartNumDirect, 150);
+        }
+      }
+    }
+
+    function backspaceChartNum() {
+      if (currentChartNum.length > 0) {
+        currentChartNum = currentChartNum.slice(0, -1);
+        updateChartNumDisplay();
+      }
+    }
+
+    function clearChartNum() {
+      currentChartNum = "";
+      updateChartNumDisplay();
+    }
+
+    function submitChartNumDirect() {
+      // 7자리가 모두 입력되었을 때만 처리 (미만 입력 차단)
+      if (currentChartNum.length !== 7) {
+        return;
+      }
+      lookupPatientReal({ keyword: currentChartNum });
+    }
+
+    // [히든 모드] 주민등록번호 13자리 입력 로직
+    function updateJmnoDisplay() {
+      const f = currentJmno.substring(0, 6);
+      const b = currentJmno.substring(6, 13);
+      const fDisplay = f.padEnd(6, "_");
+
+      let bDisplay = "_______";
+      if (b.length > 0) {
+        const masked = "●".repeat(b.length - 1);
+        const lastChar = b.charAt(b.length - 1);
+        bDisplay = (masked + lastChar).padEnd(7, "_");
+      }
+
+      document.getElementById("jmnoFront").textContent = fDisplay;
+      document.getElementById("jmnoBack").textContent = bDisplay;
+    }
+
+    function pressJmnoNum(n) {
+      if (currentJmno.length < 13) {
+        currentJmno += n;
+        updateJmnoDisplay();
+        if (currentJmno.length === 13) {
+          setTimeout(() => {
+            lookupPatientReal({ jmno: currentJmno });
+          }, 250);
+        }
+      }
+    }
+
+    function backspaceJmnoNum() {
+      if (currentJmno.length > 0) {
+        currentJmno = currentJmno.slice(0, -1);
+        updateJmnoDisplay();
+      }
+    }
+
+    function clearJmnoNum() {
+      currentJmno = "";
+      updateJmnoDisplay();
+    }
+
+    function submitJmnoDirect() {
+      if (currentJmno.length < 13) {
+        Swal.fire("안내", "주민등록번호 13자리를 모두 입력해 주세요.", "warning");
+        return;
+      }
+      lookupPatientReal({ jmno: currentJmno });
+    }
+
+    // =========================================================================
+    // 🏥 2단계: 실제 병원 OCS 환자 진료 자격 조회 API
+    // =========================================================================
+    async function lookupPatientReal(payload) {
+      Swal.fire({
+        title: "진료내역 확인 중...",
+        text: "당일 외래 접수 및 감면 자격을 확인하고 있습니다.",
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading(),
+      });
+
+      try {
+        const res = await fetch("/api/self/patientinfo", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        const data = await res.json();
+
+        let patient = (data.patients && data.patients[0]) || null;
+
+        // OCS 등록 환자가 없거나 조회가 실패한 경우
+        if (!data.ok || !patient) {
+          Swal.fire({
+            icon: "warning",
+            title: "환자 정보를 찾을 수 없습니다",
+            html: `
+              <div class="py-2 space-y-2">
+                <p class="text-lg sm:text-2xl font-black text-slate-800 break-keep leading-snug">
+                  입력하신 정보와 일치하는 환자 등록 정보가 없습니다.
+                </p>
+                <p class="text-sm sm:text-base text-slate-500 font-bold">
+                  바코드나 7자리 등록번호를 다시 확인해 주세요.
+                </p>
+              </div>
+            `,
+            confirmButtonColor: "#3182f6",
+            confirmButtonText: "확인"
+          }).then(() => {
+            clearChartNum();
+            clearJmnoNum();
+            focusHiddenBarcodeInput();
+          });
+          return;
+        }
+
+        // 1. 입원 환자 창구 유도
+        if (patient.isInpatientOnly || patient.benefit?.benefitType === "INPATIENT_BLOCK") {
+          Swal.fire({
+            icon: "info",
+            title: "입원 환자/보호자 차량 안내",
+            html: `
+              <div class="text-left bg-slate-50 p-4 sm:p-5 rounded-2xl border-2 border-slate-200 space-y-3 mt-2">
+                <div class="flex items-center justify-between pb-2 border-b-2 border-slate-200">
+                  <span class="text-sm sm:text-base font-bold text-slate-500">환자명</span>
+                  <span class="text-xl sm:text-2xl font-black text-slate-950">${patient.maskedName || patient.name} 님</span>
+                </div>
+                <p class="text-base sm:text-xl text-slate-800 font-black leading-relaxed pt-1 break-keep">
+                  🏥 입원 환자 및 보호자 차량은 <span class="text-[#3182f6] underline underline-offset-4 font-black">1층 원무과 창구</span>에서 직접 지정 등록해 드립니다.
+                </p>
+              </div>
+            `,
+            confirmButtonText: "확인 (처음으로)",
+            confirmButtonColor: "#3182f6",
+            allowOutsideClick: false,
+          }).then(() => {
+            resetAllSteps();
+          });
+          return;
+        }
+
+        // 2. 당일 외래 진료 내역이 없는 경우 (시니어 친화형 대형 블록 표기)
+        if (!patient.hasTodayVisit || patient.benefit?.benefitType === "NONE" || (patient.benefit?.hours || 0) <= 0) {
+          Swal.fire({
+            icon: "warning",
+            title: "당일 외래 접수 내역이 없습니다",
+            html: `
+              <div class="text-left bg-slate-50 p-4 sm:p-5 rounded-2xl border-2 border-slate-200 space-y-3 mt-2">
+                <div class="flex items-center justify-between pb-2 border-b-2 border-slate-200">
+                  <span class="text-sm sm:text-base font-bold text-slate-500">환자명</span>
+                  <span class="text-xl sm:text-2.5xl font-black text-slate-950">${patient.maskedName || patient.name} 님</span>
+                </div>
+                <div class="flex items-center justify-between pb-2 border-b-2 border-slate-200 font-num">
+                  <span class="text-sm sm:text-base font-bold text-slate-500">등록번호</span>
+                  <span class="text-xl sm:text-2.5xl font-black text-[#3182f6]">${patient.jubno}</span>
+                </div>
+                <div class="text-rose-600 font-black pt-1.5 text-base sm:text-xl leading-relaxed break-keep">
+                  오늘 접수된 외래 진료 내역이 확인되지 않아 주차 감면을 등록할 수 없습니다.
+                </div>
+              </div>
+            `,
+            confirmButtonText: "확인",
+            confirmButtonColor: "#3182f6",
+          }).then(() => {
+            clearChartNum();
+            clearJmnoNum();
+            focusHiddenBarcodeInput();
+          });
+          return;
+        }
+
+        // 3. 차량 변경 확인 (기존 등록 차와 다른 경우 - 공백 및 특수문자 제거 무결 1:1 비교)
+        const pureExistingCar = (patient.carnoPure || "").replace(/[^0-9가-힣a-zA-Z]/g, "").trim();
+        const pureSelectedCar = (selectedCar?.carno || "").replace(/[^0-9가-힣a-zA-Z]/g, "").trim();
+
+        if (pureExistingCar && pureSelectedCar && pureExistingCar !== pureSelectedCar) {
+          Swal.fire({
+            icon: "question",
+            title: "등록 차량 변경 확인",
+            html: `
+              <div class="text-left bg-slate-50 p-4 sm:p-5 rounded-2xl border-2 border-slate-200 space-y-3 mt-2">
+                <div class="flex items-center justify-between pb-2 border-b-2 border-slate-200">
+                  <span class="text-sm sm:text-base font-bold text-slate-500">환자명 / 등록번호</span>
+                  <span class="text-base sm:text-xl font-black text-slate-900">${patient.maskedName || patient.name} 님 (${patient.jubno})</span>
+                </div>
+                <div class="bg-white p-3 rounded-xl border-2 border-blue-200 space-y-2">
+                  <div class="flex items-center justify-between text-sm sm:text-base">
+                    <span class="text-slate-500 font-bold">기존 등록 차량</span>
+                    <span class="font-black text-slate-400 line-through font-num text-base sm:text-lg">${patient.carnoPure}</span>
+                  </div>
+                  <div class="flex items-center justify-between text-base sm:text-xl text-[#3182f6] font-black pt-1.5 border-t border-dashed border-blue-100">
+                    <span><i class="fa-solid fa-arrow-right mr-1"></i> 새 입차 차량</span>
+                    <span class="text-xl sm:text-2.5xl font-black font-num">${selectedCar.carno}</span>
+                  </div>
+                </div>
+                <p class="text-sm sm:text-base text-slate-700 font-black break-keep pt-1">
+                  환자분의 차량을 오늘 입차하신 새 차량(<b>${selectedCar.carno}</b>)으로 변경하시겠습니까?
+                </p>
+              </div>
+            `,
+            showCancelButton: true,
+            confirmButtonText: "네, 변경합니다",
+            cancelButtonText: "취소",
+            confirmButtonColor: "#3182f6",
+            cancelButtonColor: "#94a3b8",
+            reverseButtons: true,
+            allowOutsideClick: false,
+          }).then((result) => {
+            if (result.isConfirmed) {
+              proceedToStep3(patient);
+            } else {
+              resetAllSteps();
+            }
+          });
+          return;
+        }
+
+        // 차량 변경이 없거나 신규 등록인 경우 로딩창 닫고 바로 STEP 3 진행
+        Swal.close();
+        proceedToStep3(patient);
+      } catch (err) {
+        Swal.close();
+        Swal.fire("통신 오류", "환자 정보 확인 중 서버 통신 오류가 발생했습니다.", "error");
+      }
+    }
+
+    function proceedToStep3(patient) {
+      currentPatient = patient;
+
+      // ⭐️ 모든 다른 단계 섹션 완전 격리 은폐 (1단계, 1.5단계, 2단계, 기감면화면 모두 차단)
+      document.getElementById("step1Section").classList.add("hidden");
+      document.getElementById("step1CarsSection").classList.add("hidden");
+      document.getElementById("stepAlreadyRegisteredSection").classList.add("hidden");
+      document.getElementById("step2Section").classList.add("hidden");
+      document.getElementById("step3Section").classList.remove("hidden");
+      updateStepIndicator(3);
+
+      renderStep3Details();
+
+      // ⭐️ 15초 자동 등록 타이머
+      if (autoCommitTimer) clearInterval(autoCommitTimer);
+      let remain = 15;
+      const countEl = document.getElementById("autoCommitCountdown");
+      if (countEl) countEl.textContent = remain;
+      autoCommitTimer = setInterval(() => {
+        remain--;
+        if (countEl) countEl.textContent = remain;
+        if (remain <= 0) {
+          clearInterval(autoCommitTimer);
+          submitCarRegistration();
+        }
+      }, 1000);
+    }
+
+    function renderStep3Details() {
+      const p = currentPatient;
+      const c = selectedCar;
+      const b = p.benefit || { benefitTitle: "외래진료 6시간 무료", hours: 6, desc: "당일 외래진료 환자 6시간 무료" };
+
+      document.getElementById("step3PatientName").textContent = `${p.maskedName || p.name} 님`;
+      document.getElementById("step3PatientJubno").textContent = `등록번호: ${p.jubno}`;
+      document.getElementById("step3CarNum").textContent = c.carno;
+      document.getElementById("step3CarInTime").textContent = `입차: ${c.intime || '당일'}`;
+
+      document.getElementById("step3BenefitHours").textContent = b.benefitTitle || `${b.hours || 6}시간 무료 주차`;
+      document.getElementById("step3BenefitDesc").textContent = b.desc || "당일 외래진료 환자 6시간 무료";
+    }
+
+    // =========================================================================
+    // 🎉 3단계: 실제 주차 관제 서버 감면 등록 및 OCS 업데이트 실행
+    // =========================================================================
+    async function submitCarRegistration() {
+      if (autoCommitTimer) clearInterval(autoCommitTimer);
+      if (!currentPatient || !selectedCar) return;
+
+      const btn = document.getElementById("btnSubmitRegister");
+      btn.disabled = true;
+      btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> 감면 등록 중...`;
+
+      try {
+        const res = await fetch("/api/self/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            jubno: currentPatient.jubno,
+            carno: selectedCar.carno,
+          }),
+        });
+        const data = await res.json();
+        btn.disabled = false;
+        btn.innerHTML = `<i class="fa-solid fa-circle-check"></i> 네, 등록합니다`;
+
+        if (!data.ok) {
+          Swal.fire("등록 실패", data.msg || "주차 감면 등록 중 오류가 발생했습니다.", "error");
+          return;
+        }
+
+        // 등록 완료 ➔ 기감면 완료 화면으로 즉시 전환
+        selectedCar.alreadyRegistered = true;
+        selectedCar.maskedPatientName = currentPatient.maskedName || currentPatient.name;
+        selectedCar.maskedJubno = currentPatient.jubno ? (currentPatient.jubno.substring(0, 3) + "****") : "";
+        selectedCar.benefitTitle = currentPatient.benefit?.benefitTitle || "외래진료 6시간 무료";
+
+        showAlreadyRegisteredScreen(selectedCar, true);
+      } catch (err) {
+        btn.disabled = false;
+        btn.innerHTML = `<i class="fa-solid fa-circle-check"></i> 네, 등록합니다`;
+        Swal.fire("통신 오류", "주차 감면 등록 요청 중 서버 오류가 발생했습니다.", "error");
+      }
+    }
+
+    // 처음으로 전체 초기화
+    function resetAllSteps() {
+      if (typeof Swal !== "undefined" && Swal.isVisible()) {
+        Swal.close();
+      }
+
+      currentInput4 = "";
+      currentChartNum = "";
+      currentJmno = "";
+      barcodeBuffer = "";
+      selectedCar = null;
+      currentPatient = null;
+      if (returnCountdownTimer) clearInterval(returnCountdownTimer);
+      if (autoCommitTimer) clearInterval(autoCommitTimer);
+
+      updateKeypadDisplay();
+      updateChartNumDisplay();
+      updateJmnoDisplay();
+
+      document.getElementById("step1CarsSection").classList.add("hidden");
+      document.getElementById("stepAlreadyRegisteredSection").classList.add("hidden");
+      document.getElementById("step2Section").classList.add("hidden");
+      document.getElementById("step3Section").classList.add("hidden");
+      document.getElementById("step1Section").classList.remove("hidden");
+
+      if (inactivityTimer) clearTimeout(inactivityTimer);
+      if (inactivityInterval) clearInterval(inactivityInterval);
+      inactivityRemaining = INACTIVITY_TIMEOUT_SEC;
+      updateInactivityBadgeUI();
+      updateStepIndicator(1);
+    }
+
+    // 1, 2, 3 단계 인디케이터 업데이트
+    function updateStepIndicator(step, isFinalDone = false) {
+      for (let i = 1; i <= 3; i++) {
+        const tab = document.getElementById(`stepTab${i}`);
+        const circle = tab.querySelector(".step-circle");
+        const label = tab.querySelector("span:last-child");
+
+        if (i === 1) {
+          if (step > 1) {
+            circle.className = "step-circle w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-emerald-600 text-white flex items-center justify-center text-sm sm:text-lg font-black shadow-sm";
+            circle.innerHTML = `<i class="fa-solid fa-check"></i>`;
+            label.className = "text-xs sm:text-base font-black text-emerald-800 whitespace-nowrap";
+          } else {
+            circle.className = "step-circle w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-[#3182f6] text-white flex items-center justify-center text-sm sm:text-lg font-black shadow-sm";
+            circle.innerHTML = `1`;
+            label.className = "text-xs sm:text-base font-black text-slate-950 whitespace-nowrap";
+          }
+        } else if (i === 2) {
+          if (step > 2) {
+            circle.className = "step-circle w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-emerald-600 text-white flex items-center justify-center text-sm sm:text-lg font-black shadow-sm";
+            circle.innerHTML = `<i class="fa-solid fa-check"></i>`;
+            label.className = "text-xs sm:text-base font-black text-emerald-800 whitespace-nowrap";
+          } else if (step === 2) {
+            circle.className = "step-circle w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-[#3182f6] text-white flex items-center justify-center text-sm sm:text-lg font-black shadow-sm";
+            circle.innerHTML = `2`;
+            label.className = "text-xs sm:text-base font-black text-slate-950 whitespace-nowrap";
+          } else {
+            circle.className = "step-circle w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-slate-300 text-slate-600 flex items-center justify-center text-sm sm:text-lg font-bold";
+            circle.innerHTML = `2`;
+            label.className = "text-xs sm:text-base font-bold text-slate-400 whitespace-nowrap";
+          }
+        } else if (i === 3) {
+          if (isFinalDone) {
+            circle.className = "step-circle w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-emerald-600 text-white flex items-center justify-center text-sm sm:text-lg font-black shadow-sm";
+            circle.innerHTML = `<i class="fa-solid fa-check"></i>`;
+            label.textContent = "등록 완료";
+            label.className = "text-xs sm:text-base font-black text-emerald-800 whitespace-nowrap";
+          } else if (step === 3) {
+            circle.className = "step-circle w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-[#3182f6] text-white flex items-center justify-center text-sm sm:text-lg font-black shadow-sm animate-pulse";
+            circle.innerHTML = `3`;
+            label.textContent = "최종 등록";
+            label.className = "text-xs sm:text-base font-black text-[#1b64da] whitespace-nowrap";
+          } else {
+            circle.className = "step-circle w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-slate-300 text-slate-600 flex items-center justify-center text-sm sm:text-lg font-bold";
+            circle.innerHTML = `3`;
+            label.textContent = "등록 완료";
+            label.className = "text-xs sm:text-base font-bold text-slate-400 whitespace-nowrap";
+          }
+        }
+      }
+    }
+  </script>
+</body>
+</html>
