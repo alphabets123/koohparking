@@ -35,6 +35,7 @@
     }
 
     /* ⭐️ 토스 블루(Toss Blue) 소프트 쿨 그레이 & 프리미엄 배경 */
+    /* ⭐️ 키오스크 고급 다크 차콜 그레이 배경 & 선명한 사선 스트라이프 & 구병원 로고 워터마크 */
     html, body {
       width: 100vw;
       height: 100vh;
@@ -46,12 +47,33 @@
       touch-action: manipulation;
       user-select: none;
       -webkit-user-select: none;
-      background-color: #f2f4f8 !important;
+      background-color: #1e2430 !important;
+      position: relative;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
       background-image: 
-        radial-gradient(at 0% 0%, rgba(49, 130, 246, 0.12) 0px, transparent 50%),
-        radial-gradient(at 100% 100%, rgba(27, 100, 218, 0.08) 0px, transparent 50%),
-        radial-gradient(at 50% 50%, rgba(248, 250, 252, 0.95) 0px, #eef2f8 100%) !important;
-      background-attachment: fixed;
+        repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.04) 0px, rgba(255, 255, 255, 0.04) 3px, transparent 3px, transparent 34px),
+        radial-gradient(circle at 50% 10%, rgba(59, 130, 246, 0.18) 0%, transparent 65%),
+        radial-gradient(circle at 80% 80%, rgba(15, 23, 42, 0.5) 0%, transparent 60%);
+    }
+
+    body::after {
+      content: "";
+      position: fixed;
+      inset: -25%;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.045;
+      background-image: url('/kooh_logo.png');
+      background-repeat: repeat;
+      background-size: 320px;
+      transform: rotate(-18deg);
     }
 
     /* SweetAlert2 팝업 오픈 시 높이 쪼그라듦 완벽 방지 및 대형화 */
@@ -245,26 +267,26 @@
   <!-- ===================================================================== -->
   <!-- 🧭 상단 헤더 바 (고시인성 딥 네이비 & 토스 블루 악센트) -->
   <!-- ===================================================================== -->
-  <header class="w-full bg-[#070e20] text-white flex-shrink-0 pl-2 sm:pl-3 pr-4 sm:pr-8 py-3 sm:py-4.5 flex items-center justify-between shadow-2xl z-30 relative border-b border-slate-800">
-    <div class="flex items-center gap-2.5 sm:gap-4 min-w-0 flex-1 mr-2 sm:mr-3">
+  <header class="w-full bg-[#0a0f1d] text-white flex-shrink-0 pl-2 sm:pl-4 pr-4 sm:pr-8 py-3.5 sm:py-5 flex items-center justify-between shadow-2xl z-30 relative border-b border-slate-800">
+    <div class="flex items-center gap-3 sm:gap-5 min-w-0 flex-1 mr-3">
       <!-- 구병원 공식 로고: 왼쪽 바짝 밀착 & 대형화 (6회 터치 시 전체화면 토글) -->
-      <img id="koohHeaderLogo" src="/kooh_logo.png" alt="구병원" class="h-16 sm:h-20 md:h-22 w-auto object-contain bg-white rounded-2xl p-1 sm:p-1.5 cursor-pointer active:scale-95 transition-transform flex-shrink-0 shadow-md" title="구병원 로고를 6번 터치하면 전체화면이 전환됩니다.">
+      <img id="koohHeaderLogo" src="/kooh_logo.png" alt="구병원" class="h-16 sm:h-22 md:h-24 w-auto object-contain bg-white rounded-2xl p-1.5 cursor-pointer active:scale-95 transition-transform flex-shrink-0 shadow-md" title="구병원 로고를 6번 터치하면 전체화면이 전환됩니다.">
       <div class="min-w-0 flex-1">
-        <h1 class="text-2xl sm:text-3.5xl lg:text-4.5xl font-black tracking-tight flex items-center gap-2 sm:gap-3.5 whitespace-nowrap">
+        <h1 class="text-3xl sm:text-4.5xl md:text-5xl lg:text-5.5xl font-black tracking-tight flex items-center gap-3 sm:gap-4 whitespace-nowrap">
           <span>구병원 주차 등록</span>
-          <span class="px-3 py-1 sm:px-4.5 sm:py-1.5 rounded-full bg-[#3182f6] text-white text-xs sm:text-base font-black shadow-md whitespace-nowrap">외래만 가능</span>
+          <span class="px-3.5 py-1 sm:px-5 sm:py-2 rounded-full bg-[#3182f6] text-white text-xs sm:text-lg font-black shadow-md whitespace-nowrap">외래만 가능</span>
         </h1>
       </div>
     </div>
 
-    <!-- 헤더 우측: 무조작 타이머 뱃지 + 처음으로 버튼 -->
-    <div class="flex items-center gap-2 sm:gap-3 flex-shrink-0">
-      <div id="inactivityBadge" class="flex items-center gap-2 px-3 py-1.5 sm:px-4.5 sm:py-2.5 rounded-2xl bg-slate-800/90 border-2 border-slate-700 text-amber-300 shadow-md whitespace-nowrap">
-        <i class="fa-regular fa-clock text-amber-400 text-base sm:text-xl"></i>
-        <span class="font-num text-sm sm:text-xl font-black text-amber-300"><span id="inactivitySecRemaining">40</span>초</span>
+    <!-- 헤더 우측: 무조작 시간 뱃지 + 처음으로 버튼 -->
+    <div class="flex items-center gap-2.5 sm:gap-4 flex-shrink-0">
+      <div id="inactivityBadge" class="flex items-center gap-2 px-3.5 py-1.5 sm:px-5 sm:py-2.5 rounded-2xl bg-slate-800/90 border-2 border-slate-700 text-slate-300 shadow-md whitespace-nowrap">
+        <i class="fa-regular fa-clock text-slate-400 text-base sm:text-2xl"></i>
+        <span class="font-num text-sm sm:text-2xl font-black text-slate-300"><span id="inactivitySecRemaining">--</span></span>
       </div>
-      <button onclick="resetAllSteps()" class="px-3.5 py-2 sm:px-6 sm:py-3.5 rounded-2xl bg-slate-800 hover:bg-slate-700 text-white font-black text-sm sm:text-lg flex items-center gap-2 transition active:scale-95 whitespace-nowrap border-2 border-slate-600 shadow-md">
-        <i class="fa-solid fa-rotate-right text-[#3182f6] text-base sm:text-xl"></i>
+      <button onclick="resetAllSteps()" class="px-4 py-2 sm:px-7 sm:py-3.5 rounded-2xl bg-slate-800 hover:bg-slate-700 text-white font-black text-sm sm:text-xl flex items-center gap-2 transition active:scale-95 whitespace-nowrap border-2 border-slate-600 shadow-md">
+        <i class="fa-solid fa-rotate-right text-[#3182f6] text-base sm:text-2xl"></i>
         <span>처음으로</span>
       </button>
     </div>
@@ -275,26 +297,26 @@
   <!-- ===================================================================== -->
   <main class="flex-1 w-full flex flex-col items-center justify-start gap-2 sm:gap-3 p-2 sm:p-4 overflow-hidden min-h-0 relative z-10">
 
-    <!-- ⭐️ 1, 2, 3 단계 진행 바 (다크 배경 최적화 & 선명한 대형 텍스트) -->
-    <div class="w-full max-w-2xl lg:max-w-3xl mx-auto flex items-center justify-between my-2 sm:my-3 px-3 py-2 sm:py-3 rounded-2xl bg-slate-900/80 border border-slate-700/80 shadow-md flex-shrink-0">
+    <!-- ⭐️ 1, 2, 3 단계 진행 바 (다크 차콜 배경 최적화 & 가로폭 대형 확장 & 여백 강화) -->
+    <div class="w-full max-w-3xl lg:max-w-4xl mx-auto flex items-center justify-between my-2.5 sm:my-4 px-6 sm:px-10 py-3 sm:py-4 rounded-3xl bg-[#0f172a]/95 border-2 border-slate-700 shadow-xl flex-shrink-0">
       <!-- 1단계: 차량 선택 -->
-      <div class="flex items-center gap-2 sm:gap-3 flex-1 justify-center">
-        <div id="stepCircle1" class="step-circle w-11 h-11 sm:w-14 sm:h-14 rounded-full bg-[#3182f6] text-white flex items-center justify-center text-lg sm:text-2xl font-black shadow-md">1</div>
-        <span id="stepLabel1" class="text-base sm:text-2xl font-black text-white whitespace-nowrap">차량 선택</span>
+      <div class="flex items-center gap-2.5 sm:gap-3.5 flex-1 justify-center">
+        <div id="stepCircle1" class="step-circle w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-[#3182f6] text-white flex items-center justify-center text-xl sm:text-3xl font-black shadow-md">1</div>
+        <span id="stepLabel1" class="text-lg sm:text-2.5xl font-black text-white whitespace-nowrap">차량 선택</span>
       </div>
-      <div id="stepLine1" class="h-1.5 flex-1 bg-slate-700 rounded-full mx-2 sm:mx-4"></div>
+      <div id="stepLine1" class="h-2 flex-1 bg-slate-700 rounded-full mx-3 sm:mx-6"></div>
 
       <!-- 2단계: 본인 확인 -->
-      <div class="flex items-center gap-2 sm:gap-3 flex-1 justify-center">
-        <div id="stepCircle2" class="step-circle w-11 h-11 sm:w-14 sm:h-14 rounded-full bg-slate-800 border border-slate-700 text-slate-400 flex items-center justify-center text-lg sm:text-2xl font-black">2</div>
-        <span id="stepLabel2" class="text-base sm:text-2xl font-bold text-slate-400 whitespace-nowrap">본인 확인</span>
+      <div class="flex items-center gap-2.5 sm:gap-3.5 flex-1 justify-center">
+        <div id="stepCircle2" class="step-circle w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-slate-800 border-2 border-slate-700 text-slate-400 flex items-center justify-center text-xl sm:text-3xl font-black">2</div>
+        <span id="stepLabel2" class="text-lg sm:text-2.5xl font-bold text-slate-400 whitespace-nowrap">본인 확인</span>
       </div>
-      <div id="stepLine2" class="h-1.5 flex-1 bg-slate-700 rounded-full mx-2 sm:mx-4"></div>
+      <div id="stepLine2" class="h-2 flex-1 bg-slate-700 rounded-full mx-3 sm:mx-6"></div>
 
       <!-- 3단계: 등록 완료 -->
-      <div class="flex items-center gap-2 sm:gap-3 flex-1 justify-center">
-        <div id="stepCircle3" class="step-circle w-11 h-11 sm:w-14 sm:h-14 rounded-full bg-slate-800 border border-slate-700 text-slate-400 flex items-center justify-center text-lg sm:text-2xl font-black">3</div>
-        <span id="stepLabel3" class="text-base sm:text-2xl font-bold text-slate-400 whitespace-nowrap">등록 완료</span>
+      <div class="flex items-center gap-2.5 sm:gap-3.5 flex-1 justify-center">
+        <div id="stepCircle3" class="step-circle w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-slate-800 border-2 border-slate-700 text-slate-400 flex items-center justify-center text-xl sm:text-3xl font-black">3</div>
+        <span id="stepLabel3" class="text-lg sm:text-2.5xl font-bold text-slate-400 whitespace-nowrap">등록 완료</span>
       </div>
     </div>
 
@@ -378,73 +400,74 @@
     <!-- ===================================================================== -->
     <!-- 🟢 STEP 1.8: 기감면 내역 및 출차 안내 화면 (노인 맞춤형 대형 블록 레이아웃) -->
     <!-- ===================================================================== -->
-    <section id="stepAlreadyRegisteredSection" class="kiosk-card hidden w-full max-w-2xl lg:max-w-3xl flex-1 rounded-3xl p-4 sm:p-7 flex flex-col justify-start gap-3.5 sm:gap-4 overflow-y-auto">
+    <section id="stepAlreadyRegisteredSection" class="kiosk-card hidden w-full max-w-2xl lg:max-w-3xl flex-1 rounded-3xl p-4 sm:p-7 flex flex-col justify-start gap-4 sm:gap-5 overflow-y-auto">
       <!-- 1. 상단: 이미 주차 감면이 등록된 차량입니다 (대형 초록 뱃지 헤더) -->
       <div class="w-full text-center flex-shrink-0 pt-0.5">
-        <div id="alreadyBadgeWrap" class="w-full py-4 sm:py-5 px-5 rounded-2xl bg-emerald-500 text-white font-black text-2xl sm:text-3xl md:text-3.5xl shadow-md border-2 border-emerald-600 flex items-center justify-center gap-3">
-          <i class="fa-solid fa-circle-check text-2.5xl sm:text-4xl"></i>
+        <div id="alreadyBadgeWrap" class="w-full py-4.5 sm:py-6 px-5 rounded-2xl bg-emerald-600 text-white font-black text-2xl sm:text-3.5xl md:text-4xl shadow-md border-2 border-emerald-700 flex items-center justify-center gap-3">
+          <i class="fa-solid fa-circle-check text-3xl sm:text-4.5xl"></i>
           <span id="alreadyTitle">이미 주차 감면이 등록된 차량입니다</span>
         </div>
       </div>
 
       <!-- 메인 정보 컨테이너 (위쪽 기준 정렬) -->
-      <div class="w-full space-y-3.5 sm:space-y-4 flex-shrink-0">
-        <!-- 2. LPR 입차 사진 단독 윗칸 (세로형 키오스크 맞춤 대형화: 가로 유지 & 세로 확장) -->
-        <div class="w-full rounded-3xl overflow-hidden border-2 border-slate-300 bg-slate-900 relative shadow-sm h-60 sm:h-80 md:h-96 flex items-center justify-center">
+      <div class="w-full space-y-4 sm:space-y-5 flex-shrink-0">
+        <!-- 2. LPR 입차 사진 단독 윗칸 (세로형 키오스크 대형화) -->
+        <div class="w-full rounded-3xl overflow-hidden border-2 border-slate-300 bg-slate-900 relative shadow-sm h-64 sm:h-84 md:h-96 flex items-center justify-center">
           <img id="alreadyCarImage" src="" alt="LPR 입차 사진" class="w-full h-full object-cover" onerror="this.classList.add('hidden'); const ph = document.getElementById('alreadyCarImagePlaceholder'); if (ph) ph.classList.remove('hidden');">
           <div id="alreadyCarImagePlaceholder" class="hidden flex flex-col items-center justify-center text-slate-400 p-2 text-center">
-            <i class="fa-solid fa-car text-4xl sm:text-5xl mb-2 text-slate-500"></i>
-            <span class="text-sm sm:text-base font-bold">LPR 입차 등록 사진</span>
+            <i class="fa-solid fa-car text-5xl mb-2 text-slate-500"></i>
+            <span class="text-base sm:text-lg font-bold">LPR 입차 등록 사진</span>
           </div>
-          <div class="absolute bottom-3 left-3 bg-black/85 text-white text-xs sm:text-sm px-3 py-1.5 rounded-xl font-black shadow-md flex items-center gap-1.5">
+          <div class="absolute bottom-3 left-3 bg-black/85 text-white text-sm sm:text-base px-3.5 py-2 rounded-xl font-black shadow-md flex items-center gap-2">
             <i class="fa-solid fa-camera"></i>
             <span>입차 사진</span>
           </div>
         </div>
 
-        <!-- 3. 차량번호 & 입차시간 단독 박스 -->
-        <div class="p-4 sm:p-5 rounded-2xl bg-white border-2 border-slate-200 shadow-sm flex flex-col items-center justify-center gap-1.5">
-          <div class="license-plate px-7 py-2.5 sm:px-10 sm:py-3.5 bg-white border-3 sm:border-4 border-slate-900 rounded-2xl shadow-xs">
-            <span class="plate-font text-3.5xl sm:text-5xl md:text-5.5xl font-black text-[#3182f6] tracking-wider" id="alreadyCarNum">-</span>
+        <!-- 3. 차량번호 & 입차시간 단독 박스 (입차시각 글자 큼직하게 확대) -->
+        <div class="p-4 sm:p-6 rounded-2xl bg-white border-2 border-slate-200 shadow-sm flex flex-col items-center justify-center gap-2">
+          <div class="license-plate px-8 py-3 sm:px-11 sm:py-4 bg-white border-4 border-slate-900 rounded-2xl shadow-xs">
+            <span class="plate-font text-4xl sm:text-5.5xl md:text-6xl font-black text-[#3182f6] tracking-wider" id="alreadyCarNum">-</span>
           </div>
-          <div class="text-base sm:text-xl font-black text-slate-700 font-num mt-1" id="alreadyInTime">
-            입차: -
+          <div class="flex items-center gap-2.5 mt-1 text-xl sm:text-2.8xl md:text-3xl font-black text-slate-800 font-num">
+            <span class="text-slate-500 font-bold whitespace-nowrap">입차시각:</span>
+            <span id="alreadyInTime" class="text-slate-900 font-black">-</span>
           </div>
         </div>
 
-        <!-- 4. 감면적용환자 & 병원등록번호 각각 한 줄씩 단독 박스 -->
-        <div class="p-4 sm:p-5 rounded-2xl bg-white border-2 border-slate-200 shadow-sm space-y-2 sm:space-y-2.5">
-          <div class="text-xl sm:text-2.5xl font-black text-slate-900 flex items-center gap-2.5">
-            <span class="text-slate-500 font-bold whitespace-nowrap">감면적용환자 :</span>
+        <!-- 4. 감면적용환자 & 병원등록번호 각각 한 줄씩 단독 박스 (글자 대폭 확대) -->
+        <div class="p-4 sm:p-6 rounded-2xl bg-white border-2 border-slate-200 shadow-sm space-y-3 sm:space-y-4">
+          <div class="text-2xl sm:text-3xl md:text-3.5xl font-black text-slate-900 flex items-center justify-between">
+            <span class="text-slate-500 font-bold whitespace-nowrap">감면적용환자</span>
             <span id="alreadyPatientName" class="text-slate-950 font-black">-</span>
           </div>
-          <div class="text-lg sm:text-2.2xl font-black text-slate-700 flex items-center gap-2.5 font-num">
-            <span class="text-slate-500 font-bold whitespace-nowrap">병원등록번호 :</span>
-            <span id="alreadyPatientJubno" class="bg-slate-100 text-slate-800 px-2.5 py-0.5 rounded-lg">-</span>
+          <div class="text-2xl sm:text-3xl md:text-3.5xl font-black text-slate-800 flex items-center justify-between font-num pt-2 border-t border-slate-100">
+            <span class="text-slate-500 font-bold whitespace-nowrap">병원등록번호</span>
+            <span id="alreadyPatientJubno" class="bg-slate-100 text-slate-900 px-3.5 py-1 rounded-xl font-black tracking-wide">-</span>
           </div>
         </div>
 
-        <!-- 5. 적용혜택 & 현재출차상태 한 박스로 통합 -->
-        <div class="p-4 sm:p-5 rounded-2xl bg-white border-2 border-emerald-300 shadow-sm space-y-2 sm:space-y-2.5">
-          <div class="text-xl sm:text-2.5xl font-black text-emerald-800 flex items-center gap-2.5">
-            <span class="text-slate-500 font-bold whitespace-nowrap">적용혜택 :</span>
-            <span id="alreadyBenefitTitle" class="text-emerald-700 font-black">외래 6시간 무료</span>
+        <!-- 5. 적용혜택 & 현재출차상태 한 박스로 통합 (글자 대폭 확대) -->
+        <div class="p-4 sm:p-6 rounded-2xl bg-white border-2 border-emerald-300 shadow-sm space-y-3 sm:space-y-4">
+          <div class="text-2xl sm:text-3xl md:text-3.5xl font-black text-emerald-800 flex items-center justify-between">
+            <span class="text-slate-500 font-bold whitespace-nowrap">적용혜택</span>
+            <span id="alreadyBenefitTitle" class="text-emerald-700 font-black">외래진료 (6시간 무료)</span>
           </div>
-          <div class="text-lg sm:text-2.2xl font-black text-emerald-900 flex items-center gap-2.5">
-            <span class="text-slate-500 font-bold whitespace-nowrap">현재출차상태 :</span>
-            <span id="alreadyOverdueStatus" class="font-black">-</span>
+          <div class="text-2xl sm:text-3xl md:text-3.5xl font-black text-emerald-950 flex items-center justify-between font-num pt-2 border-t border-emerald-100">
+            <span class="text-slate-500 font-bold whitespace-nowrap">현재출차상태</span>
+            <span id="alreadyOverdueStatus" class="font-black text-rose-600">-</span>
           </div>
         </div>
 
         <!-- 6. 정산 요금 배너 -->
-        <div id="alreadyFeeBanner" class="p-3.5 sm:p-5 rounded-2xl shadow-xs"></div>
+        <div id="alreadyFeeBanner" class="p-4 sm:p-6 rounded-2xl shadow-xs"></div>
       </div>
 
-      <!-- 7. 하단 버튼 -->
+      <!-- 7. 하단 버튼: 테스트 문구 일체 제거 및 시원한 '처음으로' -->
       <div class="w-full flex items-center justify-center flex-shrink-0 pt-2 pb-6">
-        <button onclick="resetAllSteps()" class="w-full py-5 sm:py-6 md:py-7 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xl sm:text-3xl shadow-xl active:scale-98 transition flex items-center justify-center gap-3 whitespace-nowrap">
-          <i class="fa-solid fa-arrow-rotate-left text-xl sm:text-2xl"></i>
-          <span><span id="alreadyCountdown" class="text-yellow-300 font-num">25</span>초 후 처음으로</span>
+        <button id="alreadyReturnBtn" onclick="resetAllSteps()" class="w-full py-5 sm:py-6 md:py-7 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-2xl sm:text-3.5xl shadow-xl active:scale-98 transition flex items-center justify-center gap-3 whitespace-nowrap">
+          <i class="fa-solid fa-arrow-rotate-left text-2xl sm:text-3xl"></i>
+          <span>처음으로</span>
         </button>
       </div>
     </section>
@@ -624,14 +647,14 @@
       <div class="w-full bg-slate-50/90 border-2 border-slate-200 rounded-3xl p-4 sm:p-6 shadow-xs space-y-4 flex-shrink-0">
         <div class="grid grid-cols-2 gap-3 pb-3 border-b-2 border-slate-200">
           <div>
-            <span class="text-xs sm:text-base font-bold text-slate-500">감면 환자</span>
+            <span class="text-base sm:text-xl font-bold text-slate-500">감면 환자</span>
             <div class="text-2xl sm:text-3.5xl font-black text-slate-900 whitespace-nowrap mt-0.5" id="step3PatientName">-</div>
             <div class="text-sm sm:text-base text-slate-500 font-bold font-num whitespace-nowrap mt-0.5" id="step3PatientJubno">-</div>
           </div>
           <div class="text-right">
-            <span class="text-xs sm:text-base font-bold text-slate-500">등록할 내 차량</span>
+            <span class="text-base sm:text-xl font-bold text-slate-500">등록할 내 차량</span>
             <div class="text-3xl sm:text-4.5xl font-black text-[#3182f6] font-num whitespace-nowrap mt-0.5" id="step3CarNum">-</div>
-            <div class="text-xs sm:text-base text-slate-400 font-bold font-num whitespace-nowrap mt-0.5" id="step3CarInTime">입차: -</div>
+            <div class="text-base sm:text-xl text-slate-700 font-black font-num whitespace-nowrap mt-1" id="step3CarInTime">입차: -</div>
           </div>
         </div>
 
@@ -650,7 +673,7 @@
             </div>
           </div>
           <div class="text-right flex-shrink-0">
-            <div class="text-xs sm:text-sm text-slate-400 font-bold">출차 혜택</div>
+            <div class="text-base sm:text-lg text-slate-500 font-bold">출차 혜택</div>
             <div class="text-sm sm:text-lg font-black text-emerald-800 whitespace-nowrap">당일 무료 출차</div>
           </div>
         </div>
@@ -772,7 +795,7 @@
       if (DISABLE_TIMERS) {
         badgeEl.classList.remove("hidden");
         badgeEl.className = "flex items-center gap-2.5 px-4 py-2 sm:px-6 sm:py-3.5 rounded-2xl bg-slate-800/90 border-2 border-slate-700 text-yellow-300 shadow-md whitespace-nowrap";
-        badgeEl.innerHTML = `<i class="fa-solid fa-pause text-yellow-400 text-lg sm:text-xl"></i><span class="font-bold text-base sm:text-xl text-yellow-300">테스트 중 (시간 무제한)</span>`;
+        badgeEl.innerHTML = `<i class="fa-regular fa-clock text-slate-400 text-base sm:text-2xl"></i><span class="font-num text-sm sm:text-2xl font-black text-slate-300">--</span>`;
         return;
       }
 
@@ -1282,7 +1305,7 @@
       if (DISABLE_TIMERS) {
         const btnReturn = document.querySelector("#stepAlreadyRegisteredSection button");
         if (btnReturn) {
-          btnReturn.innerHTML = `<i class="fa-solid fa-arrow-rotate-left text-xl sm:text-2xl mr-2"></i><span>처음으로 (테스트 모드 - 자동 복귀 정지)</span>`;
+          btnReturn.innerHTML = `<i class="fa-solid fa-arrow-rotate-left text-2xl sm:text-3xl mr-2"></i><span>처음으로</span>`;
         }
         return;
       }
@@ -1658,7 +1681,7 @@
       if (DISABLE_TIMERS) {
         const btnSubmit = document.getElementById("btnSubmitRegister");
         if (btnSubmit) {
-          btnSubmit.innerHTML = `<i class="fa-solid fa-circle-check text-2xl sm:text-3xl"></i><span>네, 등록합니다 (테스트 모드)</span>`;
+          btnSubmit.innerHTML = `<i class="fa-solid fa-circle-check text-2.5xl sm:text-3.5xl mr-2"></i><span>네, 등록합니다</span>`;
         }
         return;
       }
