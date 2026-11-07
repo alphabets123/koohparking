@@ -344,15 +344,16 @@
       <!-- 메인 정보 컨테이너 (위쪽 기준 정렬) -->
       <div class="w-full space-y-3 sm:space-y-3.5 flex-shrink-0">
         
-        <!-- 2. LPR 입차 사진 단독 윗칸 -->
-        <div class="w-full rounded-2xl overflow-hidden border-2 border-slate-300 bg-slate-900 relative shadow-xs h-32 sm:h-44 flex items-center justify-center">
+        <!-- 2. LPR 입차 사진 단독 윗칸 (세로형 키오스크 맞춤 대형화: 가로 유지 & 세로 대폭 확장) -->
+        <div class="w-full rounded-3xl overflow-hidden border-2 border-slate-300 bg-slate-900 relative shadow-sm h-60 sm:h-80 md:h-96 flex items-center justify-center">
           <img id="alreadyCarImage" src="" alt="LPR 입차 사진" class="w-full h-full object-cover">
           <div id="alreadyCarImagePlaceholder" class="hidden flex flex-col items-center justify-center text-slate-400 p-2 text-center">
-            <i class="fa-solid fa-car text-3xl mb-1 text-slate-500"></i>
-            <span class="text-xs sm:text-sm font-bold">LPR 입차 등록 사진</span>
+            <i class="fa-solid fa-car text-4xl sm:text-5xl mb-2 text-slate-500"></i>
+            <span class="text-sm sm:text-base font-bold">LPR 입차 등록 사진</span>
           </div>
-          <div class="absolute bottom-2 left-2 bg-black/80 text-white text-[11px] sm:text-xs px-2.5 py-1 rounded-lg font-bold">
-            입차 사진
+          <div class="absolute bottom-3 left-3 bg-black/85 text-white text-xs sm:text-sm px-3 py-1.5 rounded-xl font-black shadow-md flex items-center gap-1.5">
+            <i class="fa-solid fa-camera"></i>
+            <span>입차 사진</span>
           </div>
         </div>
 
@@ -426,10 +427,22 @@
         </button>
       </div>
 
-      <!-- ⭐️ 통합 화면 컨텐츠 (위쪽 기준 연속 배치) -->
+      <!-- ⭐️ 2단계 본인 확인 수단 2-Tab 세그먼트 버튼 (기본: 등록번호/바코드 선택) -->
+      <div class="w-full max-w-xl sm:max-w-2xl mx-auto grid grid-cols-2 gap-2.5 sm:gap-3 p-1.5 bg-slate-200/80 rounded-2xl border border-slate-300 flex-shrink-0">
+        <button id="btnTabChart" onclick="switchAuthMode('chart')" class="py-3.5 sm:py-4.5 px-3 rounded-xl font-black text-lg sm:text-2xl transition-all flex items-center justify-center gap-2.5 shadow-md bg-[#3182f6] text-white active:scale-98">
+          <i class="fa-solid fa-barcode text-xl sm:text-2.5xl"></i>
+          <span>등록번호 (바코드)</span>
+        </button>
+        <button id="btnTabJmno" onclick="switchAuthMode('jmno')" class="py-3.5 sm:py-4.5 px-3 rounded-xl font-black text-lg sm:text-2xl transition-all flex items-center justify-center gap-2.5 text-slate-600 hover:text-slate-950 hover:bg-white/80 active:scale-98">
+          <i class="fa-solid fa-id-card text-xl sm:text-2.5xl"></i>
+          <span>주민등록번호</span>
+        </button>
+      </div>
+
+      <!-- ⭐️ [1] 등록번호 (바코드) 입력 화면 (기본 활성) -->
       <div id="unifiedStep2Box" class="flex flex-col justify-start gap-3 sm:gap-4 flex-shrink-0">
         
-        <!-- 핵심 통합 안내 헤더 -->
+        <!-- 안내 헤더 -->
         <div class="text-center flex-shrink-0 space-y-1 pt-1">
           <h3 class="text-2xl sm:text-3xl lg:text-3.5xl font-black text-slate-950 leading-snug tracking-tight break-keep px-1">
             <span class="text-[#3182f6] underline underline-offset-6 decoration-3">등록번호</span>를 누르거나, 
@@ -438,8 +451,8 @@
             </span>를 찍어주세요
           </h3>
 
-          <!-- 바코드 리더기 대기 안내 (6회 터치 시 주민등록번호 모드 전환) -->
-          <div id="barcodeGuideBanner" class="cursor-pointer select-none flex items-center justify-center gap-2 text-slate-500 font-bold text-xs sm:text-base py-1 active:opacity-60 transition" title="이 영역을 빠르게 6번 터치하면 주민등록번호 모드가 열립니다.">
+          <!-- 바코드 리더기 대기 안내 -->
+          <div id="barcodeGuideBanner" class="select-none flex items-center justify-center gap-2 text-slate-500 font-bold text-xs sm:text-base py-1">
             <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
             <i class="fa-solid fa-barcode text-slate-600 text-sm sm:text-lg"></i>
             <span class="text-slate-700 font-extrabold break-keep">바코드 리더기 대기 중 (영수증을 대면 즉시 인식됩니다)</span>
@@ -491,17 +504,16 @@
         </div>
       </div>
 
-      <!-- ⭐️ [히든 기능] 주민등록번호 13자리 입력 모드 (위쪽 기준 정렬) -->
+      <!-- ⭐️ [2] 주민등록번호 13자리 입력 화면 -->
       <div id="hiddenJmnoBox" class="hidden flex flex-col justify-start gap-3 sm:gap-4 flex-shrink-0">
-        <!-- ⭐️ 헤더 6회 터치 시 일반 모드로 복귀 -->
-        <div id="jmnoHeaderTitle" class="cursor-pointer select-none text-center flex-shrink-0 space-y-1 pt-1 active:opacity-75 transition" title="이 영역을 빠르게 6번 터치하면 일반 모드로 복귀합니다.">
-          <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-800 text-amber-300 font-black text-xs sm:text-sm">
-            <i class="fa-solid fa-lock-open text-amber-400"></i>
-            <span>[직원 전용] 주민등록번호 13자리 입력 모드</span>
-          </div>
+        <!-- 헤더 안내 -->
+        <div id="jmnoHeaderTitle" class="select-none text-center flex-shrink-0 space-y-1 pt-1">
           <h4 class="text-2xl sm:text-3xl lg:text-3.5xl font-black text-slate-950 leading-snug break-keep px-1">
             주민등록번호 <span class="text-[#3182f6] underline underline-offset-6 decoration-3">13자리</span>를 누르세요
           </h4>
+          <p class="text-sm sm:text-base font-bold text-slate-500">
+            접수하신 환자분의 주민등록번호 앞 6자리와 뒤 7자리를 차례로 입력하세요.
+          </p>
         </div>
 
         <!-- 주민번호 표시창 -->
@@ -663,38 +675,28 @@
       }
     }
 
-    // [히든 기능] 주민등록번호 13자리 모드 전환/복귀
-    function toggleHiddenJmnoMode(enable) {
-      isHiddenJmnoMode = (enable !== undefined) ? enable : !isHiddenJmnoMode;
+    // ⭐️ 2단계 본인 확인 수단 2-Tab 전환 (기본: 등록번호/바코드, 선택: 주민등록번호)
+    function switchAuthMode(mode) {
+      const btnChart = document.getElementById("btnTabChart");
+      const btnJmno = document.getElementById("btnTabJmno");
       const boxUnified = document.getElementById("unifiedStep2Box");
       const boxHidden = document.getElementById("hiddenJmnoBox");
 
-      if (isHiddenJmnoMode) {
+      if (mode === "jmno") {
+        isHiddenJmnoMode = true;
+        btnJmno.className = "py-3.5 sm:py-4.5 px-3 rounded-xl font-black text-lg sm:text-2xl transition-all flex items-center justify-center gap-2.5 shadow-md bg-[#3182f6] text-white active:scale-98";
+        btnChart.className = "py-3.5 sm:py-4.5 px-3 rounded-xl font-black text-lg sm:text-2xl transition-all flex items-center justify-center gap-2.5 text-slate-600 hover:text-slate-950 hover:bg-white/80 active:scale-98";
         boxUnified.classList.add("hidden");
         boxHidden.classList.remove("hidden");
         clearJmnoNum();
-        Swal.fire({
-          toast: true,
-          position: "top-end",
-          icon: "info",
-          title: "직원 모드 전환",
-          text: "주민등록번호 13자리 입력 화면으로 전환되었습니다.",
-          showConfirmButton: false,
-          timer: 2000
-        });
       } else {
+        isHiddenJmnoMode = false;
+        btnChart.className = "py-3.5 sm:py-4.5 px-3 rounded-xl font-black text-lg sm:text-2xl transition-all flex items-center justify-center gap-2.5 shadow-md bg-[#3182f6] text-white active:scale-98";
+        btnJmno.className = "py-3.5 sm:py-4.5 px-3 rounded-xl font-black text-lg sm:text-2xl transition-all flex items-center justify-center gap-2.5 text-slate-600 hover:text-slate-950 hover:bg-white/80 active:scale-98";
         boxHidden.classList.add("hidden");
         boxUnified.classList.remove("hidden");
         clearChartNum();
-        Swal.fire({
-          toast: true,
-          position: "top-end",
-          icon: "success",
-          title: "일반 모드 복귀",
-          text: "바코드 / 등록번호 입력 화면으로 복귀했습니다.",
-          showConfirmButton: false,
-          timer: 1500
-        });
+        setTimeout(focusHiddenBarcodeInput, 80);
       }
     }
 
@@ -764,16 +766,6 @@
       // 로고 6회 터치 ➔ 전체화면 토글
       const logoEl = document.getElementById("koohHeaderLogo");
       setup6TapTrigger(logoEl, toggleFullscreenDirect);
-
-      // 바코드 배너 영역 6회 터치 ➔ 히든 주민등록번호 13자리 모드 전환
-      const bannerEl = document.getElementById("barcodeGuideBanner");
-      setup6TapTrigger(bannerEl, () => toggleHiddenJmnoMode(true));
-
-      // 주민번호 헤더 영역 6회 터치 ➔ 일반 모드로 복귀
-      const jmnoTitleEl = document.getElementById("jmnoHeaderTitle");
-      if (jmnoTitleEl) {
-        setup6TapTrigger(jmnoTitleEl, () => toggleHiddenJmnoMode(false));
-      }
 
       // 초기화면 타이머 뱃지 가동
       resetInactivityTimer();
@@ -1019,7 +1011,7 @@
       }
     }
 
-    // 차량 목록 렌더링 (카드 전체가 대형 터치 버튼으로 동작: 개별 선택 버튼 제거 & 색상형 블록)
+    // 차량 목록 렌더링 (대형 터치 버튼 블록: > 버튼 제거, 사진 썸네일 + 차량번호 + 입차시각 줄바꿈 배치)
     function renderCarsList(cars) {
       document.getElementById("step1Section").classList.add("hidden");
       document.getElementById("step1CarsSection").classList.remove("hidden");
@@ -1033,48 +1025,62 @@
         const card = document.createElement("div");
         card.onclick = () => selectCarAndProceed(car);
 
+        const imgBlock = `
+          <div class="w-32 h-26 sm:w-48 sm:h-36 md:w-56 md:h-40 rounded-2xl overflow-hidden bg-slate-900 border-2 border-slate-300 relative shadow-xs flex items-center justify-center flex-shrink-0">
+            ${car.imgUrl ? `
+              <img src="${car.imgUrl}" alt="입차 사진" class="w-full h-full object-cover">
+              <span class="absolute bottom-1.5 left-1.5 bg-black/80 text-white text-[10px] sm:text-xs px-2 py-0.5 rounded-md font-bold">입차 사진</span>
+            ` : `
+              <div class="flex flex-col items-center justify-center text-slate-400 p-2 text-center">
+                <i class="fa-solid fa-car text-3xl sm:text-4xl mb-1 text-slate-500"></i>
+                <span class="text-[11px] sm:text-xs font-bold">사진 없음</span>
+              </div>
+            `}
+          </div>
+        `;
+
         if (car.alreadyRegistered) {
           // 🟢 이미 감면 등록된 차량 카드 (에메랄드 톤 대형 버튼형 블록)
-          card.className = "group w-full p-5 sm:p-7 md:p-8 rounded-3xl border-3 sm:border-4 border-emerald-500 bg-gradient-to-r from-emerald-50/90 via-white to-emerald-50/50 hover:from-emerald-100 hover:to-emerald-50 shadow-md hover:shadow-xl transition-all active:scale-[0.99] cursor-pointer flex items-center justify-between gap-4 select-none";
+          card.className = "group w-full p-4 sm:p-6 md:p-7 rounded-3xl border-3 sm:border-4 border-emerald-500 bg-gradient-to-r from-emerald-50/90 via-white to-emerald-50/50 hover:from-emerald-100 hover:to-emerald-50 shadow-md hover:shadow-xl transition-all active:scale-[0.99] cursor-pointer flex items-center gap-4 sm:gap-6 select-none";
           card.innerHTML = `
-            <!-- 좌측: 번호판 + 입차시각 + 감면완료 뱃지 -->
-            <div class="flex flex-col gap-2 min-w-0 flex-1">
-              <div class="inline-flex self-start license-plate px-5 py-2.5 sm:px-8 sm:py-3.5 bg-white border-3 sm:border-4 border-slate-900 rounded-2xl shadow-sm">
+            <!-- 좌측: 차량 LPR 입차 사진 -->
+            ${imgBlock}
+
+            <!-- 우측: 번호판 + 입차시각(줄바꿈) + 감면완료 뱃지 -->
+            <div class="flex flex-col justify-center gap-2 min-w-0 flex-1">
+              <div class="inline-flex self-start license-plate px-4 py-2 sm:px-7 sm:py-3 bg-white border-3 sm:border-4 border-slate-900 rounded-2xl shadow-xs">
                 <span class="plate-font text-3xl sm:text-4.5xl md:text-5xl font-black text-slate-950 tracking-wider">${car.carno}</span>
               </div>
-              <div class="flex items-center gap-2 pl-1">
-                <span class="text-xs sm:text-base font-bold text-slate-500">입차 시각:</span>
+              <div class="flex items-center gap-2 pl-0.5">
+                <span class="text-xs sm:text-base font-bold text-slate-500 whitespace-nowrap">입차시각:</span>
                 <span class="text-base sm:text-xl md:text-2xl font-black text-slate-800 font-num whitespace-nowrap">${car.intime || '당일 입차'}</span>
               </div>
-              <div class="self-start mt-1 px-3.5 py-1.5 sm:px-4.5 sm:py-2 rounded-xl bg-emerald-600 text-white font-black text-xs sm:text-base shadow-xs flex items-center gap-1.5">
-                <i class="fa-solid fa-circle-check text-xs sm:text-lg"></i>
+              <div class="self-start mt-0.5 px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl bg-emerald-600 text-white font-black text-xs sm:text-base shadow-xs flex items-center gap-1.5">
+                <i class="fa-solid fa-circle-check text-xs sm:text-base"></i>
                 <span>감면 등록 완료</span>
               </div>
-            </div>
-
-            <!-- 우측: 대형 터치 인디케이터 화살표 (카드 전체가 버튼임을 유도) -->
-            <div class="w-14 h-14 sm:w-18 sm:h-18 rounded-2xl bg-emerald-600 group-hover:bg-emerald-700 text-white flex items-center justify-center font-black text-2xl sm:text-3.5xl shadow-md transition-all flex-shrink-0">
-              <i class="fa-solid fa-chevron-right"></i>
             </div>
           `;
         } else {
           // 🔵 신규 등록 가능 차량 카드 (토스 블루 톤 대형 버튼형 블록)
-          card.className = "group w-full p-5 sm:p-7 md:p-8 rounded-3xl border-3 sm:border-4 border-[#3182f6] bg-gradient-to-r from-blue-50/90 via-white to-blue-50/50 hover:from-blue-100 hover:to-blue-50 shadow-md hover:shadow-xl transition-all active:scale-[0.99] cursor-pointer flex items-center justify-between gap-4 select-none";
+          card.className = "group w-full p-4 sm:p-6 md:p-7 rounded-3xl border-3 sm:border-4 border-[#3182f6] bg-gradient-to-r from-blue-50/90 via-white to-blue-50/50 hover:from-blue-100 hover:to-blue-50 shadow-md hover:shadow-xl transition-all active:scale-[0.99] cursor-pointer flex items-center gap-4 sm:gap-6 select-none";
           card.innerHTML = `
-            <!-- 좌측: 번호판 + 입차시각 -->
-            <div class="flex flex-col gap-2 min-w-0 flex-1">
-              <div class="inline-flex self-start license-plate px-5 py-2.5 sm:px-8 sm:py-3.5 bg-white border-3 sm:border-4 border-slate-900 rounded-2xl shadow-sm">
+            <!-- 좌측: 차량 LPR 입차 사진 -->
+            ${imgBlock}
+
+            <!-- 우측: 번호판 + 입차시각(줄바꿈) -->
+            <div class="flex flex-col justify-center gap-2 min-w-0 flex-1">
+              <div class="inline-flex self-start license-plate px-4 py-2 sm:px-7 sm:py-3 bg-white border-3 sm:border-4 border-slate-900 rounded-2xl shadow-xs">
                 <span class="plate-font text-3xl sm:text-4.5xl md:text-5xl font-black text-slate-950 tracking-wider">${car.carno}</span>
               </div>
-              <div class="flex items-center gap-2 pl-1">
-                <span class="text-xs sm:text-base font-bold text-slate-500">입차 시각:</span>
+              <div class="flex items-center gap-2 pl-0.5">
+                <span class="text-xs sm:text-base font-bold text-slate-500 whitespace-nowrap">입차시각:</span>
                 <span class="text-base sm:text-xl md:text-2xl font-black text-slate-800 font-num whitespace-nowrap">${car.intime || '당일 입차'}</span>
               </div>
-            </div>
-
-            <!-- 우측: 대형 토스 블루 터치 인디케이터 화살표 (카드 전체가 버튼임을 유도) -->
-            <div class="w-14 h-14 sm:w-18 sm:h-18 rounded-2xl bg-[#3182f6] group-hover:bg-[#1b64da] text-white flex items-center justify-center font-black text-2xl sm:text-3.5xl shadow-md transition-all flex-shrink-0">
-              <i class="fa-solid fa-chevron-right"></i>
+              <div class="self-start text-xs sm:text-base font-black text-[#3182f6] flex items-center gap-1.5 pt-0.5">
+                <i class="fa-solid fa-hand-pointer text-sm sm:text-lg animate-pulse"></i>
+                <span>터치하여 주차 감면 등록</span>
+              </div>
             </div>
           `;
         }
@@ -1100,6 +1106,7 @@
       clearNum();
       clearChartNum();
       clearJmnoNum();
+      switchAuthMode("chart");
       updateStepIndicator(1);
     }
 
@@ -1127,10 +1134,7 @@
       clearChartNum();
       clearJmnoNum();
       barcodeBuffer = "";
-      if (isHiddenJmnoMode) {
-        toggleHiddenJmnoMode(false);
-      }
-      setTimeout(focusHiddenBarcodeInput, 100);
+      switchAuthMode("chart");
     }
 
     // 기감면 차량 안내 화면 표시
@@ -1597,6 +1601,7 @@
       updateKeypadDisplay();
       updateChartNumDisplay();
       updateJmnoDisplay();
+      switchAuthMode("chart");
 
       document.getElementById("step1CarsSection").classList.add("hidden");
       document.getElementById("stepAlreadyRegisteredSection").classList.add("hidden");
