@@ -272,7 +272,7 @@
 
     <!-- 헤더 우측: 무조작 시간 뱃지 + 처음으로 버튼 -->
     <div class="flex items-center gap-2.5 sm:gap-4 flex-shrink-0">
-      <div id="inactivityBadge" class="flex items-center gap-2 px-3.5 py-1.5 sm:px-5 sm:py-2.5 rounded-2xl bg-slate-800/90 border-2 border-slate-700 text-slate-300 shadow-md whitespace-nowrap">
+      <div id="inactivityBadge" class="hidden flex items-center gap-2 px-3.5 py-1.5 sm:px-5 sm:py-2.5 rounded-2xl bg-slate-800/90 border-2 border-slate-700 text-slate-300 shadow-md whitespace-nowrap">
         <i class="fa-regular fa-clock text-slate-400 text-base sm:text-2xl"></i>
         <span class="font-num text-sm sm:text-2xl font-black text-slate-300"><span id="inactivitySecRemaining">--</span></span>
       </div>
@@ -506,35 +506,35 @@
 
       <!-- ⭐️ 2단계 본인 확인 수단 2-Tab 세그먼트 버튼 (폰트 대형화) -->
       <div class="w-full max-w-xl sm:max-w-2xl mx-auto grid grid-cols-2 gap-2 sm:gap-3 p-1.5 bg-slate-200/90 rounded-2xl border border-slate-300 flex-shrink-0">
-        <button id="btnTabChart" onclick="switchAuthMode('chart')" class="py-3.5 sm:py-4 px-2 rounded-xl font-black text-2.4xl sm:text-3.2xl transition-all flex items-center justify-center gap-2 shadow-md bg-[#3182f6] text-white active:scale-98">
-          <i class="fa-solid fa-barcode text-xl sm:text-2.5xl"></i>
-          <span>등록번호 (바코드)</span>
+        <button id="btnTabChart" onclick="switchAuthMode('chart')" class="py-3.5 sm:py-4.5 px-3 rounded-2xl font-black transition-all flex items-center justify-center gap-2.5 shadow-md bg-[#3182f6] text-white active:scale-98">
+          <i class="fa-solid fa-barcode text-2xl sm:text-3xl"></i>
+          <span style="font-size: clamp(1.45rem, 2.5vw, 2.1rem) !important;" class="font-black">등록번호 (바코드)</span>
         </button>
-        <button id="btnTabJmno" onclick="switchAuthMode('jmno')" class="py-3.5 sm:py-4 px-2 rounded-xl font-black text-2.4xl sm:text-3.2xl transition-all flex items-center justify-center gap-2 text-slate-600 hover:text-slate-950 hover:bg-white/80 active:scale-98">
-          <i class="fa-solid fa-id-card text-xl sm:text-2.5xl"></i>
-          <span>주민등록번호</span>
+        <button id="btnTabJmno" onclick="switchAuthMode('jmno')" class="py-3.5 sm:py-4.5 px-3 rounded-2xl font-black transition-all flex items-center justify-center gap-2.5 text-slate-600 hover:text-slate-950 hover:bg-white/80 active:scale-98">
+          <i class="fa-solid fa-id-card text-2xl sm:text-3xl"></i>
+          <span style="font-size: clamp(1.45rem, 2.5vw, 2.1rem) !important;" class="font-black">주민등록번호</span>
         </button>
       </div>
 
-      <!-- ⭐️ 안내 헤드 뱃지 박스 -->
-      <div id="step2HeadBadgeWrap" class="w-full max-w-xl sm:max-w-2xl mx-auto rounded-2xl bg-gradient-to-b from-blue-50/90 via-slate-50 to-white border border-blue-200 p-2.5 sm:p-3 text-center shadow-xs flex-shrink-0">
-        <div id="chartHeaderTitle" class="space-y-0.5">
-          <h3 class="text-2xl sm:text-3.5xl font-black text-slate-950 leading-snug tracking-tight break-keep px-1">
-            <span class="text-[#3182f6] underline underline-offset-4 decoration-2">등록번호</span>를 누르거나,<br>
-            <span class="text-emerald-700 underline underline-offset-4 decoration-2 inline-flex items-center gap-1.5 mt-0.5">
-              <i class="fa-solid fa-barcode text-emerald-600"></i> 영수증 바코드
+      <!-- ⭐️ 안내 헤드 뱃지 박스 (글자 1.5배 및 2배 대폭 확대) -->
+      <div id="step2HeadBadgeWrap" class="w-full max-w-xl sm:max-w-2xl mx-auto rounded-3xl bg-gradient-to-b from-blue-50/90 via-slate-50 to-white border-2 border-blue-200 p-3.5 sm:p-4.5 text-center shadow-xs flex-shrink-0">
+        <div id="chartHeaderTitle" class="space-y-1">
+          <h3 class="font-black text-slate-950 break-keep px-1" style="font-size: clamp(1.9rem, 4.2vw, 3.2rem) !important; line-height: 1.35;">
+            <span class="text-[#3182f6] underline underline-offset-6 decoration-3">등록번호</span>를 누르거나,<br>
+            <span class="text-emerald-700 underline underline-offset-6 decoration-3 inline-flex items-center gap-2 mt-1">
+              <i class="fa-solid fa-barcode text-emerald-600 text-2.5xl sm:text-4xl"></i> 영수증 바코드
             </span>를 찍어주세요
           </h3>
-          <div id="barcodeGuideBanner" class="select-none flex items-center justify-center gap-1.5 text-slate-500 font-bold text-xs sm:text-base pt-0.5">
-            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
-            <i class="fa-solid fa-barcode text-slate-600 text-xs sm:text-sm"></i>
-            <span class="text-slate-700 font-extrabold break-keep">바코드 리더기 대기 중 (영수증을 대면 즉시 인식됩니다)</span>
+          <div id="barcodeGuideBanner" class="select-none flex items-center justify-center gap-2 text-slate-600 font-extrabold pt-1" style="font-size: clamp(1.15rem, 2.2vw, 1.65rem) !important;">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
+            <i class="fa-solid fa-barcode text-slate-600 text-base sm:text-2xl"></i>
+            <span class="break-keep">바코드 리더기 대기 중 (영수증을 대면 즉시 인식됩니다)</span>
           </div>
         </div>
 
-        <div id="jmnoHeaderTitle" class="hidden select-none py-1">
-          <h4 class="text-2.2xl sm:text-3.5xl font-black text-slate-950 leading-snug break-keep px-1">
-            주민등록번호 <span class="text-[#3182f6] underline underline-offset-4 decoration-2">13자리</span>를 누르세요
+        <div id="jmnoHeaderTitle" class="hidden select-none py-1.5">
+          <h4 class="font-black text-slate-950 leading-snug break-keep px-1" style="font-size: clamp(2.2rem, 4.8vw, 3.6rem) !important; line-height: 1.3;">
+            주민등록번호 <span class="text-[#3182f6] underline underline-offset-8 decoration-4">13자리</span>를 누르세요
           </h4>
         </div>
       </div>
@@ -556,9 +556,9 @@
 
         <!-- 표시창 + 키패드 통합 묶음 뱃지 -->
         <div class="w-full max-w-xl sm:max-w-2xl mx-auto rounded-3xl border-2 border-slate-200/90 bg-slate-50/70 p-3 sm:p-4 shadow-xs space-y-2.5">
-          <!-- 7자리 표시창 -->
-          <div class="h-18 sm:h-22 bg-white rounded-2xl border-3 border-[#3182f6] flex items-center justify-center px-4 shadow-inner overflow-hidden">
-            <div id="chartNumDisplay" class="num-display font-black text-[#3182f6] tracking-widest whitespace-nowrap text-center" style="font-size: clamp(2.4rem, 5vh, 3.8rem) !important; line-height: 1;">
+          <!-- 7자리 표시창 (터치패드 버튼과 동일한 높이로 확대 & 통일) -->
+          <div class="bg-white rounded-3xl border-3 border-[#3182f6] flex items-center justify-center px-4 shadow-inner overflow-hidden" style="height: clamp(68px, 11vh, 135px) !important; min-height: 80px;">
+            <div id="chartNumDisplay" class="num-display font-black text-[#3182f6] tracking-widest whitespace-nowrap text-center" style="font-size: clamp(2.8rem, 5.8vh, 4.5rem) !important; line-height: 1;">
               _______
             </div>
           </div>
@@ -593,9 +593,9 @@
       <div id="hiddenJmnoBox" class="hidden flex flex-col justify-start gap-2.5 sm:gap-3 flex-shrink-0">
         <!-- 표시창 + 키패드 통합 묶음 뱃지 -->
         <div class="w-full max-w-xl sm:max-w-2xl mx-auto rounded-3xl border-2 border-slate-200/90 bg-slate-50/70 p-3 sm:p-4 shadow-xs space-y-2.5">
-          <!-- 13자리 표시창 (공간 뛰어넘지 않도록 정밀 핏 & 큼직한 폰트) -->
-          <div class="h-18 sm:h-22 bg-white rounded-2xl border-3 border-[#3182f6] flex items-center justify-center px-2 sm:px-3 shadow-inner overflow-hidden">
-            <div id="jmnoDisplay" class="num-display font-black text-[#3182f6] whitespace-nowrap text-center" style="font-size: clamp(1.6rem, 3.8vw, 2.4rem) !important; letter-spacing: 0.04em; line-height: 1;">
+          <!-- 13자리 표시창 (터치패드 버튼과 동일한 높이로 확대 & 글자 1.5배 확대 통일) -->
+          <div class="bg-white rounded-3xl border-3 border-[#3182f6] flex items-center justify-center px-2 sm:px-4 shadow-inner overflow-hidden" style="height: clamp(68px, 11vh, 135px) !important; min-height: 80px;">
+            <div id="jmnoDisplay" class="num-display font-black text-[#3182f6] whitespace-nowrap text-center" style="font-size: clamp(2.2rem, 4.4vw, 3.4rem) !important; letter-spacing: 0.05em; line-height: 1; font-weight: 900;">
               ______ - _______
             </div>
           </div>
@@ -757,8 +757,8 @@
 
       if (mode === "jmno") {
         isHiddenJmnoMode = true;
-        if (btnChart) btnChart.className = "py-3.5 sm:py-4 px-2 rounded-xl font-black text-2.4xl sm:text-3.2xl transition-all flex items-center justify-center gap-2 text-slate-600 hover:text-slate-950 hover:bg-white/80 active:scale-98";
-        if (btnJmno) btnJmno.className = "py-3.5 sm:py-4 px-2 rounded-xl font-black text-2.4xl sm:text-3.2xl transition-all flex items-center justify-center gap-2 shadow-md bg-[#3182f6] text-white active:scale-98";
+        if (btnChart) btnChart.className = "py-3.5 sm:py-4.5 px-3 rounded-2xl font-black transition-all flex items-center justify-center gap-2.5 text-slate-600 hover:text-slate-950 hover:bg-white/80 active:scale-98";
+        if (btnJmno) btnJmno.className = "py-3.5 sm:py-4.5 px-3 rounded-2xl font-black transition-all flex items-center justify-center gap-2.5 shadow-md bg-[#3182f6] text-white active:scale-98";
         if (boxChart) boxChart.classList.add("hidden");
         if (boxJmno) boxJmno.classList.remove("hidden");
         if (titleChart) titleChart.classList.add("hidden");
@@ -766,8 +766,8 @@
         clearJmnoNum();
       } else {
         isHiddenJmnoMode = false;
-        if (btnChart) btnChart.className = "py-3.5 sm:py-4 px-2 rounded-xl font-black text-2.4xl sm:text-3.2xl transition-all flex items-center justify-center gap-2 shadow-md bg-[#3182f6] text-white active:scale-98";
-        if (btnJmno) btnJmno.className = "py-3.5 sm:py-4 px-2 rounded-xl font-black text-2.4xl sm:text-3.2xl transition-all flex items-center justify-center gap-2 text-slate-600 hover:text-slate-950 hover:bg-white/80 active:scale-98";
+        if (btnChart) btnChart.className = "py-3.5 sm:py-4.5 px-3 rounded-2xl font-black transition-all flex items-center justify-center gap-2.5 shadow-md bg-[#3182f6] text-white active:scale-98";
+        if (btnJmno) btnJmno.className = "py-3.5 sm:py-4.5 px-3 rounded-2xl font-black transition-all flex items-center justify-center gap-2.5 text-slate-600 hover:text-slate-950 hover:bg-white/80 active:scale-98";
         if (boxChart) boxChart.classList.remove("hidden");
         if (boxJmno) boxJmno.classList.add("hidden");
         if (titleChart) titleChart.classList.remove("hidden");
@@ -796,8 +796,10 @@
 
       if (!secEl) return;
 
+      const step1Sec = document.getElementById("step1Section");
       const alreadySec = document.getElementById("stepAlreadyRegisteredSection");
-      if (alreadySec && !alreadySec.classList.contains("hidden")) {
+      // ⭐️ 초기 1단계 대기화면 및 감면완료 화면에서는 상단 타이머 배지 숨김
+      if ((step1Sec && !step1Sec.classList.contains("hidden")) || (alreadySec && !alreadySec.classList.contains("hidden"))) {
         badgeEl.classList.add("hidden");
         return;
       }
