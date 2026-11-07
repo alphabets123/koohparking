@@ -462,17 +462,17 @@
         <div id="alreadyFeeBanner" class="p-4 sm:p-6 rounded-2xl shadow-xs"></div>
       </div>
 
-      <!-- 7. 하단 버튼: 회색 계열 & 남은 시간에 맞춰 빠지는 프로그레스 타이밍 바 & 카운트다운 복원 -->
+      <!-- 7. 하단 버튼: 얕은 회색 톤(잘 안 보이는 차분한 소프트 그레이) & 프로그레스 타이밍 바 & 카운트다운 -->
       <div class="w-full flex items-center justify-center flex-shrink-0 pt-2 pb-6">
-        <button id="alreadyReturnBtn" onclick="resetAllSteps()" class="relative w-full overflow-hidden rounded-3xl bg-slate-800 hover:bg-slate-700 text-white font-black text-2.5xl sm:text-3.5xl md:text-4xl shadow-xl active:scale-98 transition border-2 border-slate-600 flex items-center justify-center py-5 sm:py-6 md:py-7">
-          <!-- 남은 시간에 맞춰 왼쪽에서 오른쪽으로 빠지는 프로그레스 바 -->
-          <div id="alreadyTimerBar" class="absolute inset-y-0 left-0 bg-slate-600/60 transition-all duration-1000 ease-linear pointer-events-none" style="width: 100%;"></div>
+        <button id="alreadyReturnBtn" onclick="resetAllSteps()" class="relative w-full overflow-hidden rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-500 font-bold text-xl sm:text-2.5xl md:text-3xl shadow-xs active:scale-98 transition border border-slate-300 flex items-center justify-center py-4.5 sm:py-5.5 md:py-6">
+          <!-- 남은 시간에 맞춰 왼쪽에서 오른쪽으로 빠지는 얕은 회색 프로그레스 바 -->
+          <div id="alreadyTimerBar" class="absolute inset-y-0 left-0 bg-slate-200/90 transition-all duration-1000 ease-linear pointer-events-none" style="width: 100%;"></div>
           
-          <!-- 버튼 전면 콘텐츠 -->
-          <div class="relative z-10 flex items-center justify-center gap-3.5 whitespace-nowrap">
-            <i class="fa-solid fa-arrow-rotate-left text-2.5xl sm:text-3.5xl text-slate-300"></i>
+          <!-- 버튼 전면 콘텐츠 (은은한 톤) -->
+          <div class="relative z-10 flex items-center justify-center gap-3 whitespace-nowrap text-slate-500">
+            <i class="fa-solid fa-arrow-rotate-left text-lg sm:text-2xl text-slate-400"></i>
             <span>처음으로</span>
-            <span class="text-amber-400 font-num font-black text-xl sm:text-3xl">(<span id="alreadySecRemaining">20</span>초)</span>
+            <span class="text-slate-600 font-num font-black text-lg sm:text-2xl">(<span id="alreadySecRemaining">20</span>초)</span>
           </div>
         </button>
       </div>
@@ -1273,7 +1273,7 @@
       document.getElementById("stepAlreadyRegisteredSection").classList.remove("hidden");
       updateStepIndicator(3, true);
 
-      // ⭐️ 기감면 화면 20초 타이머 복원 및 프로그레스 바 게이지 연동
+      // ⭐️ 기감면 화면 20초 타이머 복원 및 얕은 회색 프로그레스 게이지 연동
       if (alreadyAutoReturnTimer) clearInterval(alreadyAutoReturnTimer);
       const TOTAL_ALREADY_SEC = 20;
       let remainSec = TOTAL_ALREADY_SEC;
@@ -1291,6 +1291,7 @@
         }
         if (remainSec <= 0) {
           clearInterval(alreadyAutoReturnTimer);
+          alreadyAutoReturnTimer = null;
           resetAllSteps();
         }
       }, 1000);
@@ -1451,6 +1452,7 @@
 
     // [히든 모드] 주민등록번호 13자리 입력 로직
     function updateJmnoDisplay() {
+      const displayEl = document.getElementById("jmnoDisplay");
       const f = currentJmno.substring(0, 6);
       const b = currentJmno.substring(6, 13);
       const fDisplay = f.padEnd(6, "_");
@@ -1462,8 +1464,22 @@
         bDisplay = (masked + lastChar).padEnd(7, "_");
       }
 
-      document.getElementById("jmnoFront").textContent = fDisplay;
-      document.getElementById("jmnoBack").textContent = bDisplay;
+      if (displayEl) {
+        displayEl.textContent = `${fDisplay} - ${bDisplay}`;
+        if (currentJmno.length === 0) {
+          displayEl.classList.add("text-slate-300");
+          displayEl.classList.remove("text-[#3182f6]");
+        } else {
+          displayEl.classList.remove("text-slate-300");
+          displayEl.classList.add("text-[#3182f6]");
+        }
+      }
+
+      // 레거시 분리형 엘리먼트 방어 호환
+      const elFront = document.getElementById("jmnoFront");
+      const elBack = document.getElementById("jmnoBack");
+      if (elFront) elFront.textContent = fDisplay;
+      if (elBack) elBack.textContent = bDisplay;
     }
 
     function pressJmnoNum(n) {
@@ -1821,37 +1837,42 @@
         Swal.close();
       }
 
+      if (typeof alreadyAutoReturnTimer !== 'undefined' && alreadyAutoReturnTimer) {
+        clearInterval(alreadyAutoReturnTimer);
+        alreadyAutoReturnTimer = null;
+      }
+      if (typeof autoCommitTimer !== 'undefined' && autoCommitTimer) {
+        clearInterval(autoCommitTimer);
+        autoCommitTimer = null;
+      }
+      if (typeof returnCountdownTimer !== 'undefined' && returnCountdownTimer) {
+        clearInterval(returnCountdownTimer);
+        returnCountdownTimer = null;
+      }
+
       currentInput4 = "";
       currentChartNum = "";
       currentJmno = "";
       barcodeBuffer = "";
       selectedCar = null;
       currentPatient = null;
-      if (returnCountdownTimer) clearInterval(returnCountdownTimer);
-      if (autoCommitTimer) clearInterval(autoCommitTimer);
 
-      // 테스트 모드 해제 시 카운트다운 버튼 텍스트 원복
-      if (!DISABLE_TIMERS) {
-        const alreadyBtn = document.querySelector("#stepAlreadyRegisteredSection button");
-        if (alreadyBtn) {
-          alreadyBtn.innerHTML = `<i class="fa-solid fa-arrow-rotate-left text-xl sm:text-2xl mr-2"></i><span><span id="alreadyCountdown" class="text-yellow-300 font-num">25</span>초 후 처음으로</span>`;
-        }
-        const submitBtn = document.getElementById("btnSubmitRegister");
-        if (submitBtn) {
-          submitBtn.innerHTML = `<i class="fa-solid fa-circle-check text-2xl sm:text-3xl"></i><span>네, 등록합니다 (<span id="autoCommitCountdown" class="text-yellow-300 font-num">15</span>초)</span>`;
-        }
-      }
+      try { updateKeypadDisplay(); } catch (e) { console.warn(e); }
+      try { updateChartNumDisplay(); } catch (e) { console.warn(e); }
+      try { updateJmnoDisplay(); } catch (e) { console.warn(e); }
+      try { switchAuthMode("chart"); } catch (e) { console.warn(e); }
 
-      updateKeypadDisplay();
-      updateChartNumDisplay();
-      updateJmnoDisplay();
-      switchAuthMode("chart");
+      const s1Cars = document.getElementById("step1CarsSection");
+      const sAlready = document.getElementById("stepAlreadyRegisteredSection");
+      const s2 = document.getElementById("step2Section");
+      const s3 = document.getElementById("step3Section");
+      const s1 = document.getElementById("step1Section");
 
-      document.getElementById("step1CarsSection").classList.add("hidden");
-      document.getElementById("stepAlreadyRegisteredSection").classList.add("hidden");
-      document.getElementById("step2Section").classList.add("hidden");
-      document.getElementById("step3Section").classList.add("hidden");
-      document.getElementById("step1Section").classList.remove("hidden");
+      if (s1Cars) s1Cars.classList.add("hidden");
+      if (sAlready) sAlready.classList.add("hidden");
+      if (s2) s2.classList.add("hidden");
+      if (s3) s3.classList.add("hidden");
+      if (s1) s1.classList.remove("hidden");
 
       if (inactivityTimer) clearTimeout(inactivityTimer);
       if (inactivityInterval) clearInterval(inactivityInterval);
